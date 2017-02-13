@@ -1,2 +1,2 @@
-# Tech Pro NES
+# Tech Pro NES Emulator
 C# NES Emulator Project
