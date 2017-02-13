@@ -9,12 +9,11 @@ namespace NESTest
     public class CartTest
     {
         [TestMethod]
-        public void ReadFile()
+        public void ReadFileThrowFileNotFoundException()
         {
             //Arrange
             string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. (USA).nes";
-            FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);
-            Exception e = new FileNotFoundException();
+            FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);            
             //Act
             try
             {
@@ -25,6 +24,24 @@ namespace NESTest
                 //Assert
                 StringAssert.Equals(exception.Message, cartReader.FileNotFound.Message);
             }
+        }
+
+        [TestMethod]
+        public void ReadFile_CheckThreeBytes()
+        {
+            //Arrange
+            string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
+            FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);
+            byte firstByte = 'N';
+            byte secondByte = 'E';
+            byte thirdByte = 'S';
+            //Act
+            FileReader.Cartridge cart = cartReader.readCart();
+
+            //Assert
+            Assert.AreEqual(cart.Header[0], firstByte);
+            Assert.AreEqual(cart.Header[1], secondByte);
+            Assert.AreEqual(cart.Header[2], thirdByte);
         }
     }
 }
