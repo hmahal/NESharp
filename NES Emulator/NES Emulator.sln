@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cartridge", "FileReader\Car
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartridgeTest", "NESTest\CartridgeTest.csproj", "{A70AE942-D257-4D09-8561-33BBD152E196}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NES_GUI", "NES_GUI\NES_GUI.csproj", "{0EFCA321-2389-4C03-A336-E0C00BFE1D30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A70AE942-D257-4D09-8561-33BBD152E196}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A70AE942-D257-4D09-8561-33BBD152E196}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A70AE942-D257-4D09-8561-33BBD152E196}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EFCA321-2389-4C03-A336-E0C00BFE1D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EFCA321-2389-4C03-A336-E0C00BFE1D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EFCA321-2389-4C03-A336-E0C00BFE1D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EFCA321-2389-4C03-A336-E0C00BFE1D30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
