@@ -32,6 +32,10 @@ namespace FileReader
             {
                 throw FileNotFound;
             }
+            if (cart.Header == null || cart.Header[0] != 78 || cart.Header[1] != 69 || cart.Header[2] != 83)
+            {
+                throw new Exception("Unable to open file due to incorrect format or corruption.");
+            }
 
             return cart;
         }

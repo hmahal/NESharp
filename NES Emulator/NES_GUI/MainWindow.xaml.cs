@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 using FileReader;
-
+using System;
 
 namespace NES_GUI
 {
@@ -26,7 +26,14 @@ namespace NES_GUI
             if (dialog.ShowDialog() == true)
             {
                 CartridgeReader cr = new CartridgeReader(dialog.FileName);
-                cr.readCart();
+                try
+                {
+                    cr.readCart();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                }
             }
         }
     }
