@@ -54,9 +54,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FileReader\Cartridge.csproj">
+    <ProjectReference Include="..\FileReader\NES.csproj">
       <Project>{871c10a8-c266-4123-adfc-75bde594f751}</Project>
-      <Name>Cartridge</Name>
+      <Name>NES</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

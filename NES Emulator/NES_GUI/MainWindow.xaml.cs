@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Win32;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using FileReader;
+
 
 namespace NES_GUI
 {
@@ -23,6 +13,21 @@ namespace NES_GUI
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void openRomButtonClick(object sender, RoutedEventArgs e)
+        {
+            // Configure open file dialog box
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
+            dialog.Filter = "NES Roms (*.nes)|*.nes"; // Filter files by extension
+            dialog.FilterIndex = 1;            
+            // Show open file dialog box
+            if (dialog.ShowDialog() == true)
+            {
+                CartridgeReader cr = new CartridgeReader(dialog.FileName);
+                cr.readCart();
+            }
         }
     }
 }

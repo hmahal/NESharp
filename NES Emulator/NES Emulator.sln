@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cartridge", "FileReader\Cartridge.csproj", "{871C10A8-C266-4123-ADFC-75BDE594F751}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NES", "FileReader\NES.csproj", "{871C10A8-C266-4123-ADFC-75BDE594F751}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartridgeTest", "NESTest\CartridgeTest.csproj", "{A70AE942-D257-4D09-8561-33BBD152E196}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NES_GUI", "NES_GUI\NES_GUI.csproj", "{0EFCA321-2389-4C03-A336-E0C00BFE1D30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_GUI", "NES_GUI\WPF_GUI.csproj", "{0EFCA321-2389-4C03-A336-E0C00BFE1D30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

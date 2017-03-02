@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:NES_GUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <Menu x:Name="menu" Height="26" VerticalAlignment="Top" Margin="0,0,0.429,0">
-            <Button Height="15" Width="90" Margin="0,5,0,0"/>
+    <StackPanel>
+        <Menu x:Name="menu" Height="28" VerticalAlignment="Top">
+            <Button Content="Open ROM" FontSize="9" Height="18" Width="60" Margin="0,4,0,0" Click="openRomButtonClick"/>
         </Menu>
-    </Grid>
+        <Canvas Height="290" />
+    </StackPanel>
 </Window>
