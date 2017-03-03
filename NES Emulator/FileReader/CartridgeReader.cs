@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace FileReader
@@ -28,7 +24,7 @@ namespace FileReader
                     cart.Header = reader.ReadBytes(16);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw FileNotFound;
             }

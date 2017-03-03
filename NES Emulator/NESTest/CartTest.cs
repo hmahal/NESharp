@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using FileReader;
+﻿using FileReader;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace NESTest
 {
@@ -13,7 +12,7 @@ namespace NESTest
         {
             //Arrange
             string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. (USA).nes";
-            FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);            
+            FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);
             //Act
             try
             {
@@ -32,9 +31,9 @@ namespace NESTest
             //Arrange
             string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
             FileReader.CartridgeReader cartReader = new CartridgeReader(FileName);
-            byte firstByte = 'N';
-            byte secondByte = 'E';
-            byte thirdByte = 'S';
+            byte firstByte = (byte)'N';
+            byte secondByte = (byte)'E';
+            byte thirdByte = (byte)'S';
             //Act
             FileReader.Cartridge cart = cartReader.readCart();
 

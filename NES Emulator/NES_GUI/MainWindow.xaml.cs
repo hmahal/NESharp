@@ -1,7 +1,7 @@
-﻿using Microsoft.Win32;
-using System.Windows;
-using FileReader;
+﻿using FileReader;
+using Microsoft.Win32;
 using System;
+using System.Windows;
 
 namespace NES_GUI
 {
@@ -21,7 +21,7 @@ namespace NES_GUI
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
             dialog.Filter = "NES Roms (*.nes)|*.nes"; // Filter files by extension
-            dialog.FilterIndex = 1;            
+            dialog.FilterIndex = 1;
             // Show open file dialog box
             if (dialog.ShowDialog() == true)
             {

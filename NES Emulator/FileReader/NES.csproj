@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="Cartridge.cs" />
     <Compile Include="CartridgeReader.cs" />
+    <Compile Include="CPU6502.cs" />
+    <Compile Include="Memory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
