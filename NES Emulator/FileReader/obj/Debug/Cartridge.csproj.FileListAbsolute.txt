@@ -1,6 +1,0 @@
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\obj\Debug\Cartridge.csprojResolveAssemblyReference.cache
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\obj\Debug\FileReader.exe
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\obj\Debug\FileReader.pdb
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\bin\Debug\FileReader.exe.config
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\bin\Debug\FileReader.exe
-C:\Users\panda\Documents\Visual Studio 2015\Projects\NES Emulator\FileReader\bin\Debug\FileReader.pdb
