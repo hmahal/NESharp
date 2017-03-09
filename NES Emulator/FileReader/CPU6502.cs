@@ -108,6 +108,213 @@ namespace _6502Proto
                 case 0x00:
                     pc_register = byte.MaxValue;
                     break;
+                //AND
+                case 0x29:
+                    
+                    break;
+                //ASL
+                case 0x0A:
+                    pc_register = byte.MaxValue;
+                    break;
+                //BCC
+                case 0x90:
+                    
+                    break;
+                //BCS
+                case 0xB0:
+
+                    break;
+                //BEQ
+                case 0xF0:
+
+                    break;
+                //BIT
+                case 0x24:
+
+                    break;
+                //BMI
+                case 0x30:
+
+                    break;
+                //BNE
+                case 0xD0:
+
+                    break;
+                //BPL
+                case 0x10:
+
+                    break;
+                //BVC
+                case 0x50:
+
+                    break;
+                //BVS
+                case 0x70:
+
+                    break;
+                //CLC
+                case 0x18:
+
+                    break;
+                //CLD
+                case 0xD8:
+
+                    break;
+                //CLI
+                case 0x58:
+
+                    break;
+                //CLV
+                case 0xB8:
+
+                    break;
+                //CMP
+                case 0xC9:
+
+                    break;
+                //CPX
+                case 0xE0:
+
+                    break;
+                //CPY
+                case 0xC0:
+
+                    break;
+                //DEC
+                case 0xC6:
+
+                    break;
+                //DEX
+                case 0xCA:
+
+                    break;
+                //DEY
+                case 0x88:
+
+                    break;
+                //EOR
+                case 0x49:
+
+                    break;
+                //INC
+                case 0xE6:
+
+                    break;
+                //INX
+                case 0xE8:
+
+                    break;
+                //INY
+                case 0xC8:
+
+                    break;
+                //JMP
+                case 0x6C:
+
+                    break;
+                //JSR
+                case 0x20:
+
+                    break;
+                //LDY
+                case 0xA0:
+
+                    break;
+                //LSR
+                case 0x4A:
+
+                    break;
+                //NOP
+                case 0xEA:
+
+                    break;
+                //ORA
+                case 0x09:
+
+                    break;
+                //PHA
+                case 0x48:
+
+                    break;
+                //PHP
+                case 0x08:
+
+                    break;
+                //PLA
+                case 0x68:
+
+                    break;
+                //PLP
+                case 0x28:
+
+                    break;
+                //ROL
+                case 0x2A:
+
+                    break;
+                //ROR
+                case 0x6A:
+
+                    break;
+                //RTI
+                case 0x40:
+
+                    break;
+                //RTS
+                case 0x60:
+
+                    break;
+                //SBC
+                case 0xE9:
+
+                    break;
+                //SEC
+                case 0x38:
+
+                    break;
+                //SED
+                case 0xF8:
+
+                    break;
+                //SEI
+                case 0x78:
+
+                    break;
+                //STA
+                case 0x95:
+
+                    break;
+                //STX
+                case 0x86:
+
+                    break;
+                //STY
+                case 0x84:
+
+                    break;
+                //TAX
+                case 0xAA:
+
+                    break;
+                //TAY
+                case 0xA8:
+
+                    break;
+                //TSX
+                case 0xBA:
+
+                    break;
+                //TXS
+                case 0x9A:
+
+                    break;
+                //TYA
+                case 0x98:
+
+                    break;
+
+
+
 
                 default:
                     break;
