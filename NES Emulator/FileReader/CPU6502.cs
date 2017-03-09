@@ -22,14 +22,35 @@ namespace _6502Proto
         private byte reg_y;
 
         //CPU Status Flags
-        private byte carry_flag;
+        private byte carry_flag; //http://www.zophar.net/fileuploads/2/10532krzvs/6502.txt
+        /*this holds the carry out of the most significant
+         bit in any arithmetic operation. In subtraction operations however, this
+        flag is cleared - set to 0 - if a borrow is required, set to 1 - if no
+        borrow is required. The carry flag is also used in shift and rotate
+        logical operations.*/
 
-        private byte zero_flag;
-        private byte interrupt_flag;
-        private byte decimal_flag;
-        private byte break_flag;
-        private byte sign_flag;
-        private byte overflow_flag;
+        private byte zero_flag;/*this is set to 1 when any arithmetic or logical
+         operation produces a zero result, and is set to 0 if the result is
+         non-zero.*/
+
+        private byte interrupt_flag;/*this is an interrupt enable/disable flag. If it is set,
+        interrupts are disabled. If it is cleared, interrupts are enabled.*/
+
+        private byte decimal_flag; /*this is the decimal mode status flag. When set, and an Add with
+        Carry or Subtract with Carry instruction is executed, the source values are
+        treated as valid BCD (Binary Coded Decimal, eg. 0x00-0x99 = 0-99) numbers.
+        The result generated is also a BCD number.*/
+
+        private byte break_flag; /*this is set when a software interrupt (BRK instruction) is
+        executed.*/
+
+        //Bit 5: not used.Supposed to be logical 1 at all times.
+
+        private byte sign_flag; /*when an arithmetic operation produces a result
+        too large to be represented in a byte, V is set.*/
+
+        private byte overflow_flag; /*this is set if the result of an operation is
+        negative, cleared if positive.*/
 
         private Memory RAM;
 
