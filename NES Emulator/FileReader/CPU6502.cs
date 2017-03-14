@@ -15,11 +15,11 @@ namespace _6502Proto
     {
         //CPU Registers. The prototype only utilises accumulator, PC and reg x
         private ushort pc_register;
-
         private int stack_pointer;
         private byte accumulator;
         private byte reg_x;
         private byte reg_y;
+
 
         //CPU Status Flags
         private byte carry_flag; //http://www.zophar.net/fileuploads/2/10532krzvs/6502.txt
@@ -109,230 +109,607 @@ namespace _6502Proto
         {
             switch (opcode)
             {
-                //LDA
+//Immediate Addressing
+                //ADC - Add memory to accumulator with carry  
+                case 0x69:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x29:
+                    
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xC9:
+
+                    break;
+                //CPX - CPX Compare Memory and Index X
+                case 0xE0:
+
+                    break;
+                //CPY - CPY Compare memory and index Y
+                case 0xC0:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x49:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
                 case 0xA9:
                     accumulator = getNext();
+                    break;
+                //LDX - LDX Load index X with memory
+                case 0xA2:
+                    reg_x = getNext();
+                    break;
+                //LDY - LDY Load index Y with memory
+                case 0xA0:
+
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x09:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xE9:
+
+                    break;
+
+
+
+ /* Implied */
+                //BRK - BRK Force Break
+                case 0x00:
+                    pc_register = byte.MaxValue;
+                    break;
+                //CLC - CLC Clear carry flag 
+                case 0x18:
+
+                    break;
+                //CLD - CLD Clear decimal mode
+                case 0xD8:
+
+                    break;
+                //CLI - CLI Clear interrupt disable bit
+                case 0x58:
+
+                    break;
+                //CLV - CLV Clear overflow flag
+                case 0xB8:
+
+                    break;
+                //DEX - DEX Decrement index X by one
+                case 0xCA:
+
+                    break;
+                //DEY - DEY Decrement index Y by one
+                case 0x88:
+
+                    break;
+                //INX - INX Increment Index X by one
+                case 0xE8:
+
+                    break;
+                //INY - INY Increment Index Y by one
+                case 0xC8:
+
+                    break;
+                //NOP - NOP No operation
+                case 0xEA:
+
+                    break;
+                //PHA - PHA Push accumulator on stack
+                case 0x48:
+
+                    break;
+                //PHP - PHP Push processor status on stack
+                case 0x08:
+
+                    break;
+                //PLA - PLA Pull accumulator from stack
+                case 0x68:
+
+                    break;
+                //PLP -  PLP Pull processor status from stack
+                case 0x28:
+
+                    break;
+                //RTI - RTI Return from interrupt
+                case 0x40:
+
+                    break;
+                //RTS - RTS Return from subroutine
+                case 0x60:
+
+                    break;
+                //SEC - SEC Set carry flag
+                case 0x38:
+
+                    break;
+                //SED - SED Set decimal mode
+                case 0xF8:
+
+                    break;
+                //SEI - SEI Set interrupt disable status
+                case 0x78:
+
+                    break;
+                //TAX - TAX Transfer accumulator to index X
+                case 0xAA:
+
+                    break;
+                //TAY - TAY Transfer accumulator to index Y 
+                case 0xA8:
+
+                    break;
+                //TSX - TSX Transfer stack pointer to index X
+                case 0xBA:
+
+                    break;
+                //TXA - TXA Transfer index X to accumulator
+                case 0x8A:
+                    accumulator = reg_x;
+                    break;
+                //TXS - TXA Transfer index X to accumulator
+                case 0x9A:
+
+                    break;
+                //TYA - TYA Transfer index Y to accumulator
+                case 0x98:
+
+                    break;
+
+//Relative
+                //BCC -  BCC Branch on Carry Clear
+                case 0x90:
+
+                    break;
+                //BCS - BCS Branch on carry set
+                case 0xB0:
+
+                    break;
+                //BEQ -  BEQ Branch on result zero
+                case 0xF0:
+
+                    break;
+                //BMI - BMI Branch on result minus
+                case 0x30:
+
+                    break;
+                //BNE - BNE Branch on result not zero 
+                case 0xD0:
+
+                    break;
+                //BPL - BPL Branch on result plus
+                case 0x10:
+
+                    break;
+                //BVC - BVC Branch on overflow clear
+                case 0x50:
+
+                    break;
+                //BVS - Branch on V = 1 
+                case 0x70:
+
+                    break;
+
+/*Accumulator*/
+                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
+                case 0x0A:
+
+                    break;
+                //LSR - LSR Shift right one bit (memory or accumulator) 
+                case 0x4A:
+
+                    break;
+                //ROR - ROR Rotate one bit right (memory or accumulator)
+                case 0x6A:
+
+                    break;
+
+
+/*Zero-page*/
+                //ADC - Add memory to accumulator with carry  
+                case 0x65:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x25:
+
+                    break;
+                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
+                case 0x06:
+
+                    break;
+                //BIT - BIT Test bits in memory with accumulator 
+                case 0x24:
+
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xC5:
+
+                    break;
+                //CPX - CPX Compare Memory and Index X
+                case 0xE4:
+
+                    break;
+                //CPY - CPY Compare memory and index Y
+                case 0xC4:
+
+                    break;
+                //DEC - DEC Decrement memory by one
+                case 0xC6:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x45:
+
+                    break;
+                //INC - INC Increment memory by one
+                case 0xE6:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xA5:
+                    accumulator = getNext();
+                    break;
+                //LDX - LDX Load index X with memory
+                case 0xA6:
+                    reg_x = getNext();
+                    break;
+                //LDY - LDY Load index Y with memory
+                case 0xA4:
+
+                    break;
+                //LSR - LSR Shift right one bit (memory or accumulator) 
+                case 0x46:
+
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x05:
+
+                    break;
+                //ROL - ROL Rotate one bit left (memory or accumulator)
+                case 0x26:
+
+                    break;
+                //ROR - ROR Rotate one bit right (memory or accumulator)
+                case 0x66:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xE5:
+
                     break;
                 //STA
                 case 0x85:
                     RAM.WriteMemory(getNext(), accumulator);
                     break;
-                //LDX
-                case 0xA2:
-                    reg_x = getNext();
-                    break;
-                //TXA
-                case 0x8A:
-                    accumulator = reg_x;
-                    break;
-                //Break
-                case 0x00:
-                    pc_register = byte.MaxValue;
-                    break;
-                //AND
-                case 0x29:
-                    
-                    break;
-                //ASL
-                case 0x0A:
-                    pc_register = byte.MaxValue;
-                    break;
-                //BCC
-                case 0x90:
-                    
-                    break;
-                //BCS
-                case 0xB0:
-
-                    break;
-                //BEQ
-                case 0xF0:
-
-                    break;
-                //BIT
-                case 0x24:
-
-                    break;
-                //BMI
-                case 0x30:
-
-                    break;
-                //BNE
-                case 0xD0:
-
-                    break;
-                //BPL
-                case 0x10:
-
-                    break;
-                //BVC
-                case 0x50:
-
-                    break;
-                //BVS
-                case 0x70:
-
-                    break;
-                //CLC
-                case 0x18:
-
-                    break;
-                //CLD
-                case 0xD8:
-
-                    break;
-                //CLI
-                case 0x58:
-
-                    break;
-                //CLV
-                case 0xB8:
-
-                    break;
-                //CMP
-                case 0xC9:
-
-                    break;
-                //CPX
-                case 0xE0:
-
-                    break;
-                //CPY
-                case 0xC0:
-
-                    break;
-                //DEC
-                case 0xC6:
-
-                    break;
-                //DEX
-                case 0xCA:
-
-                    break;
-                //DEY
-                case 0x88:
-
-                    break;
-                //EOR
-                case 0x49:
-
-                    break;
-                //INC
-                case 0xE6:
-
-                    break;
-                //INX
-                case 0xE8:
-
-                    break;
-                //INY
-                case 0xC8:
-
-                    break;
-                //JMP
-                case 0x6C:
-
-                    break;
-                //JSR
-                case 0x20:
-
-                    break;
-                //LDY
-                case 0xA0:
-
-                    break;
-                //LSR
-                case 0x4A:
-
-                    break;
-                //NOP
-                case 0xEA:
-
-                    break;
-                //ORA
-                case 0x09:
-
-                    break;
-                //PHA
-                case 0x48:
-
-                    break;
-                //PHP
-                case 0x08:
-
-                    break;
-                //PLA
-                case 0x68:
-
-                    break;
-                //PLP
-                case 0x28:
-
-                    break;
-                //ROL
-                case 0x2A:
-
-                    break;
-                //ROR
-                case 0x6A:
-
-                    break;
-                //RTI
-                case 0x40:
-
-                    break;
-                //RTS
-                case 0x60:
-
-                    break;
-                //SBC
-                case 0xE9:
-
-                    break;
-                //SEC
-                case 0x38:
-
-                    break;
-                //SED
-                case 0xF8:
-
-                    break;
-                //SEI
-                case 0x78:
-
-                    break;
-                //STA
-                case 0x95:
-
-                    break;
-                //STX
+                //STX - STX Store index X in memory
                 case 0x86:
 
                     break;
-                //STY
+                //STY -  STY Store index Y in memory
                 case 0x84:
 
                     break;
-                //TAX
-                case 0xAA:
+
+
+//Absolute
+                //ADC - Add memory to accumulator with carry  
+                case 0x6D:
 
                     break;
-                //TAY
-                case 0xA8:
+                //AND - "AND" memory with accumulator
+                case 0x2D:
 
                     break;
-                //TSX
-                case 0xBA:
+                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
+                case 0x0E:
 
                     break;
-                //TXS
-                case 0x9A:
+                //BIT - BIT Test bits in memory with accumulator 
+                case 0x2C:
 
                     break;
-                //TYA
-                case 0x98:
+                //CMP - CMP Compare memory and accumulator
+                case 0xCD:
 
                     break;
+                //CPX - CPX Compare Memory and Index X
+                case 0xEC:
+
+                    break;
+                //CPY - CPY Compare memory and index Y
+                case 0xCC:
+
+                    break;
+                //DEC - DEC Decrement memory by one
+                case 0xCE:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x4D:
+
+                    break;
+                //INC - INC Increment memory by one
+                case 0xEE:
+
+                    break;
+                //JMP - JMP Jump to new location
+                case 0x6C:
+
+                    break;
+                //JSR - JSR Jump to new location saving return address
+                case 0x20:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xAD:
+                    accumulator = getNext();
+                    break;
+                //LDX - LDX Load index X with memory
+                case 0xAE:
+                    reg_x = getNext();
+                    break;
+                //LDY - LDY Load index Y with memory
+                case 0xAC:
+
+                    break;
+                //LSR - LSR Shift right one bit (memory or accumulator) 
+                case 0x4E:
+
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x0D:
+
+                    break;
+                //ROL - ROL Rotate one bit left (memory or accumulator)
+                case 0x2E:
+
+                    break;
+                //ROR - ROR Rotate one bit right (memory or accumulator)
+                case 0x6E:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xED:
+
+                    break;
+                //STA - STA Store accumulator in memory
+                case 0x8D:
+                    RAM.WriteMemory(getNext(), accumulator);
+                    break;
+                //STX - STX Store index X in memory
+                case 0x8E:
+
+                    break;
+                //STY -  STY Store index Y in memory
+                case 0x8C:
+
+                    break;
+
+//Zero Page x
+                //ADC - Add memory to accumulator with carry  
+                case 0x75:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x35:
+
+                    break;
+                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
+                case 0x16:
+
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xD5:
+
+                    break;
+                //DEC - DEC Decrement memory by one
+                case 0xD6:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x55:
+
+                    break;
+                //INC - INC Increment memory by one
+                case 0xF6:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xB5:
+                    accumulator = getNext();
+                    break;
+                //LDY - LDY Load index Y with memory
+                case 0xB4:
+
+                    break;
+                //LSR - LSR Shift right one bit (memory or accumulator) 
+                case 0x56:
+
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x15:
+
+                    break;
+                //ROL - ROL Rotate one bit left (memory or accumulator)
+                case 0x36:
+
+                    break;
+                //ROR - ROR Rotate one bit right (memory or accumulator)
+                case 0x76:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0x95:
+
+                    break;
+                //STY -  STY Store index Y in memory
+                case 0x94:
+
+                    break;
+
+
+//Zero Page y
+                //LDX - LDX Load index X with memory
+                case 0xB6:
+                    reg_x = getNext();
+                    break;
+                //STX - STX Store index X in memory
+                case 0x96:
+
+                    break;
+
+
+//Absolute X
+                //ADC - Add memory to accumulator with carry  
+                case 0x7D:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x3D:
+
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xDD:
+
+                    break;
+                //DEC - DEC Decrement memory by one
+                case 0xDE:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x5D:
+
+                    break;
+                //INC - INC Increment memory by one
+                case 0xFE:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xBD:
+                    accumulator = getNext();
+                    break;
+                //LDY - LDY Load index Y with memory
+                case 0xBC:
+
+                    break;
+                //LSR - LSR Shift right one bit (memory or accumulator) 
+                case 0x5E:
+
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x1D:
+
+                    break;
+                //ROL - ROL Rotate one bit left (memory or accumulator)
+                case 0x3E:
+
+                    break;
+                //ROR - ROR Rotate one bit right (memory or accumulator)
+                case 0x7E:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xFD:
+
+                    break;
+                //STA - STA Store accumulator in memory
+                case 0x9D:
+                    RAM.WriteMemory(getNext(), accumulator);
+                    break;
+
+
+//Absolute,y
+                //ADC - Add memory to accumulator with carry  
+                case 0x79:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x39:
+
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xD9:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x59:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xB9:
+                    accumulator = getNext();
+                    break;
+                //LDX - LDX Load index X with memory
+                case 0xBE:
+                    reg_x = getNext();
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x19:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xF9:
+
+                    break;
+                //STA - STA Store accumulator in memory
+                case 0x99:
+                    RAM.WriteMemory(getNext(), accumulator);
+                    break;
+
+
+ //indirect,X
+                //ADC - Add memory to accumulator with carry  
+                case 0x61:
+
+                    break;
+                //AND - "AND" memory with accumulator
+                case 0x21:
+
+                    break;
+                //CMP - CMP Compare memory and accumulator
+                case 0xC1:
+
+                    break;
+                //EOR - EOR "Exclusive-Or" memory with accumulator
+                case 0x41:
+
+                    break;
+                //LDA - LDA Load accumulator with memory
+                case 0xA1:
+                    accumulator = getNext();
+                    break;
+                //ORA -  ORA "OR" memory with accumulator
+                case 0x01:
+
+                    break;
+                //SBC - SBC Subtract memory from accumulator with borrow
+                case 0xE1:
+
+                    break;
+                //STA - STA Store accumulator in memory
+                case 0x81:
+                    RAM.WriteMemory(getNext(), accumulator);
+                    break;
+
+
+
+//indirect,Y
+                //AND - "AND" memory with accumulator
+                case 0x31:
+
+                    break;
+
+
+
+
+
+
+
+
 
 
 
