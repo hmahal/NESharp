@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Diagnostics;
 
 /// <summary>
 /// Ricoh 6502 CPU
@@ -51,7 +53,10 @@ namespace NES
         private byte sign_flag; /*this is set if the result of an operation is
         negative, cleared if positive.*/
 
-        
+        private bool _running; //set to false to shut down the cpu
+        private uint _cyclesToWait; //the amount of cycles this operation takes
+        private Thread _cpuThread;
+        private uint _cycles; //Which cycle is the cpu on
 
         private Memory RAM;
 
@@ -83,6 +88,76 @@ namespace NES
             //initialize RAM to size 32
             stack_pointer = 0x20;
             pc_register = 0x00;
+
+
+        }
+
+
+        /// <summary>
+        /// Starts the cpu, to be called after CPU is properly set up
+        /// </summary>
+        public void start()
+        {
+            string methodname = "CPU.start()";
+            Debug.WriteLine("Entered: " + methodname);
+            try
+            {
+                if (_cpuThread != null)
+                {
+                    _cpuThread = new Thread(new ThreadStart(run));
+                    _running = true;
+                    _cpuThread.Start();
+                }
+                else
+                {
+                    Debug.WriteLine("Thread already exists.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Debug.WriteLine("Exiting: " + methodname);
+            }
+        }
+
+        /// <summary>
+        /// The loop that is run by the cpu thread
+        /// Run as past as possible, the thread may 
+        /// not keep up with the real cpu cycles per second (~556ns per cycle)
+        /// </summary>
+        private void run()
+        {
+            string methodname = "CPU.run()";
+            Debug.WriteLine("Entered: " + methodname);
+            try
+            {
+                while (_running)
+                {
+                    if (_cyclesToWait <= 0)
+                    {
+                        doNext();
+                    }
+                    if (_cycles == 3)
+                    {
+                        //do ppu
+                        //do apu
+                        _cycles -= 3;
+                    }
+                    _cyclesToWait--;
+                    _cycles++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Debug.WriteLine("Exiting: " + methodname);
+            }
         }
 
         /// <summary>
