@@ -1,15 +1,14 @@
 ﻿using System;
 
 /// <summary>
-/// CPU Prototype
-/// Author: Harman Mahal
+/// Ricoh 6502 CPU
+/// Author: Harman Mahal, George Lee, Steven Ma
 /// Version: 1.0
 /// </summary>
-namespace _6502Proto
+namespace NES
 {
     /// <summary>
-    /// Prototype for the NES emulator. The CPU can Load to Accumulator, Reg X
-    /// Move data from Acc register to memory and load the program into the memory.
+    /// Emulation of the Ricoh 6502 CPU and its functions and capabilities
     /// </summary>
     internal class CPU6502
     {
@@ -111,7 +110,9 @@ namespace _6502Proto
         {
             switch (opcode)
             {
-//Immediate Addressing
+                #region Opcodes
+
+                #region Immediate Addressing
                 //ADC - Add memory to accumulator with carry  
                 case 0x69:
 
@@ -178,10 +179,9 @@ namespace _6502Proto
                     //carry_flag flipped
                     //overflow_flag flipped
                     break;
+                #endregion
 
-
-
- /* Implied */
+                #region Implied
                 //BRK - BRK Force Break
                 case 0x00:
                     pc_register = byte.MaxValue;
@@ -293,8 +293,9 @@ namespace _6502Proto
                     //sign_flag flipped
                     //zero_flag flipped
                     break;
+                #endregion
 
-//Relative
+                #region Relative
                 //BCC -  BCC Branch on Carry Clear
                 case 0x90:
 
@@ -328,8 +329,9 @@ namespace _6502Proto
                 case 0x70:
                     //no flags
                     break;
+                #endregion
 
-/*Accumulator*/
+                #region Accumulator
                 //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
                 case 0x0A:
 
@@ -355,9 +357,9 @@ namespace _6502Proto
                     //zero_flag flipped
                     //carry_flag flipped
                     break;
+                #endregion
 
-
-/*Zero-page*/
+                #region Zero-page
                 //ADC - Add memory to accumulator with carry  
                 case 0x65:
 
@@ -477,9 +479,9 @@ namespace _6502Proto
                 case 0x84:
                     //no flags
                     break;
+                #endregion
 
-
-//Absolute
+                #region Absolute
                 //ADC - Add memory to accumulator with carry  
                 case 0x6D:
 
@@ -609,8 +611,9 @@ namespace _6502Proto
                 case 0x8C:
                     //no flags
                     break;
+                #endregion
 
-//Zero Page x
+                #region Zero Page X
                 //ADC - Add memory to accumulator with carry  
                 case 0x75:
 
@@ -703,9 +706,9 @@ namespace _6502Proto
                 case 0x94:
                     //no flags
                     break;
+                #endregion
 
-
-//Zero Page y
+                #region Zero Page Y
                 //LDX - LDX Load index X with memory
                 case 0xB6:
                     reg_x = getNext();
@@ -716,9 +719,9 @@ namespace _6502Proto
                 case 0x96:
                     //no flags
                     break;
+                #endregion
 
-
-//Absolute X
+                #region Absolute X
                 //ADC - Add memory to accumulator with carry  
                 case 0x7D:
 
@@ -807,9 +810,9 @@ namespace _6502Proto
                     RAM.WriteMemory(getNext(), accumulator);
                     //no flags
                     break;
+                #endregion
 
-
-//Absolute,y
+                #region Absolute Y
                 //ADC - Add memory to accumulator with carry  
                 case 0x79:
 
@@ -864,9 +867,9 @@ namespace _6502Proto
                     RAM.WriteMemory(getNext(), accumulator);
                     //no flags
                     break;
+                #endregion
 
-
- //indirect,X
+                #region Indirect X
                 //ADC - Add memory to accumulator with carry  
                 case 0x61:
 
@@ -915,11 +918,10 @@ namespace _6502Proto
                     RAM.WriteMemory(getNext(), accumulator);
                     //no flags
                     break;
+                #endregion
 
 
-
-//indirect,Y
-
+                #region Indirect Y
                 //ADC - Add memory to accumulator with carry  
                 case 0x71:
 
@@ -968,7 +970,7 @@ namespace _6502Proto
                     RAM.WriteMemory(getNext(), accumulator);
                     //no flags
                     break;
-
+                #endregion
 
 
 
@@ -977,6 +979,7 @@ namespace _6502Proto
 
                 default:
                     break;
+                    #endregion
             }
         }
 

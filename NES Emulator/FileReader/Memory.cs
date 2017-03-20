@@ -5,7 +5,7 @@
 /// Author: Harman
 /// Version: 1.0
 /// </summary>
-namespace _6502Proto
+namespace NES
 {
     /// <summary>
     /// Memory object prototype
