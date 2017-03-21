@@ -1,13 +1,18 @@
 ﻿using System;
 using System.IO;
 
-namespace FileReader
+namespace NESEmu
 {
     public class CartridgeReader
     {
+
+        private const byte _firstBits = 240;
+
         private string _filePath;
-        private Cartridge cart;
-        public Exception FileNotFound = new FileNotFoundException();
+        private Cartridge cart;        
+        private byte flags6;
+        private byte flags7;
+
 
         public CartridgeReader(string FilePath)
         {
@@ -24,14 +29,32 @@ namespace FileReader
                     cart.Header = reader.ReadBytes(16);
                 }
             }
-            catch (Exception e)
+            catch (FileNotFoundException filenotfound)
             {
-                throw FileNotFound;
+                throw filenotfound;
             }
-            if (cart.Header == null || cart.Header[0] != 78 || cart.Header[1] != 69 || cart.Header[2] != 83)
+            if (cart.Header == null || cart.Header[0] != 'N' || cart.Header[1] != 'E' 
+                || cart.Header[2] != 'S' || cart.Header[3] != 0x1A)
             {
                 throw new Exception("Unable to open file due to incorrect format or corruption.");
             }
+            
+            flags6 = cart.Header[6];
+
+            cart.VerticalMirroring = (flags6 & 1) == 1;
+            cart.Save_RAM = (flags6 & 2) == 2;
+            cart.Trainer_Present = (flags6 & 4) == 3;
+            cart.Four_Screen_Mirroring = (flags6 & 8) == 4;
+
+            cart.mapper = flags6 & _firstBits;
+            cart.mapper = cart.mapper >> 4;
+
+            this.flags7 = cart.Header[7];
+            cart.mapper |= flags7 & _firstBits;
+
+            
+
+            
 
             return cart;
         }
