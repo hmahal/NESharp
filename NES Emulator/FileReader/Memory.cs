@@ -8,7 +8,7 @@
 namespace NES
 {
     /// <summary>
-    /// Memory object prototype
+    /// CPU Memory. Memory Map based on https://wiki.nesdev.com/w/index.php/CPU_memory_map
     /// </summary>
     internal class Memory
     {
@@ -25,36 +25,83 @@ namespace NES
             ClearMemory();
         }
 
+
+        /// <summary>
+        /// Returns value held at the position passed in by the parameter
+        /// Check if memory location is valid
+        /// </summary>
+        /// <param name="location">Memory index to be returned</param>
+        /// <returns>Value held at index location</returns>
+        public byte ReadMemory(int address)
+        {
+            if(address < 0x2000)
+            {
+                return memory[address % 0x0800];
+            } else if(address < 0x4000)
+            {
+                //return PPU memory
+            } else if(address == 0x4014)
+            {
+                //return PPU register value
+            } else if(address == 0x4015)
+            {
+                //apu memory value
+            } else if(address == 0x4016)
+            {
+                //input 1
+            } else if(address == 0x4017)
+            {
+                //input2
+            } else if(address >= 0x6000)
+            {
+                //read from the ROM using memory maps
+            } else
+            {
+                throw new Exception("Invalid memory access requested");
+            }
+            return 0;
+        }
+
+
         /// <summary>
         /// Put value in memory in the specified location
         /// </summary>
         /// <param name="location">Index to be written at</param>
         /// <param name="value">Value to be written at given index</param>
-        public void WriteMemory(int location, byte value)
+        public void WriteMemory(int address, byte value)
         {
-            memory[location] = value;
-        }
-
-        /// <summary>
-        /// Stores the program passed in as array into the memory
-        /// </summary>
-        /// <param name="program">Instructions passed in as an array</param>
-        public void LoadProgramIntoMemory(byte[] program)
-        {
-            for (int i = 0; i < program.Length; i++)
+            if (address < 0x2000)
             {
-                memory[i] = program[i];
+                memory[address % 0x0800] = value;
             }
-        }
-
-        /// <summary>
-        /// Returns value held at the position passed in by the parameter
-        /// </summary>
-        /// <param name="location">Memory index to be returned</param>
-        /// <returns>Value held at index location</returns>
-        public byte ReadMemory(int location)
-        {
-            return memory[location];
+            else if (address < 0x4000)
+            {
+                //set PPU memory
+            }
+            else if (address < 0x4014)
+            {
+                //set APU register value
+            }
+            else if (address == 0x4014)
+            {
+                //set PPU register value
+            }
+            else if (address == 0x4015)
+            {
+                //apu memory value
+            }
+            else if (address == 0x4016)
+            {
+                //input 1
+            }            
+            else if (address >= 0x6000)
+            {
+                //read from the ROM using memory maps
+            }
+            else
+            {
+                throw new Exception("Invalid memory access requested");
+            }            
         }
 
         /// <summary>
@@ -67,7 +114,7 @@ namespace NES
         }
 
         /// <summary>
-        /// Prints the current content of the memory
+        /// Prints the current content of the memory. Only used for debugging purposes.
         /// </summary>
         public void printMemory()
         {
