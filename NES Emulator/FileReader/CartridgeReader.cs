@@ -7,12 +7,14 @@ namespace NESEmu
     {
 
         private const byte _firstBits = 240;
+        private const int _prgromConst = 16384;
+        private const int _chrromConst = 8192;
+        private const int _trainerConst = 512;
 
         private string _filePath;
         private Cartridge cart;        
         private byte flags6;
         private byte flags7;
-
 
         public CartridgeReader(string FilePath)
         {
@@ -38,7 +40,10 @@ namespace NESEmu
             {
                 throw new Exception("Unable to open file due to incorrect format or corruption.");
             }
-            
+
+            cart.Prgrom = new byte[_prgromConst * cart.Header[4]];
+            cart.Chrrom = new byte[_chrromConst * cart.Header[5]];
+
             flags6 = cart.Header[6];
 
             cart.VerticalMirroring = (flags6 & 1) == 1;
@@ -52,10 +57,17 @@ namespace NESEmu
             this.flags7 = cart.Header[7];
             cart.mapper |= flags7 & _firstBits;
 
-            
+            if (cart.Trainer_Present)
+            {
+                cart.Trainer = new byte[_trainerConst];
+            }
 
-            
-
+            if (cart.Save_RAM)
+            {
+                cart.Sram = new byte[0x2000];
+            }
+                      
+            //Next steps: Define the mappers and switch accordingly
             return cart;
         }
     }
