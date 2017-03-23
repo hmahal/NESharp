@@ -14,7 +14,7 @@ namespace NES
     /// </summary>
     internal class CPU6502
     {
-        //CPU Registers. The prototype only utilises accumulator, PC and reg x
+        //CPU Registers.
         private ushort pc_register; //The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
         private byte stack_pointer; //The register is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers.
         private byte accumulator; //The register is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on.
@@ -86,7 +86,7 @@ namespace NES
         {
             RAM = new Memory(0x10); //Create a constructor to accept size
             //initialize RAM to size 32
-            stack_pointer = 0x20;
+            stack_pointer = 0xFF;
             pc_register = 0x00;
 
 
