@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Diagnostics;
+using FileReader;
 
 /// <summary>
 /// Ricoh 6502 CPU
@@ -169,10 +170,48 @@ namespace NES
 
         }
 
+        private void setZero(int value)
+        {
+            if (value == 0)
+                zero_flag = 1;
+            else
+                zero_flag = 0;
+        }
+
+        private void setBreak()
+        {
+
+        }
+
+        private void setOverFlow()
+        {
+
+        }
+
+        private void setSign(int value)
+        {
+            if ((value&0x80) != 0)
+                sign_flag = 1;
+            else
+                sign_flag = 0;
+        }
 
         public void Reset()
         {
             pc_register = 0xFFFC;
+            stack_pointer = 0xFD;
+
+        }
+
+        private void Compare(int a, int b)
+        {            
+            setZero(a - b);
+            setSign(a - b);
+
+            if (a >= b)
+                carry_flag = 1;
+            else
+                carry_flag = 0;
         }
 
         /// <summary>
@@ -220,7 +259,7 @@ namespace NES
                 {
                     if (_cyclesToWait <= 0)
                     {
-                        doNext();
+                        //doNext();
                     }
                     if (_cycles == 3)
                     {
@@ -245,10 +284,11 @@ namespace NES
         /// <summary>
         /// Executes the next instruction at the location of PC in the memory
         /// </summary>
-        public void doNext()
+        public void Tick()
         {
-            ExecuteCode(RAM.ReadMemory(pc_register++));
+            
         }
+
 
         /// <summary>
         /// Gets the value held at the PC location in memory and increments PC
@@ -257,1168 +297,337 @@ namespace NES
         private byte getNext()
         {
             return RAM.ReadMemory(pc_register++);
+        }        
+
+        private void adc(MemoryInfo mem)
+        {
+
         }
 
-        /// <summary>
-        /// Checks the opcode and performs the appropriate action
-        /// </summary>
-        /// <param name="opcode">Opcode to be executed by the CPU</param>
-        private void ExecuteCode(byte opcode)
+        private void and(MemoryInfo mem)
         {
-            switch (opcode)
+            accumulator = accumulator & RAM.ReadMemory(mem.Address);
+            setZero(accumulator);
+            setSign(accumulator);
+        }
+
+        private void asl(MemoryInfo mem)
+        {
+
+        }
+
+        private void bcc(MemoryInfo mem)
+        {
+
+        }
+
+        private void bcs(MemoryInfo mem)
+        {
+
+        }
+
+        private void beq(MemoryInfo mem)
+        {
+
+        }
+
+        private void bit(MemoryInfo mem)
+        {
+
+        }
+
+        private void bmi(MemoryInfo mem)
+        {
+            if(sign_flag != 0)
             {
-                #region Opcodes
 
-                #region Immediate Addressing
-                //ADC - Add memory to accumulator with carry  
-                case 0x69:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x29:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xC9:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPX - CPX Compare Memory and Index X
-                case 0xE0:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPY - CPY Compare memory and index Y
-                case 0xC0:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x49:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xA9:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDX - LDX Load index X with memory
-                case 0xA2:
-                    reg_x = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDY - LDY Load index Y with memory
-                case 0xA0:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x09:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xE9:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                #endregion
-
-                #region Implied
-                //BRK - BRK Force Break
-                case 0x00:
-                    pc_register = byte.MaxValue;
-                    //interrupt_flag set to 1
-                    break;
-                //CLC - CLC Clear carry flag 
-                case 0x18:
-                    //carry_flag set to 0
-                    break;
-                //CLD - CLD Clear decimal mode
-                case 0xD8:
-                    //decimal_flag set to 0
-                    break;
-                //CLI - CLI Clear interrupt disable bit
-                case 0x58:
-                    //interrupt_flag set to 0
-                    break;
-                //CLV - CLV Clear overflow flag
-                case 0xB8:
-                    //overflow_flag set to 0
-                    break;
-                //DEX - DEX Decrement index X by one
-                case 0xCA:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //DEY - DEY Decrement index Y by one
-                case 0x88:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INX - INX Increment Index X by one
-                case 0xE8:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INY - INY Increment Index Y by one
-                case 0xC8:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //NOP - NOP No operation
-                case 0xEA:
-                    //no flags
-                    break;
-                //PHA - PHA Push accumulator on stack
-                case 0x48:
-                    //no flags
-                    break;
-                //PHP - PHP Push processor status on stack
-                case 0x08:
-                    //no flags
-                    break;
-                //PLA - PLA Pull accumulator from stack
-                case 0x68:
-                    // no flags
-                    break;
-                //PLP -  PLP Pull processor status from stack
-                case 0x28:
-                    //flags from stack
-                    break;
-                //RTI - RTI Return from interrupt
-                case 0x40:
-                    //flags from stack
-                    break;
-                //RTS - RTS Return from subroutine
-                case 0x60:
-                    //no flags
-                    break;
-                //SEC - SEC Set carry flag
-                case 0x38:
-                    //carry_flag set to 1
-                    break;
-                //SED - SED Set decimal mode
-                case 0xF8:
-                    //decimal_flag set to 1
-                    break;
-                //SEI - SEI Set interrupt disable status
-                case 0x78:
-                    //interrupt_flag set to 1
-                    break;
-                //TAX - TAX Transfer accumulator to index X
-                case 0xAA:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //TAY - TAY Transfer accumulator to index Y 
-                case 0xA8:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //TSX - TSX Transfer stack pointer to index X
-                case 0xBA:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //TXA - TXA Transfer index X to accumulator
-                case 0x8A:
-                    accumulator = reg_x;
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //TXS - TXA Transfer index X to accumulator
-                case 0x9A:
-                    //no flags
-                    break;
-                //TYA - TYA Transfer index Y to accumulator
-                case 0x98:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                #endregion
-
-                #region Relative
-                //BCC -  BCC Branch on Carry Clear
-                case 0x90:
-
-                    //no flags
-                    break;
-                //BCS - BCS Branch on carry set
-                case 0xB0:
-                    //no flags
-                    break;
-                //BEQ -  BEQ Branch on result zero
-                case 0xF0:
-                    //no flags
-                    break;
-                //BMI - BMI Branch on result minus
-                case 0x30:
-                    //no flags
-                    break;
-                //BNE - BNE Branch on result not zero 
-                case 0xD0:
-                    //no flags
-                    break;
-                //BPL - BPL Branch on result plus
-                case 0x10:
-                    //no flags
-                    break;
-                //BVC - BVC Branch on overflow clear
-                case 0x50:
-                    //no flags
-                    break;
-                //BVS - Branch on V = 1 
-                case 0x70:
-                    //no flags
-                    break;
-                #endregion
-
-                #region Accumulator
-                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
-                case 0x0A:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //LSR - LSR Shift right one bit (memory or accumulator) 
-                case 0x4A:
-                    //sign_flag set to 0
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROL - ROL Rotate one bit left (memory or accumulator)
-                case 0x2A:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROR - ROR Rotate one bit right (memory or accumulator)
-                case 0x6A:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                #endregion
-
-                #region Zero-page
-                //ADC - Add memory to accumulator with carry  
-                case 0x65:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x25:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
-                case 0x06:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //BIT - BIT Test bits in memory with accumulator 
-                case 0x24:
-
-                    //sign_flag transferred to status register
-                    //overflow_flag transferred to status register
-                    //If result A /\ M is zero then zero_flag = 1, otherwise zero_flag = 0 
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xC5:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPX - CPX Compare Memory and Index X
-                case 0xE4:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPY - CPY Compare memory and index Y
-                case 0xC4:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //DEC - DEC Decrement memory by one
-                case 0xC6:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x45:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INC - INC Increment memory by one
-                case 0xE6:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xA5:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDX - LDX Load index X with memory
-                case 0xA6:
-                    reg_x = getNext();
-                    break;
-                //LDY - LDY Load index Y with memory
-                case 0xA4:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LSR - LSR Shift right one bit (memory or accumulator) 
-                case 0x46:
-                    //sign_flag set to 0
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x05:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ROL - ROL Rotate one bit left (memory or accumulator)
-                case 0x26:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROR - ROR Rotate one bit right (memory or accumulator)
-                case 0x66:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xE5:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x85:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                //STX - STX Store index X in memory
-                case 0x86:
-                    //no flags
-                    break;
-                //STY -  STY Store index Y in memory
-                case 0x84:
-                    //no flags
-                    break;
-                #endregion
-
-                #region Absolute
-                //ADC - Add memory to accumulator with carry  
-                case 0x6D:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x2D:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
-                case 0x0E:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //BIT - BIT Test bits in memory with accumulator 
-                case 0x2C:
-
-                    //sign_flag transferred to status register
-                    //overflow_flag transferred to status register
-                    //If result A /\ M is zero then zero_flag = 1, otherwise zero_flag = 0 
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xCD:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPX - CPX Compare Memory and Index X
-                case 0xEC:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CPY - CPY Compare memory and index Y
-                case 0xCC:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //DEC - DEC Decrement memory by one
-                case 0xCE:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x4D:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INC - INC Increment memory by one
-                case 0xEE:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //JMP - JMP Jump to new location
-                case 0x6C:
-                    //no flag
-                    break;
-                //JSR - JSR Jump to new location saving return address
-                case 0x20:
-                    //no flag
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xAD:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDX - LDX Load index X with memory
-                case 0xAE:
-                    reg_x = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDY - LDY Load index Y with memory
-                case 0xAC:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LSR - LSR Shift right one bit (memory or accumulator) 
-                case 0x4E:
-                    //sign_flag set to 0
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x0D:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ROL - ROL Rotate one bit left (memory or accumulator)
-                case 0x2E:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROR - ROR Rotate one bit right (memory or accumulator)
-                case 0x6E:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xED:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x8D:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                //STX - STX Store index X in memory
-                case 0x8E:
-                    //no flags
-                    break;
-                //STY -  STY Store index Y in memory
-                case 0x8C:
-                    //no flags
-                    break;
-                #endregion
-
-                #region Zero Page X
-                //ADC - Add memory to accumulator with carry  
-                case 0x75:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x35:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
-                case 0x16:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xD5:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //DEC - DEC Decrement memory by one
-                case 0xD6:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x55:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INC - INC Increment memory by one
-                case 0xF6:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xB5:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDY - LDY Load index Y with memory
-                case 0xB4:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LSR - LSR Shift right one bit (memory or accumulator) 
-                case 0x56:
-                    //sign_flag set to 0
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x15:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ROL - ROL Rotate one bit left (memory or accumulator)
-                case 0x36:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROR - ROR Rotate one bit right (memory or accumulator)
-                case 0x76:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xF5:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x95:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                //STY -  STY Store index Y in memory
-                case 0x94:
-                    //no flags
-                    break;
-                #endregion
-
-                #region Zero Page Y
-                //LDX - LDX Load index X with memory
-                case 0xB6:
-                    reg_x = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //STX - STX Store index X in memory
-                case 0x96:
-                    //no flags
-                    break;
-                #endregion
-
-                #region Absolute X
-                //ADC - Add memory to accumulator with carry  
-                case 0x7D:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x3D:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ASL -  ASL Shift Left One Bit (Memory or Accumulator)
-                case 0x1E:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xDD:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //DEC - DEC Decrement memory by one
-                case 0xDE:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x5D:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //INC - INC Increment memory by one
-                case 0xFE:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xBD:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDY - LDY Load index Y with memory
-                case 0xBC:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LSR - LSR Shift right one bit (memory or accumulator) 
-                case 0x5E:
-                    //sign_flag set to 0
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x1D:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ROL - ROL Rotate one bit left (memory or accumulator)
-                case 0x3E:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //ROR - ROR Rotate one bit right (memory or accumulator)
-                case 0x7E:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xFD:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x9D:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                #endregion
-
-                #region Absolute Y
-                //ADC - Add memory to accumulator with carry  
-                case 0x79:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x39:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xD9:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x59:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xB9:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDX - LDX Load index X with memory
-                case 0xBE:
-                    reg_x = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x19:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xF9:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x99:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                #endregion
-
-                #region Indirect X
-                //ADC - Add memory to accumulator with carry  
-                case 0x61:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x21:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xC1:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x41:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xA1:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x01:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xE1:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x81:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                #endregion
-
-
-                #region Indirect Y
-                //ADC - Add memory to accumulator with carry  
-                case 0x71:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //AND - "AND" memory with accumulator
-                case 0x31:
-
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //CMP - CMP Compare memory and accumulator
-                case 0xD1:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    break;
-                //EOR - EOR "Exclusive-Or" memory with accumulator
-                case 0x51:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //LDA - LDA Load accumulator with memory
-                case 0xB1:
-                    accumulator = getNext();
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //ORA -  ORA "OR" memory with accumulator
-                case 0x11:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    break;
-                //SBC - SBC Subtract memory from accumulator with borrow
-                case 0xF1:
-                    //sign_flag flipped
-                    //zero_flag flipped
-                    //carry_flag flipped
-                    //overflow_flag flipped
-                    break;
-                //STA - STA Store accumulator in memory
-                case 0x91:
-                    RAM.WriteMemory(getNext(), accumulator);
-                    //no flags
-                    break;
-                #endregion
-
-
-
-
-
-
-                default:
-                    throw new Exception("Invalid Opcode");
-                    #endregion
             }
+
         }
 
-        private void adc()
+        private void bne(MemoryInfo mem)
         {
 
         }
 
-        private void and()
+        private void bpl(MemoryInfo mem)
         {
 
         }
 
-        private void asl()
+        private void brk(MemoryInfo mem)
         {
 
         }
 
-        private void bcc()
+        private void bvc(MemoryInfo mem)
         {
 
         }
 
-        private void bcs()
+        private void bvs(MemoryInfo mem)
         {
 
         }
 
-        private void beq()
+        private void clc(MemoryInfo mem)
+        {
+            carry_flag = 0;
+        }
+
+        private void cld(MemoryInfo mem)
+        {
+            interrupt_flag = 0;
+        }
+
+        private void cli(MemoryInfo mem)
+        {
+            interrupt_flag = 0;
+        }
+
+        private void clv(MemoryInfo mem)
+        {
+            overflow_flag = 0;
+        }
+
+        private void cmp(MemoryInfo mem)
+        {
+            Compare(accumulator, RAM.ReadMemory(mem.Address));
+        }
+
+        private void cpx(MemoryInfo mem)
+        {
+            Compare(reg_x, RAM.ReadMemory(mem.Address));
+        }
+
+        private void cpy(MemoryInfo mem)
+        {
+            Compare(reg_y, RAM.ReadMemory(mem.Address));
+        }
+
+        private void dec(MemoryInfo mem)
+        {
+            byte value = RAM.ReadMemory(mem.Address) - 1;
+            RAM.WriteMemory(mem.Address, value);
+            setZero(value);
+            setSign(value);
+        }
+
+        private void dex(MemoryInfo mem)
+        {
+            reg_x--;
+            setZero(reg_x);
+            setSign(reg_x);
+        }
+
+        private void dey(MemoryInfo mem)
+        {
+            reg_y--;
+            setZero(reg_y);
+            setSign(reg_y);
+        }
+
+        private void eor(MemoryInfo mem)
+        {
+            accumulator = accumulator ^ RAM.ReadMemory(mem.Address);
+            setZero(accumulator);
+            setSign(accumulator);
+        }
+
+        private void inc(MemoryInfo mem)
+        {
+            byte value = RAM.ReadMemory(mem.Address) + 1;
+            RAM.WriteMemory(mem.Address, value);            
+            setZero(value);
+            setSign(value);
+        }
+
+        private void inx(MemoryInfo mem)
+        {
+            reg_x++;
+            setZero(reg_x);
+            setSign(reg_x);
+        }
+
+        private void iny(MemoryInfo mem)
+        {
+            reg_y++;
+            setZero(reg_y);
+            setSign(reg_y);
+        }
+
+        private void jmp(MemoryInfo mem)
+        {
+            pc_register = mem.Address;
+        }
+
+        private void jsr(MemoryInfo mem)
         {
 
         }
 
-        private void bit()
+        private void lda(MemoryInfo mem)
+        {
+            accumulator = RAM.ReadMemory(mem.Address);
+            setZero(accumulator);
+            setSign(accumulator);
+        }
+
+        private void ldx(MemoryInfo mem)
+        {
+            reg_x = RAM.ReadMemory(mem.Address);
+            setZero(reg_x);
+            setSign(reg_x);
+        }
+
+        private void ldy(MemoryInfo mem)
+        {
+            reg_y = RAM.ReadMemory(mem.Address);
+            setZero(reg_y);
+            setSign(reg_y);
+        }
+
+        private void lsr(MemoryInfo mem)
         {
 
         }
 
-        private void bmi()
+        private void nop(MemoryInfo mem)
+        {
+            //Do nothing;
+        }
+
+        private void ora(MemoryInfo mem)
+        {
+            accumulator = accumulator | RAM.ReadMemory(mem.Address);
+            setZero(accumulator);
+            setSign(accumulator);
+        }
+
+        private void pha(MemoryInfo mem)
         {
 
         }
 
-        private void bne()
+        private void php(MemoryInfo mem)
         {
 
         }
 
-        private void bpl()
+        private void pla(MemoryInfo mem)
         {
 
         }
 
-        private void brk()
+        private void plp(MemoryInfo mem)
         {
 
         }
 
-        private void bvc()
+        private void rol(MemoryInfo mem)
         {
 
         }
 
-        private void bvs()
+        private void ror(MemoryInfo mem)
         {
 
         }
 
-        private void clc()
+        private void rti(MemoryInfo mem)
         {
 
         }
 
-        private void cld()
+        private void rts(MemoryInfo mem)
         {
 
         }
 
-        private void cli()
+        private void sbc(MemoryInfo mem)
         {
+            byte memVar = RAM.ReadMemory(mem.Address);
+            //TODO: Fix this
+            accumulator = accumulator - memVar - (1 - carry_flag);
+            setZero(accumulator);
+            setSign(accumulator);
+
+            if (accumulator >= 0)
+            {
+                
+            }
 
         }
 
-        private void clv()
+        private void sec(MemoryInfo mem)
         {
-
+            carry_flag = 1;
         }
 
-        private void cmp()
+        private void sed(MemoryInfo mem)
         {
-
+            decimal_flag = 1;
         }
 
-        private void cpx()
+        private void sei(MemoryInfo mem)
         {
-
+            interrupt_flag = 1;
         }
 
-        private void cpy()
+        private void sta(MemoryInfo mem)
         {
-
+            RAM.WriteMemory(mem.Address, accumulator);
         }
 
-        private void dec()
+        private void stx(MemoryInfo mem)
         {
-
+            RAM.WriteMemory(mem.Address, reg_x);
         }
 
-        private void dex()
+        private void sty(MemoryInfo mem)
         {
-
+            RAM.WriteMemory(mem.Address, reg_y);
         }
 
-        private void dey()
+        private void tax(MemoryInfo mem)
         {
-
+            reg_x = accumulator;
+            setZero(reg_x);
+            setSign(reg_x);
         }
 
-        private void eor()
+        private void tay(MemoryInfo mem)
         {
-
+            reg_y = accumulator;
+            setZero(reg_y);
+            setSign(reg_y);
         }
 
-        private void inc()
+        private void tsx(MemoryInfo mem)
         {
-
+            reg_x = stack_pointer;
+            setZero(reg_x);
+            setSign(reg_x);
         }
 
-        private void inx()
+        private void txa(MemoryInfo mem)
         {
-
-        }
-
-        private void iny()
-        {
-
-        }
-
-        private void jmp()
-        {
-
-        }
-
-        private void jsr()
-        {
-
-        }
-
-        private void lda()
-        {
-
-        }
-
-        private void ldx()
-        {
-
-        }
-
-        private void ldy()
-        {
-
-        }
-
-        private void lsr()
-        {
-
-        }
-
-        private void nop()
-        {
-
-        }
-
-        private void ora()
-        {
-
-        }
-
-        private void pha()
-        {
-
-        }
-
-        private void php()
-        {
-
-        }
-
-        private void pla()
-        {
-
-        }
-
-        private void plp()
-        {
-
-        }
-
-        private void rol()
-        {
-
-        }
-
-        private void ror()
-        {
-
-        }
-
-        private void rti()
-        {
-
-        }
-
-        private void rts()
-        {
-
-        }
-
-        private void sbc()
-        {
-
-        }
-
-        private void sec()
-        {
-
-        }
-
-        private void sed()
-        {
-
-        }
-
-        private void sei()
-        {
-
-        }
-
-        private void sta()
-        {
-
-        }
-
-        private void stx()
-        {
-
-        }
-
-        private void sty()
-        {
-
-        }
-
-        private void tax()
-        {
-
-        }
-
-        private void tay()
-        {
-
-        }
-
-        private void tsx()
-        {
-
-        }
-
-        private void txa()
-        {
-
+            accumulator = reg_x;
+            setZero(accumulator);
+            setSign(accumulator);
         }
 
         //Transfer the value stored at X to the stack pointer
-        private void txs()
+        private void txs(MemoryInfo mem)
         {
             stack_pointer = reg_x;
         }
 
-        private void tya()
+        private void tya(MemoryInfo mem)
         {
-
+            accumulator = reg_y;
+            setZero(accumulator);
+            setSign(accumulator);
         }
 
         //TODO: Illegal Opcodes below 

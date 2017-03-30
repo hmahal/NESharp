@@ -32,7 +32,7 @@ namespace NES
         /// </summary>
         /// <param name="location">Memory index to be returned</param>
         /// <returns>Value held at index location</returns>
-        public byte ReadMemory(int address)
+        public byte ReadMemory(ushort address)
         {
             if(address < 0x2000)
             {
@@ -68,7 +68,7 @@ namespace NES
         /// </summary>
         /// <param name="location">Index to be written at</param>
         /// <param name="value">Value to be written at given index</param>
-        public void WriteMemory(int address, byte value)
+        public void WriteMemory(ushort address, byte value)
         {
             if (address < 0x2000)
             {
