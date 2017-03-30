@@ -15,12 +15,12 @@ namespace NES
     /// </summary>
     internal class CPU6502
     {
-        //CPU Registers. The prototype only utilises accumulator, PC and reg x
-        private ushort pc_register;
-        private int stack_pointer;
-        private byte accumulator;
-        private byte reg_x;
-        private byte reg_y;
+        //CPU Registers.
+        private ushort pc_register; //The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
+        private byte stack_pointer; //The register is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers.
+        private byte accumulator; //The register is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on.
+        private byte reg_x; //X and Y are byte-wide and used for several addressing modes. They can be used as loop counters easily, using increment/decrement and branch instructions. Not being the accumulator, they have limited addressing modes themselves when loading and saving.
+        private byte reg_y; //This is a very important register. There are instructions for nearly all of the transformations you can make to the accumulator, and the X register. But there are other instructions for things that only the Y register can do. Various machine language instructions allow you to copy the contents of a memory location into the Y register, copy the contents of the Y register into a memory location, and modify the contents of the Y, or some other register directly.
 
 
         //CPU Status Flags
@@ -163,7 +163,7 @@ namespace NES
         {
             RAM = new Memory(0x10); //Create a constructor to accept size
             //initialize RAM to size 32
-            stack_pointer = 0x20;
+            stack_pointer = 0xFF;
             pc_register = 0x00;
 
 
