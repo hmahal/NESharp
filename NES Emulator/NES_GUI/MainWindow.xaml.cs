@@ -1,4 +1,4 @@
-﻿using FileReader;
+﻿using NESEmu;
 using Microsoft.Win32;
 using System;
 using System.Windows;
