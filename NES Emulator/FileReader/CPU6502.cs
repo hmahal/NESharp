@@ -214,6 +214,30 @@ namespace NES
                 carry_flag = 0;
         }
 
+        private void push(byte value)
+        {
+            RAM.WriteMemory(stack_pointer, value);
+            stack_pointer--;
+        }
+
+        private byte pull()
+        {
+            stack_pointer++;
+            return RAM.ReadMemory(stack_pointer);
+        }
+
+        private Boolean pagesDiffer(ushort a, ushort b)
+        {
+            return (a & 0xFF00) != (b & 0xFF00);
+        }
+
+        private void addCycles(MemoryInfo mem)
+        {
+            _cycles++;
+            if (pagesDiffer(pc_register, mem.Address))
+                _cycles++;
+        }
+
         /// <summary>
         /// Starts the cpu, to be called after CPU is properly set up
         /// </summary>
@@ -306,28 +330,56 @@ namespace NES
 
         private void and(MemoryInfo mem)
         {
-            accumulator = accumulator & RAM.ReadMemory(mem.Address);
+            accumulator = (byte)(accumulator & RAM.ReadMemory(mem.Address));
             setZero(accumulator);
             setSign(accumulator);
         }
 
         private void asl(MemoryInfo mem)
         {
-
+            if(mem.Addr_mode == AddressingMode.Accumulator)
+            {
+                carry_flag = (byte)((accumulator >> 7) & 1);
+                accumulator <<= 1;
+                setZero(accumulator);
+                setSign(accumulator);
+            }
+            else
+            {
+                byte value = RAM.ReadMemory(mem.Address);
+                carry_flag = (byte)((value >> 7) & 1);
+                value <<= 1;
+                RAM.WriteMemory(mem.Address, value);
+                setZero(value);
+                setSign(value);
+            }
         }
 
         private void bcc(MemoryInfo mem)
         {
-
+            if(carry_flag == 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void bcs(MemoryInfo mem)
         {
-
+            if (carry_flag != 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void beq(MemoryInfo mem)
         {
+            if (zero_flag != 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
 
         }
 
@@ -338,11 +390,11 @@ namespace NES
 
         private void bmi(MemoryInfo mem)
         {
-            if(sign_flag != 0)
+            if (sign_flag != 0)
             {
-
+                pc_register = mem.Address;
+                addCycles(mem);
             }
-
         }
 
         private void bne(MemoryInfo mem)
@@ -407,7 +459,7 @@ namespace NES
 
         private void dec(MemoryInfo mem)
         {
-            byte value = RAM.ReadMemory(mem.Address) - 1;
+            byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);
             RAM.WriteMemory(mem.Address, value);
             setZero(value);
             setSign(value);
@@ -429,14 +481,14 @@ namespace NES
 
         private void eor(MemoryInfo mem)
         {
-            accumulator = accumulator ^ RAM.ReadMemory(mem.Address);
+            accumulator = (byte)(accumulator ^ RAM.ReadMemory(mem.Address));
             setZero(accumulator);
             setSign(accumulator);
         }
 
         private void inc(MemoryInfo mem)
         {
-            byte value = RAM.ReadMemory(mem.Address) + 1;
+            byte value = (byte)(RAM.ReadMemory(mem.Address) + 1);
             RAM.WriteMemory(mem.Address, value);            
             setZero(value);
             setSign(value);
@@ -489,7 +541,21 @@ namespace NES
 
         private void lsr(MemoryInfo mem)
         {
-
+            if(mem.Addr_mode == AddressingMode.Accumulator)
+            {
+                carry_flag = (byte)(accumulator & 1);
+                accumulator >>= 1;
+                setZero(accumulator);
+                setSign(accumulator);
+            } else
+            {
+                byte value = RAM.ReadMemory(mem.Address);
+                carry_flag = (byte)(value & 1);
+                value >>= 1;
+                RAM.WriteMemory(mem.Address, value);
+                setZero(value);
+                setSign(value);
+            }
         }
 
         private void nop(MemoryInfo mem)
@@ -499,19 +565,21 @@ namespace NES
 
         private void ora(MemoryInfo mem)
         {
-            accumulator = accumulator | RAM.ReadMemory(mem.Address);
+            accumulator = (byte)(accumulator | RAM.ReadMemory(mem.Address));
             setZero(accumulator);
             setSign(accumulator);
         }
 
         private void pha(MemoryInfo mem)
         {
-
+            push(accumulator);
         }
 
         private void php(MemoryInfo mem)
         {
-
+            accumulator = pull();
+            setZero(accumulator);
+            setSign(accumulator);
         }
 
         private void pla(MemoryInfo mem)
@@ -548,7 +616,7 @@ namespace NES
         {
             byte memVar = RAM.ReadMemory(mem.Address);
             //TODO: Fix this
-            accumulator = accumulator - memVar - (1 - carry_flag);
+            accumulator = (byte)(accumulator - memVar - (1 - carry_flag));
             setZero(accumulator);
             setSign(accumulator);
 
