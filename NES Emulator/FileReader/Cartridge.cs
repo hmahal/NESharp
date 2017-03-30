@@ -16,5 +16,11 @@
         public byte[] Chrrom { get; set; }
         public byte[] Trainer { get; set; }
         public byte[] Title { get; set; }
+
+        public Cartridge getCart(string filepath)
+        {
+            CartridgeReader read = new CartridgeReader(filepath);
+            return read.readCart();
+        }
     }
 }

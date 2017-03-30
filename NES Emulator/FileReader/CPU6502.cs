@@ -9,17 +9,18 @@ using System.Diagnostics;
 /// </summary>
 namespace NES
 {
+
     /// <summary>
     /// Emulation of the Ricoh 6502 CPU and its functions and capabilities
     /// </summary>
     internal class CPU6502
     {
         //CPU Registers. The prototype only utilises accumulator, PC and reg x
-        private ushort pc_register;
-        private int stack_pointer;
-        private byte accumulator;
-        private byte reg_x;
-        private byte reg_y;
+        private ushort pc_register; //The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
+        private byte stack_pointer; //The register is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers.
+        private byte accumulator; //The register is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on.
+        private byte reg_x; //X and Y are byte-wide and used for several addressing modes. They can be used as loop counters easily, using increment/decrement and branch instructions. Not being the accumulator, they have limited addressing modes themselves when loading and saving.
+        private byte reg_y; //This is a very important register. There are instructions for nearly all of the transformations you can make to the accumulator, and the X register. But there are other instructions for things that only the Y register can do. Various machine language instructions allow you to copy the contents of a memory location into the Y register, copy the contents of the Y register into a memory location, and modify the contents of the Y, or some other register directly.
 
 
         //CPU Status Flags
@@ -60,23 +61,99 @@ namespace NES
 
         private Memory RAM;
 
-        /// <summary>
-        /// Returns the memory of the CPU
-        /// </summary>
-        /// <returns></returns>
-        public Memory getRAM()
-        {
-            return RAM;
-        }
+        //instruction names here
+        private string[] instructions = new string[256] {
+            "BRK", "ORA", "KIL", "SLO", "NOP", "ORA", "ASL", "SLO",
+            "PHP", "ORA", "ASL", "ANC", "NOP", "ORA", "ASL", "SLO",
+            "BPL", "ORA", "KIL", "SLO", "NOP", "ORA", "ASL", "SLO",
+            "CLC", "ORA", "NOP", "SLO", "NOP", "ORA", "ASL", "SLO",
+            "JSR", "AND", "KIL", "RLA", "BIT", "AND", "ROL", "RLA",
+            "PLP", "AND", "ROL", "ANC", "BIT", "AND", "ROL", "RLA",
+            "BMI", "AND", "KIL", "RLA", "NOP", "AND", "ROL", "RLA",
+            "SEC", "AND", "NOP", "RLA", "NOP", "AND", "ROL", "RLA",
+            "RTI", "EOR", "KIL", "SRE", "NOP", "EOR", "LSR", "SRE",
+            "PHA", "EOR", "LSR", "ALR", "JMP", "EOR", "LSR", "SRE",
+            "BVC", "EOR", "KIL", "SRE", "NOP", "EOR", "LSR", "SRE",
+            "CLI", "EOR", "NOP", "SRE", "NOP", "EOR", "LSR", "SRE",
+            "RTS", "ADC", "KIL", "RRA", "NOP", "ADC", "ROR", "RRA",
+            "PLA", "ADC", "ROR", "ARR", "JMP", "ADC", "ROR", "RRA",
+            "BVS", "ADC", "KIL", "RRA", "NOP", "ADC", "ROR", "RRA",
+            "SEI", "ADC", "NOP", "RRA", "NOP", "ADC", "ROR", "RRA",
+            "NOP", "STA", "NOP", "SAX", "STY", "STA", "STX", "SAX",
+            "DEY", "NOP", "TXA", "XAA", "STY", "STA", "STX", "SAX",
+            "BCC", "STA", "KIL", "AHX", "STY", "STA", "STX", "SAX",
+            "TYA", "STA", "TXS", "TAS", "SHY", "STA", "SHX", "AHX",
+            "LDY", "LDA", "LDX", "LAX", "LDY", "LDA", "LDX", "LAX",
+            "TAY", "LDA", "TAX", "LAX", "LDY", "LDA", "LDX", "LAX",
+            "BCS", "LDA", "KIL", "LAX", "LDY", "LDA", "LDX", "LAX",
+            "CLV", "LDA", "TSX", "LAS", "LDY", "LDA", "LDX", "LAX",
+            "CPY", "CMP", "NOP", "DCP", "CPY", "CMP", "DEC", "DCP",
+            "INY", "CMP", "DEX", "AXS", "CPY", "CMP", "DEC", "DCP",
+            "BNE", "CMP", "KIL", "DCP", "NOP", "CMP", "DEC", "DCP",
+            "CLD", "CMP", "NOP", "DCP", "NOP", "CMP", "DEC", "DCP",
+            "CPX", "SBC", "NOP", "ISC", "CPX", "SBC", "INC", "ISC",
+            "INX", "SBC", "NOP", "SBC", "CPX", "SBC", "INC", "ISC",
+            "BEQ", "SBC", "KIL", "ISC", "NOP", "SBC", "INC", "ISC",
+            "SED", "SBC", "NOP", "ISC", "NOP", "SBC", "INC", "ISC", };
 
-        /// <summary>
-        /// Loads a byte array into the memory as program.
-        /// </summary>
-        /// <param name="program">Program to be loaded into the memory</param>
-        public void LoadProgram(byte[] program)
-        {
-            RAM.LoadProgramIntoMemory(program);
-        }
+        //Addressing mode table as defined in the addressingMode enum
+        private int[] addressingMode = new int[256] {
+            6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
+            1, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
+            6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
+            6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 8, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
+            5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 13, 13, 6, 3, 6, 3, 2, 2, 3, 3,
+            5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 13, 13, 6, 3, 6, 3, 2, 2, 3, 3,
+            5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
+            5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
+            10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2, };
+
+        //# of cycles/instruction 
+        private int[] instructionCycles = new int[256] {
+            7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+            6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+            6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+            6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+            2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+            2, 6, 2, 6, 4, 4, 4, 4, 2, 5, 2, 5, 5, 5, 5, 5,
+            2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+            2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4,
+            2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+            2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+            2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7, };
+
+        //# of bytes for a given instruction
+        private int[] instructionSize = new int[256] {
+            1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            3, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 0, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 0, 3, 0, 0,
+            2, 2, 2, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0, };
+
+        private Action[] instructionAction = new Action[256];
 
         /// <summary>
         /// Constructor for the CPU. Initializes memory object and provides default values
@@ -92,6 +169,11 @@ namespace NES
 
         }
 
+
+        public void Reset()
+        {
+            pc_register = 0xFFFC;
+        }
 
         /// <summary>
         /// Starts the cpu, to be called after CPU is properly set up
@@ -1053,9 +1135,297 @@ namespace NES
 
 
                 default:
-                    break;
+                    throw new Exception("Invalid Opcode");
                     #endregion
             }
+        }
+
+        private void adc()
+        {
+
+        }
+
+        private void and()
+        {
+
+        }
+
+        private void asl()
+        {
+
+        }
+
+        private void bcc()
+        {
+
+        }
+
+        private void bcs()
+        {
+
+        }
+
+        private void beq()
+        {
+
+        }
+
+        private void bit()
+        {
+
+        }
+
+        private void bmi()
+        {
+
+        }
+
+        private void bne()
+        {
+
+        }
+
+        private void bpl()
+        {
+
+        }
+
+        private void brk()
+        {
+
+        }
+
+        private void bvc()
+        {
+
+        }
+
+        private void bvs()
+        {
+
+        }
+
+        private void clc()
+        {
+
+        }
+
+        private void cld()
+        {
+
+        }
+
+        private void cli()
+        {
+
+        }
+
+        private void clv()
+        {
+
+        }
+
+        private void cmp()
+        {
+
+        }
+
+        private void cpx()
+        {
+
+        }
+
+        private void cpy()
+        {
+
+        }
+
+        private void dec()
+        {
+
+        }
+
+        private void dex()
+        {
+
+        }
+
+        private void dey()
+        {
+
+        }
+
+        private void eor()
+        {
+
+        }
+
+        private void inc()
+        {
+
+        }
+
+        private void inx()
+        {
+
+        }
+
+        private void iny()
+        {
+
+        }
+
+        private void jmp()
+        {
+
+        }
+
+        private void jsr()
+        {
+
+        }
+
+        private void lda()
+        {
+
+        }
+
+        private void ldx()
+        {
+
+        }
+
+        private void ldy()
+        {
+
+        }
+
+        private void lsr()
+        {
+
+        }
+
+        private void nop()
+        {
+
+        }
+
+        private void ora()
+        {
+
+        }
+
+        private void pha()
+        {
+
+        }
+
+        private void php()
+        {
+
+        }
+
+        private void pla()
+        {
+
+        }
+
+        private void plp()
+        {
+
+        }
+
+        private void rol()
+        {
+
+        }
+
+        private void ror()
+        {
+
+        }
+
+        private void rti()
+        {
+
+        }
+
+        private void rts()
+        {
+
+        }
+
+        private void sbc()
+        {
+
+        }
+
+        private void sec()
+        {
+
+        }
+
+        private void sed()
+        {
+
+        }
+
+        private void sei()
+        {
+
+        }
+
+        private void sta()
+        {
+
+        }
+
+        private void stx()
+        {
+
+        }
+
+        private void sty()
+        {
+
+        }
+
+        private void tax()
+        {
+
+        }
+
+        private void tay()
+        {
+
+        }
+
+        private void tsx()
+        {
+
+        }
+
+        private void txa()
+        {
+
+        }
+
+        //Transfer the value stored at X to the stack pointer
+        private void txs()
+        {
+            stack_pointer = reg_x;
+        }
+
+        private void tya()
+        {
+
+        }
+
+        //TODO: Illegal Opcodes below 
+
+        public void PrintInstruction()
+        {
+
         }
 
         /// <summary>

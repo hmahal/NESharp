@@ -48,8 +48,8 @@ namespace NESEmu
 
             cart.VerticalMirroring = (flags6 & 1) == 1;
             cart.Save_RAM = (flags6 & 2) == 2;
-            cart.Trainer_Present = (flags6 & 4) == 3;
-            cart.Four_Screen_Mirroring = (flags6 & 8) == 4;
+            cart.Trainer_Present = (flags6 & 4) == 4;
+            cart.Four_Screen_Mirroring = (flags6 & 8) == 8;
 
             cart.mapper = flags6 & _firstBits;
             cart.mapper = cart.mapper >> 4;
@@ -67,7 +67,6 @@ namespace NESEmu
                 cart.Sram = new byte[0x2000];
             }
                       
-            //Next steps: Define the mappers and switch accordingly
             return cart;
         }
     }

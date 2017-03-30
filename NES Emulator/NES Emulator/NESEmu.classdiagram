@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<logicalClassDesignerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/Kernel" xmlns:dm2="http://schemas.microsoft.com/dsltools/Component" xmlns:dm3="http://schemas.microsoft.com/dsltools/Activity" xmlns:dm4="http://schemas.microsoft.com/dsltools/UseCase" xmlns:dm5="http://schemas.microsoft.com/dsltools/Interaction" xmlns:dm6="http://schemas.microsoft.com/dsltools/UmlModelLibrary" xmlns:dm7="http://schemas.microsoft.com/dsltools/UmlDiagrams" xmlns:dm8="http://schemas.microsoft.com/dsltools/ModelStore" dslVersion="1.0.0.0" Id="00bad936-8b3a-4e0c-b8a0-ee125067a6fc" name="NESEmu" linkedPackageId="25ea5721-3331-40ae-88b9-f37e2935eef6" xmlns="http://schemas.microsoft.com/dsltools/LogicalClassDesigner">
+  <profileInstances>
+    <packageHasProfileInstances Id="347d0edb-9567-42d4-bb3e-8582b530399b">
+      <profileInstance Id="590f202d-ec6a-4ea3-8935-2485619b7946" name="StandardProfileL2">
+        <elementDefinition Id="e34d544e-0fea-4ed6-ac5e-1b74119ac791" />
+      </profileInstance>
+      <elementDefinition Id="0caec977-1f8c-4ba3-a7db-8cc9ad9cc73b" />
+    </packageHasProfileInstances>
+    <packageHasProfileInstances Id="51ef0eb7-1da4-4187-8cf9-f32f3973e676">
+      <profileInstance Id="d27384af-d734-4cec-b628-68282c19d9df" name="StandardProfileL3">
+        <elementDefinition Id="532ea607-fb19-44b8-8502-3351b05452be" />
+      </profileInstance>
+      <elementDefinition Id="29349502-908c-4fda-9054-c48619c59ed0" />
+    </packageHasProfileInstances>
+  </profileInstances>
+  <packagedElements>
+    <logicalClassDesignerModelHasTypes>
+      <class Id="51bc0f08-b64e-49bf-91a7-2d450e6aceb2" name="Mrmory" isAbstract="false" isLeaf="false" isActiveClass="false">
+        <elementDefinition Id="9fddf50a-6e90-476d-a6e4-c97e634e8391" />
+      </class>
+    </logicalClassDesignerModelHasTypes>
+  </packagedElements>
+  <package Id="25ea5721-3331-40ae-88b9-f37e2935eef6" name="NES Emulator">
+    <elementDefinition Id="688b1173-873d-432e-8b00-6b8de7412ef4" />
+  </package>
+</logicalClassDesignerModel>
