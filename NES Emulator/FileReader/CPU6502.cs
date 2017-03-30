@@ -56,12 +56,16 @@ namespace NES
         private byte sign_flag; /*this is set if the result of an operation is
         negative, cleared if positive.*/
 
+        private InterruptMode interrupt;
+        private int stall;
         private bool _running; //set to false to shut down the cpu
         private uint _cyclesToWait; //the amount of cycles this operation takes
         private Thread _cpuThread;
         private uint _cycles; //Which cycle is the cpu on
 
         private Memory RAM;
+
+        delegate void OpCodeMethods(MemoryInfo mem);
 
         //instruction names here
         private string[] instructions = new string[256] {
@@ -99,6 +103,7 @@ namespace NES
             "SED", "SBC", "NOP", "ISC", "NOP", "SBC", "INC", "ISC", };
 
         //Addressing mode table as defined in the addressingMode enum
+        //TODO:Change this to use the enum values
         private int[] addressingMode = new int[256] {
             6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
             10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
@@ -118,7 +123,7 @@ namespace NES
             10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2, };
 
         //# of cycles/instruction 
-        private int[] instructionCycles = new int[256] {
+        private uint[] instructionCycles = new uint[256] {
             7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
             2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
             6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
@@ -155,7 +160,63 @@ namespace NES
             2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
             2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0, };
 
-        private Action[] instructionAction = new Action[256];
+        private uint[] pageCrossedCycle = new uint[256] {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, };
+
+        private OpCodeMethods[] instructionAction;
+
+        private void addInstructionAction()
+        {
+            instructionAction = new OpCodeMethods[256] {
+                brk, ora, kil, slo, nop, ora, asl, slo,
+		        php, ora, asl, anc, nop, ora, asl, slo,
+		        bpl, ora, kil, slo, nop, ora, asl, slo,
+		        clc, ora, nop, slo, nop, ora, asl, slo,
+		        jsr, and, kil, rla, bit, and, rol, rla,
+		        plp, and, rol, anc, bit, and, rol, rla,
+		        bmi, and, kil, rla, nop, and, rol, rla,
+		        sec, and, nop, rla, nop, and, rol, rla,
+		        rti, eor, kil, sre, nop, eor, lsr, sre,
+		        pha, eor, lsr, alr, jmp, eor, lsr, sre,
+		        bvc, eor, kil, sre, nop, eor, lsr, sre,
+		        cli, eor, nop, sre, nop, eor, lsr, sre,
+		        rts, adc, kil, rra, nop, adc, ror, rra,
+		        pla, adc, ror, arr, jmp, adc, ror, rra,
+		        bvs, adc, kil, rra, nop, adc, ror, rra,
+		        sei, adc, nop, rra, nop, adc, ror, rra,
+		        nop, sta, nop, sax, sty, sta, stx, sax,
+		        dey, nop, txa, xaa, sty, sta, stx, sax,
+		        bcc, sta, kil, ahx, sty, sta, stx, sax,
+		        tya, sta, txs, tas, shy, sta, shx, ahx,
+		        ldy, lda, ldx, lax, ldy, lda, ldx, lax,
+		        tay, lda, tax, lax, ldy, lda, ldx, lax,
+		        bcs, lda, kil, lax, ldy, lda, ldx, lax,
+		        clv, lda, tsx, las, ldy, lda, ldx, lax,
+		        cpy, cmp, nop, dcp, cpy, cmp, dec, dcp,
+		        iny, cmp, dex, axs, cpy, cmp, dec, dcp,
+		        bne, cmp, kil, dcp, nop, cmp, dec, dcp,
+		        cld, cmp, nop, dcp, nop, cmp, dec, dcp,
+		        cpx, sbc, nop, isc, cpx, sbc, inc, isc,
+		        inx, sbc, nop, sbc, cpx, sbc, inc, isc,
+		        beq, sbc, kil, isc, nop, sbc, inc, isc,
+		        sed, sbc, nop, isc, nop, sbc, inc, isc,
+            };
+        }
 
         /// <summary>
         /// Constructor for the CPU. Initializes memory object and provides default values
@@ -163,12 +224,9 @@ namespace NES
         /// </summary>
         public CPU6502()
         {
-            RAM = new Memory(0x10); //Create a constructor to accept size
-            //initialize RAM to size 32
-            stack_pointer = 0x20;
-            pc_register = 0x00;
-
-
+            RAM = new Memory(0x10);//TODO:Fix this 
+            addInstructionAction();
+            Reset();
         }
 
         #region Helper
@@ -191,9 +249,9 @@ namespace NES
 
         public void Reset()
         {
-            pc_register = 0xFFFC;
+            pc_register = Read16(0xFFFC);
             stack_pointer = 0xFD;
-
+            setFlags(0x24);
         }
 
         private void Compare(int a, int b)
@@ -277,6 +335,18 @@ namespace NES
             overflow_flag = (byte)((flags >> 6) & 1);
             sign_flag = (byte)((flags >> 7) & 1);
         }
+
+        //TODO: Review this later
+        private void triggerNMI()
+        {
+            interrupt = InterruptMode.NMIInterrupt;
+        }
+
+        private void triggerIRQ()
+        {
+            if (interrupt_flag == 0)
+                interrupt = InterruptMode.IRQInterrupt;
+        }
         #endregion
 
         /// <summary>
@@ -349,9 +419,91 @@ namespace NES
         /// <summary>
         /// Executes the next instruction at the location of PC in the memory
         /// </summary>
-        public void Tick()
+        public uint Tick()
         {
-            
+            if(stall > 0)
+            {
+                stall--;
+                return 1;
+            }
+
+            uint cycles = _cycles;
+            switch (interrupt)
+            {
+                case (InterruptMode.IRQInterrupt):
+                    irq();
+                    break;
+                case (InterruptMode.NMIInterrupt):
+                    nmi();
+                    break;
+                default:
+                    break;
+            }
+            interrupt = InterruptMode.NoneInterrupt;
+
+            byte opcode = RAM.ReadMemory(pc_register);
+            int addrMode = addressingMode[opcode];
+
+            ushort addr = 0;
+            bool pageCrossed = false;
+
+            switch (addrMode)
+            {
+                case ((int)AddressingMode.Absolute):
+                    addr = Read16((ushort)(pc_register + 1));
+                    break;
+                case ((int)AddressingMode.AbsoluteX):
+                    addr = (ushort)(Read16((ushort)(pc_register + 1)) + reg_x);
+                    pageCrossed = pagesDiffer((ushort)(addr - reg_x), addr);
+                    break;
+                case ((int)AddressingMode.AbsoluteY):
+                    addr = (ushort)(Read16((ushort)(pc_register + 1)) + reg_y);
+                    pageCrossed = pagesDiffer((ushort)(addr - reg_y), addr);
+                    break;
+                case ((int)AddressingMode.Accumulator):
+                    addr = 0;
+                    break;
+                case ((int)AddressingMode.Immediate):
+                    addr = (ushort)(pc_register + 1);
+                    break;
+                case ((int)AddressingMode.Implied):
+                    addr = 0;
+                    break;
+                case ((int)AddressingMode.IndirectX):
+                    addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_x)));
+                    break;
+                case ((int)AddressingMode.Indirect):
+                    addr = Read16(Read16((ushort)(pc_register + 1)));
+                    break;
+                case ((int)AddressingMode.IndirectY):
+                    addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_y)));
+                    pageCrossed = pagesDiffer((ushort)(addr - reg_y), addr);
+                    break;
+                case ((int)AddressingMode.Relative):
+                    ushort offset = RAM.ReadMemory((byte)(pc_register + 1));
+                    if (offset < 0x80)
+                        addr = (ushort)(pc_register + 2 + offset);
+                    else
+                        addr = (ushort)(pc_register + 2 + offset - 0x100);
+                    break;
+                case ((int)AddressingMode.ZeroPage):
+                    addr = Read16(RAM.ReadMemory((byte)(pc_register + 1)));
+                    break;
+                case ((int)AddressingMode.ZeroPageX):
+                    addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
+                    break;
+                case ((int)AddressingMode.ZeroPageY):
+                    addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
+                    break;
+            }
+
+            pc_register += (ushort)instructionSize[opcode];
+            _cycles += instructionCycles[opcode];
+            if (pageCrossed)
+                _cycles += pageCrossedCycle[opcode];
+            MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
+            instructionAction[opcode](mem);
+            return _cycles - cycles;
         }
 
 
@@ -362,6 +514,23 @@ namespace NES
         private byte getNext()
         {
             return RAM.ReadMemory(pc_register++);
+        }
+
+        private void nmi()
+        {
+            Push16(pc_register);
+            php(new MemoryInfo());
+            pc_register = Read16(0xFFFA);
+            interrupt_flag = 1;
+            _cycles += 7;
+        }
+        private void irq()
+        {
+            Push16(pc_register);
+            php(new MemoryInfo());
+            pc_register = Read16(0xFFFE);
+            interrupt_flag = 1;
+            _cycles += 7;
         }
 
         #region OpCode Methods
@@ -392,7 +561,7 @@ namespace NES
 
         private void asl(MemoryInfo mem)
         {
-            if(mem.Addr_mode == AddressingMode.Accumulator)
+            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 carry_flag = (byte)((accumulator >> 7) & 1);
                 accumulator <<= 1;
@@ -619,7 +788,7 @@ namespace NES
 
         private void lsr(MemoryInfo mem)
         {
-            if(mem.Addr_mode == AddressingMode.Accumulator)
+            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 carry_flag = (byte)(accumulator & 1);
                 accumulator >>= 1;
@@ -672,7 +841,7 @@ namespace NES
 
         private void rol(MemoryInfo mem)
         {
-            if(mem.Addr_mode == AddressingMode.Accumulator)
+            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 byte carry = carry_flag;
                 carry_flag = (byte)((accumulator >> 7) & 1);
@@ -694,7 +863,7 @@ namespace NES
 
         private void ror(MemoryInfo mem)
         {
-            if (mem.Addr_mode == AddressingMode.Accumulator)
+            if (mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 byte carry = carry_flag;
                 carry_flag = (byte)(accumulator & 1);
@@ -815,11 +984,87 @@ namespace NES
         }
 
         //TODO: Illegal Opcodes below 
-        #endregion
-        public void PrintInstruction()
+
+        private void ahx(MemoryInfo mem)
         {
 
         }
+        private void alr(MemoryInfo mem)
+        {
+
+        }
+        private void anc(MemoryInfo mem)
+        {
+
+        }
+        private void arr(MemoryInfo mem)
+        {
+
+        }
+        private void axs(MemoryInfo mem)
+        {
+
+        }
+        private void dcp(MemoryInfo mem)
+        {
+
+        }
+        private void isc(MemoryInfo mem)
+        {
+
+        }
+        private void kil(MemoryInfo mem)
+        {
+
+        }
+        private void las(MemoryInfo mem)
+        {
+
+        }
+
+        private void lax(MemoryInfo mem)
+        {
+
+        }
+        private void rla(MemoryInfo mem)
+        {
+
+        }
+        private void rra(MemoryInfo mem)
+        {
+
+        }
+        private void sax(MemoryInfo mem)
+        {
+
+        }
+        private void shx(MemoryInfo mem)
+        {
+
+        }
+        private void shy(MemoryInfo mem)
+        {
+
+        }
+        private void slo(MemoryInfo mem)
+        {
+
+        }
+        private void sre(MemoryInfo mem)
+        {
+
+        }
+        private void tas(MemoryInfo mem)
+        {
+
+        }
+        private void xaa(MemoryInfo mem)
+        {
+
+        }
+
+
+        #endregion
 
         /// <summary>
         /// Prints the values held by ACC and the INDEX X registers
