@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddressingMode.cs" />
     <Compile Include="Cartridge.cs" />
     <Compile Include="CartridgeReader.cs" />
     <Compile Include="CPU6502.cs" />
