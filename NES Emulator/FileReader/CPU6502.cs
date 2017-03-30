@@ -48,6 +48,7 @@ namespace NES
         executed.*/
 
         //Bit 5: not used.Supposed to be logical 1 at all times.
+        private byte unused_flag;
 
         private byte overflow_flag; /*when an arithmetic operation produces a result
         too large to be represented in a byte, V is set.*/
@@ -170,6 +171,7 @@ namespace NES
 
         }
 
+        #region Helper
         private void setZero(int value)
         {
             if (value == 0)
@@ -178,15 +180,6 @@ namespace NES
                 zero_flag = 0;
         }
 
-        private void setBreak()
-        {
-
-        }
-
-        private void setOverFlow()
-        {
-
-        }
 
         private void setSign(int value)
         {
@@ -226,7 +219,28 @@ namespace NES
             return RAM.ReadMemory(stack_pointer);
         }
 
-        private Boolean pagesDiffer(ushort a, ushort b)
+        private ushort Read16(ushort address)
+        {
+            return (ushort)(RAM.ReadMemory((ushort)(address + 1)) << 8 
+                | RAM.ReadMemory(address));
+        }
+
+        private void Push16(ushort value)
+        {
+            byte highByte = (byte)(value >> 8);
+            byte lowByte = (byte)(value & 0xFF);
+            push(highByte);
+            push(lowByte);
+        }
+
+        private ushort Pull16()
+        {
+            ushort low = pull();
+            ushort high = pull();
+            return (ushort)(high << 8 | low);
+        }
+
+        private bool pagesDiffer(ushort a, ushort b)
         {
             return (a & 0xFF00) != (b & 0xFF00);
         }
@@ -237,6 +251,33 @@ namespace NES
             if (pagesDiffer(pc_register, mem.Address))
                 _cycles++;
         }
+
+        private byte Flags()
+        {
+            byte flags = 0;
+            flags |= (byte)(carry_flag << 0);
+            flags |= (byte)(zero_flag << 1);
+            flags |= (byte)(interrupt_flag << 2);
+            flags |= (byte)(decimal_flag << 3);
+            flags |= (byte)(break_flag << 4);
+            flags |= (byte)(unused_flag << 5);
+            flags |= (byte)(overflow_flag << 6);
+            flags |= (byte)(sign_flag << 7);
+            return flags;
+        }
+
+        private void setFlags(byte flags)
+        {
+            carry_flag = (byte)((flags >> 0) & 1);
+            zero_flag = (byte)((flags >> 1) & 1);
+            interrupt_flag = (byte)((flags >> 2) & 1);
+            decimal_flag = (byte)((flags >> 3) & 1);
+            break_flag = (byte)((flags >> 4) & 1);
+            unused_flag = (byte)((flags >> 5) & 1);
+            overflow_flag = (byte)((flags >> 6) & 1);
+            sign_flag = (byte)((flags >> 7) & 1);
+        }
+        #endregion
 
         /// <summary>
         /// Starts the cpu, to be called after CPU is properly set up
@@ -321,11 +362,25 @@ namespace NES
         private byte getNext()
         {
             return RAM.ReadMemory(pc_register++);
-        }        
+        }
 
+        #region OpCode Methods
         private void adc(MemoryInfo mem)
         {
-
+            byte acc = accumulator;
+            byte value = RAM.ReadMemory(mem.Address);
+            accumulator = (byte)(accumulator + value + carry_flag);
+            setZero(accumulator);
+            setSign(accumulator);
+            int sum = accumulator + value + carry_flag;
+            if (sum > 0xFF)
+                carry_flag = 1;
+            else
+                carry_flag = 0;
+            if (((acc ^ value) & 0x80) == 0 && ((acc ^ accumulator) & 0x80) == 0)
+                overflow_flag = 1;
+            else
+                overflow_flag = 0;
         }
 
         private void and(MemoryInfo mem)
@@ -385,7 +440,10 @@ namespace NES
 
         private void bit(MemoryInfo mem)
         {
-
+            byte value = RAM.ReadMemory(mem.Address);
+            overflow_flag = (byte)((value >> 6) & 1);
+            setZero(value & accumulator);
+            setSign(value);
         }
 
         private void bmi(MemoryInfo mem)
@@ -399,27 +457,46 @@ namespace NES
 
         private void bne(MemoryInfo mem)
         {
-
+            if (zero_flag == 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void bpl(MemoryInfo mem)
         {
-
+            if (sign_flag == 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void brk(MemoryInfo mem)
         {
-
+            Push16(pc_register);
+            php(mem);
+            sei(mem);
+            pc_register = Read16(0xFFEE);
         }
 
         private void bvc(MemoryInfo mem)
         {
-
+            if (overflow_flag == 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void bvs(MemoryInfo mem)
         {
-
+            if (overflow_flag != 0)
+            {
+                pc_register = mem.Address;
+                addCycles(mem);
+            }
         }
 
         private void clc(MemoryInfo mem)
@@ -515,7 +592,8 @@ namespace NES
 
         private void jsr(MemoryInfo mem)
         {
-
+            Push16((ushort)(pc_register - 1));
+            pc_register = mem.Address;
         }
 
         private void lda(MemoryInfo mem)
@@ -577,54 +655,92 @@ namespace NES
 
         private void php(MemoryInfo mem)
         {
+            push((byte)(Flags() | 0x10));
+        }
+
+        private void pla(MemoryInfo mem)
+        {
             accumulator = pull();
             setZero(accumulator);
             setSign(accumulator);
         }
 
-        private void pla(MemoryInfo mem)
-        {
-
-        }
-
         private void plp(MemoryInfo mem)
         {
-
+            setFlags((byte)(pull() & 0xEF | 0x20));
         }
 
         private void rol(MemoryInfo mem)
         {
+            if(mem.Addr_mode == AddressingMode.Accumulator)
+            {
+                byte carry = carry_flag;
+                carry_flag = (byte)((accumulator >> 7) & 1);
+                accumulator = (byte)((accumulator << 1) | carry);
+                setZero(accumulator);
+                setSign(accumulator);
+            } else
+            {
+                byte carry = carry_flag;
+                byte value = RAM.ReadMemory(mem.Address);
+                carry_flag = (byte)((value >> 7) & 1);
+                value = (byte)((value << 1) | carry);
+                RAM.WriteMemory(mem.Address, value);
+                setZero(value);
+                setSign(value);
+            }
 
         }
 
         private void ror(MemoryInfo mem)
         {
-
+            if (mem.Addr_mode == AddressingMode.Accumulator)
+            {
+                byte carry = carry_flag;
+                carry_flag = (byte)(accumulator & 1);
+                accumulator = (byte)((accumulator >> 1) | (carry << 7));
+                setZero(accumulator);
+                setSign(accumulator);
+            }
+            else
+            {
+                byte carry = carry_flag;
+                byte value = RAM.ReadMemory(mem.Address);
+                carry_flag = (byte)(value & 1);
+                value = (byte)((value >> 1) | (carry << 7));
+                RAM.WriteMemory(mem.Address, value);
+                setZero(value);
+                setSign(value);
+            }
         }
 
         private void rti(MemoryInfo mem)
         {
-
+            setFlags((byte)(pull() & 0xEF | 0x20));
+            pc_register = Pull16();
         }
 
         private void rts(MemoryInfo mem)
         {
-
+            pc_register = (ushort)(Pull16() + 1);
         }
 
         private void sbc(MemoryInfo mem)
         {
-            byte memVar = RAM.ReadMemory(mem.Address);
-            //TODO: Fix this
-            accumulator = (byte)(accumulator - memVar - (1 - carry_flag));
+            byte acc = accumulator;
+            byte value = RAM.ReadMemory(mem.Address);
+            accumulator = (byte)(accumulator - value - (1 - carry_flag));
             setZero(accumulator);
             setSign(accumulator);
-
-            if (accumulator >= 0)
-            {
-                
-            }
-
+            int diff = accumulator - value - (1 - carry_flag);
+            if (diff > 0xFF)
+                carry_flag = 1;
+            else
+                carry_flag = 0;
+            if (((acc ^ value) & 0x80) == 0 && ((acc ^ accumulator) & 0x80) == 0)
+                overflow_flag = 1;
+            else
+                overflow_flag = 0;
         }
 
         private void sec(MemoryInfo mem)
@@ -699,7 +815,7 @@ namespace NES
         }
 
         //TODO: Illegal Opcodes below 
-
+        #endregion
         public void PrintInstruction()
         {
 
