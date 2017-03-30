@@ -121,5 +121,17 @@ namespace NES
             for (int i = 0; i < memory.Length; i++)
                 Console.WriteLine(memory[i].ToString("X"));
         }
+
+        public override string ToString()
+        {
+            string rtn = "";
+            for (int i = 0; i < memory.Length; i++)
+            {
+                if (i % 6 == 0)
+                    rtn += "\n";
+                rtn += memory[i].ToString("X");
+            }
+            return rtn;
+        }
     }
 }

@@ -36,5 +36,10 @@ namespace NES_GUI
                 }
             }
         }
+
+        private void debugButtonClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }

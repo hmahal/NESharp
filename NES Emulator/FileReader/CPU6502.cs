@@ -1062,8 +1062,6 @@ namespace NES
         {
 
         }
-
-
         #endregion
 
         /// <summary>
@@ -1073,6 +1071,13 @@ namespace NES
         {
             Console.WriteLine("{0,20} {1,20}", "Accumulator", "X Index Register");
             Console.WriteLine("{0,20} {1,20}", accumulator.ToString("X"), reg_x.ToString("X"));
+        }
+
+        public override string ToString()
+        {
+            string rtn = "";
+            rtn += "Accumulator: " + accumulator.ToString("X");
+            return rtn;
         }
     }
 }

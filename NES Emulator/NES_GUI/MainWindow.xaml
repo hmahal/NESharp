@@ -9,6 +9,7 @@
     <StackPanel>
         <Menu x:Name="menu" Height="28" VerticalAlignment="Top">
             <Button Content="Open ROM" FontSize="9" Height="18" Width="60" Margin="0,4,0,0" Click="openRomButtonClick"/>
+            <Button Content="Debug" FontSize="9" Height="18" Width="60" Margin="0,4,0,0" Click="debugButtonClick"/>
         </Menu>
         <Canvas Height="290" />
     </StackPanel>
