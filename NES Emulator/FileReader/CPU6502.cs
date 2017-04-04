@@ -17,44 +17,78 @@ namespace NES
     internal class CPU6502
     {
         //CPU Registers. The prototype only utilises accumulator, PC and reg x
-        private ushort pc_register; //The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
-        private byte stack_pointer; //The register is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers.
-        private byte accumulator; //The register is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on.
-        private byte reg_x; //X and Y are byte-wide and used for several addressing modes. They can be used as loop counters easily, using increment/decrement and branch instructions. Not being the accumulator, they have limited addressing modes themselves when loading and saving.
-        private byte reg_y; //This is a very important register. There are instructions for nearly all of the transformations you can make to the accumulator, and the X register. But there are other instructions for things that only the Y register can do. Various machine language instructions allow you to copy the contents of a memory location into the Y register, copy the contents of the Y register into a memory location, and modify the contents of the Y, or some other register directly.
 
+        /*The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) 
+         * memory locations, however not all values are sent to the cartridge.
+         * It can be accessed either by allowing CPU's internal fetch logic
+         *  increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ),
+         *   and using the RTS/JMP/JSR/Branch instructions.*/
+        private ushort pc_register;
+
+        /*The stack_point register is byte-wide and can be accessed 
+        using interrupts, pulls, pushes, and transfers.*/
+        private byte stack_pointer;
+
+        /*The accumulator register is byte-wide and along with the arithmetic
+         * logic unit(ALU), supports using the status register for carrying,
+         *  overflow detection, and so on.*/
+        private byte accumulator;
+
+        /*X and Y are byte-wide and used for several addressing modes.They
+         * can be used as loop counters easily, using increment/decrement
+         * and branch instructions.Not being the accumulator, they have 
+         * limited addressing modes themselves when loading and saving.*/
+        private byte reg_x;
+
+        /*This is a very important register. There are instructions for 
+         * nearly all of the transformations you can make to the accumulator,
+         *  and the X register. But there are other instructions for 
+         *  things that only the Y register can do. Various machine 
+         *  language instructions allow you to copy the contents of a 
+         *  memory location into the Y register, copy the contents of 
+         *  the Y register into a memory location, and modify the contents
+         *   of the Y, or some other register directly.*/
+        private byte reg_y;
 
         //CPU Status Flags
-        private byte carry_flag; //http://www.zophar.net/fileuploads/2/10532krzvs/6502.txt
-        /*this holds the carry out of the most significant
+        //Reference: http://www.zophar.net/fileuploads/2/10532krzvs/6502.txt
+
+        /*This flag holds the carry out of the most significant
          bit in any arithmetic operation. In subtraction operations however, this
         flag is cleared - set to 0 - if a borrow is required, set to 1 - if no
         borrow is required. The carry flag is also used in shift and rotate
         logical operations.*/
+        private byte carry_flag;
 
-        private byte zero_flag;/*this is set to 1 when any arithmetic or logical
+        /*This flag is set to 1 when any arithmetic or logical
          operation produces a zero result, and is set to 0 if the result is
          non-zero.*/
+        private byte zero_flag;
 
-        private byte interrupt_flag;/*this is an interrupt enable/disable flag. If it is set,
+        /*This flag is an interrupt enable/disable flag. If it is set,
         interrupts are disabled. If it is cleared, interrupts are enabled.*/
+        private byte interrupt_flag;
 
-        private byte decimal_flag; /*this is the decimal mode status flag. When set, and an Add with
+        /*This flag is the decimal mode status flag. When set, and an Add with
         Carry or Subtract with Carry instruction is executed, the source values are
         treated as valid BCD (Binary Coded Decimal, eg. 0x00-0x99 = 0-99) numbers.
         The result generated is also a BCD number.*/
+        private byte decimal_flag;
 
-        private byte break_flag; /*this is set when a software interrupt (BRK instruction) is
+        /*This flag is set when a software interrupt (BRK instruction) is
         executed.*/
+        private byte break_flag; 
 
-        //Bit 5: not used.Supposed to be logical 1 at all times.
+        //Byte 5 (simulated bit 5): not used.Supposed to be logical 1 at all times.
         private byte unused_flag;
 
-        private byte overflow_flag; /*when an arithmetic operation produces a result
+        /*when an arithmetic operation produces a result
         too large to be represented in a byte, V is set.*/
+        private byte overflow_flag;
 
-        private byte sign_flag; /*this is set if the result of an operation is
+        /*this is set if the result of an operation is
         negative, cleared if positive.*/
+        private byte sign_flag; 
 
         private InterruptMode interrupt;
         private int stall;
@@ -67,7 +101,9 @@ namespace NES
 
         delegate void OpCodeMethods(MemoryInfo mem);
 
-        //instruction names here
+        /// <summary>
+        /// Array of opcode instruction names.  Used
+        /// </summary>
         private string[] instructions = new string[256] {
             "BRK", "ORA", "KIL", "SLO", "NOP", "ORA", "ASL", "SLO",
             "PHP", "ORA", "ASL", "ANC", "NOP", "ORA", "ASL", "SLO",
@@ -102,8 +138,10 @@ namespace NES
             "BEQ", "SBC", "KIL", "ISC", "NOP", "SBC", "INC", "ISC",
             "SED", "SBC", "NOP", "ISC", "NOP", "SBC", "INC", "ISC", };
 
-        //Addressing mode table as defined in the addressingMode enum
         //TODO:Change this to use the enum values
+        /// <summary>
+        /// Addressing mode table as defined in the addressingMode enum
+        /// </summary>
         private int[] addressingMode = new int[256] {
             6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
             10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
@@ -122,7 +160,9 @@ namespace NES
             5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
             10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2, };
 
-        //# of cycles/instruction 
+        /// <summary>
+        /// Number of cycles/instruction 
+        /// </summary>
         private uint[] instructionCycles = new uint[256] {
             7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
             2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
@@ -141,7 +181,9 @@ namespace NES
             2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
             2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7, };
 
-        //# of bytes for a given instruction
+        /// <summary>
+        /// # of bytes for a given instruction
+        /// </summary>
         private int[] instructionSize = new int[256] {
             1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
             2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
@@ -179,7 +221,10 @@ namespace NES
             1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, };
 
         private OpCodeMethods[] instructionAction;
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
         private void addInstructionAction()
         {
             instructionAction = new OpCodeMethods[256] {
@@ -516,6 +561,9 @@ namespace NES
             return RAM.ReadMemory(pc_register++);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void nmi()
         {
             Push16(pc_register);
@@ -524,6 +572,10 @@ namespace NES
             interrupt_flag = 1;
             _cycles += 7;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void irq()
         {
             Push16(pc_register);

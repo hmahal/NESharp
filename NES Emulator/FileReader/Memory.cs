@@ -25,7 +25,6 @@ namespace NES
             ClearMemory();
         }
 
-
         /// <summary>
         /// Returns value held at the position passed in by the parameter
         /// Check if memory location is valid
