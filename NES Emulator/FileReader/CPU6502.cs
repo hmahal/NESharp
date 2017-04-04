@@ -675,7 +675,7 @@ namespace NES
 
         private void cld(MemoryInfo mem)
         {
-            interrupt_flag = 0;
+            decimal_flag = 0;
         }
 
         private void cli(MemoryInfo mem)
