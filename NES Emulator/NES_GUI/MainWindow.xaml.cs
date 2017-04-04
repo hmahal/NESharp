@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace NES_GUI
 {
@@ -10,9 +11,13 @@ namespace NES_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// 22 X 15 Tiles
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void openRomButtonClick(object sender, RoutedEventArgs e)

@@ -6,11 +6,397 @@
         xmlns:local="clr-namespace:NES_GUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <StackPanel>
-        <Menu x:Name="menu" Height="28" VerticalAlignment="Top">
+    <DockPanel LastChildFill="True">
+        <Menu x:Name="menu" VerticalAlignment="Top" DockPanel.Dock="Top">
             <Button Content="Open ROM" FontSize="9" Height="18" Width="60" Margin="0,4,0,0" Click="openRomButtonClick"/>
             <Button Content="Debug" FontSize="9" Height="18" Width="60" Margin="0,4,0,0" Click="debugButtonClick"/>
         </Menu>
-        <Canvas Height="290" />
-    </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Image x:Name="Tile_0" Grid.Row="0" Grid.Column="0"/>
+            <Image x:Name="Tile_1" Grid.Row="0" Grid.Column="1"/>
+            <Image x:Name="Tile_2" Grid.Row="0" Grid.Column="2"/>
+            <Image x:Name="Tile_3" Grid.Row="0" Grid.Column="3"/>
+            <Image x:Name="Tile_4" Grid.Row="0" Grid.Column="4"/>
+            <Image x:Name="Tile_5" Grid.Row="0" Grid.Column="5"/>
+            <Image x:Name="Tile_6" Grid.Row="0" Grid.Column="6"/>
+            <Image x:Name="Tile_7" Grid.Row="0" Grid.Column="7"/>
+            <Image x:Name="Tile_8" Grid.Row="0" Grid.Column="8"/>
+            <Image x:Name="Tile_9" Grid.Row="0" Grid.Column="9"/>
+            <Image x:Name="Tile_10" Grid.Row="0" Grid.Column="10"/>
+            <Image x:Name="Tile_11" Grid.Row="0" Grid.Column="11"/>
+            <Image x:Name="Tile_12" Grid.Row="0" Grid.Column="12"/>
+            <Image x:Name="Tile_13" Grid.Row="0" Grid.Column="13"/>
+            <Image x:Name="Tile_14" Grid.Row="0" Grid.Column="14"/>
+            <Image x:Name="Tile_15" Grid.Row="0" Grid.Column="15"/>
+            <Image x:Name="Tile_16" Grid.Row="0" Grid.Column="16"/>
+            <Image x:Name="Tile_17" Grid.Row="0" Grid.Column="17"/>
+            <Image x:Name="Tile_18" Grid.Row="0" Grid.Column="18"/>
+            <Image x:Name="Tile_19" Grid.Row="0" Grid.Column="19"/>
+            <Image x:Name="Tile_20" Grid.Row="0" Grid.Column="20"/>
+            <Image x:Name="Tile_21" Grid.Row="0" Grid.Column="21"/>
+
+            <Image x:Name="Tile_22" Grid.Row="1" Grid.Column="0"/>
+            <Image x:Name="Tile_23" Grid.Row="1" Grid.Column="1"/>
+            <Image x:Name="Tile_24" Grid.Row="1" Grid.Column="2"/>
+            <Image x:Name="Tile_25" Grid.Row="1" Grid.Column="3"/>
+            <Image x:Name="Tile_26" Grid.Row="1" Grid.Column="4"/>
+            <Image x:Name="Tile_27" Grid.Row="1" Grid.Column="5"/>
+            <Image x:Name="Tile_28" Grid.Row="1" Grid.Column="6"/>
+            <Image x:Name="Tile_29" Grid.Row="1" Grid.Column="7"/>
+            <Image x:Name="Tile_30" Grid.Row="1" Grid.Column="8"/>
+            <Image x:Name="Tile_31" Grid.Row="1" Grid.Column="9"/>
+            <Image x:Name="Tile_32" Grid.Row="1" Grid.Column="10"/>
+            <Image x:Name="Tile_33" Grid.Row="1" Grid.Column="11"/>
+            <Image x:Name="Tile_34" Grid.Row="1" Grid.Column="12"/>
+            <Image x:Name="Tile_35" Grid.Row="1" Grid.Column="13"/>
+            <Image x:Name="Tile_36" Grid.Row="1" Grid.Column="14"/>
+            <Image x:Name="Tile_37" Grid.Row="1" Grid.Column="15"/>
+            <Image x:Name="Tile_38" Grid.Row="1" Grid.Column="16"/>
+            <Image x:Name="Tile_39" Grid.Row="1" Grid.Column="17"/>
+            <Image x:Name="Tile_40" Grid.Row="1" Grid.Column="18"/>
+            <Image x:Name="Tile_41" Grid.Row="1" Grid.Column="19"/>
+            <Image x:Name="Tile_42" Grid.Row="1" Grid.Column="20"/>
+            <Image x:Name="Tile_43" Grid.Row="1" Grid.Column="21"/>
+
+            <Image x:Name="Tile_44" Grid.Row="2" Grid.Column="0"/>
+            <Image x:Name="Tile_45" Grid.Row="2" Grid.Column="1"/>
+            <Image x:Name="Tile_46" Grid.Row="2" Grid.Column="2"/>
+            <Image x:Name="Tile_47" Grid.Row="2" Grid.Column="3"/>
+            <Image x:Name="Tile_48" Grid.Row="2" Grid.Column="4"/>
+            <Image x:Name="Tile_49" Grid.Row="2" Grid.Column="5"/>
+            <Image x:Name="Tile_50" Grid.Row="2" Grid.Column="6"/>
+            <Image x:Name="Tile_51" Grid.Row="2" Grid.Column="7"/>
+            <Image x:Name="Tile_52" Grid.Row="2" Grid.Column="8"/>
+            <Image x:Name="Tile_53" Grid.Row="2" Grid.Column="9"/>
+            <Image x:Name="Tile_54" Grid.Row="2" Grid.Column="10"/>
+            <Image x:Name="Tile_55" Grid.Row="2" Grid.Column="11"/>
+            <Image x:Name="Tile_56" Grid.Row="2" Grid.Column="12"/>
+            <Image x:Name="Tile_57" Grid.Row="2" Grid.Column="13"/>
+            <Image x:Name="Tile_58" Grid.Row="2" Grid.Column="14"/>
+            <Image x:Name="Tile_59" Grid.Row="2" Grid.Column="15"/>
+            <Image x:Name="Tile_60" Grid.Row="2" Grid.Column="16"/>
+            <Image x:Name="Tile_61" Grid.Row="2" Grid.Column="17"/>
+            <Image x:Name="Tile_62" Grid.Row="2" Grid.Column="18"/>
+            <Image x:Name="Tile_63" Grid.Row="2" Grid.Column="19"/>
+            <Image x:Name="Tile_64" Grid.Row="2" Grid.Column="20"/>
+            <Image x:Name="Tile_65" Grid.Row="2" Grid.Column="21"/>
+
+            <Image x:Name="Tile_66" Grid.Row="3" Grid.Column="0"/>
+            <Image x:Name="Tile_67" Grid.Row="3" Grid.Column="1"/>
+            <Image x:Name="Tile_68" Grid.Row="3" Grid.Column="2"/>
+            <Image x:Name="Tile_69" Grid.Row="3" Grid.Column="3"/>
+            <Image x:Name="Tile_70" Grid.Row="3" Grid.Column="4"/>
+            <Image x:Name="Tile_71" Grid.Row="3" Grid.Column="5"/>
+            <Image x:Name="Tile_72" Grid.Row="3" Grid.Column="6"/>
+            <Image x:Name="Tile_73" Grid.Row="3" Grid.Column="7"/>
+            <Image x:Name="Tile_74" Grid.Row="3" Grid.Column="8"/>
+            <Image x:Name="Tile_75" Grid.Row="3" Grid.Column="9"/>
+            <Image x:Name="Tile_76" Grid.Row="3" Grid.Column="10"/>
+            <Image x:Name="Tile_77" Grid.Row="3" Grid.Column="11"/>
+            <Image x:Name="Tile_78" Grid.Row="3" Grid.Column="12"/>
+            <Image x:Name="Tile_79" Grid.Row="3" Grid.Column="13"/>
+            <Image x:Name="Tile_80" Grid.Row="3" Grid.Column="14"/>
+            <Image x:Name="Tile_81" Grid.Row="3" Grid.Column="15"/>
+            <Image x:Name="Tile_82" Grid.Row="3" Grid.Column="16"/>
+            <Image x:Name="Tile_83" Grid.Row="3" Grid.Column="17"/>
+            <Image x:Name="Tile_84" Grid.Row="3" Grid.Column="18"/>
+            <Image x:Name="Tile_85" Grid.Row="3" Grid.Column="19"/>
+            <Image x:Name="Tile_86" Grid.Row="3" Grid.Column="20"/>
+            <Image x:Name="Tile_87" Grid.Row="3" Grid.Column="21"/>
+
+            <Image x:Name="Tile_88" Grid.Row="4" Grid.Column="0"/>
+            <Image x:Name="Tile_89" Grid.Row="4" Grid.Column="1"/>
+            <Image x:Name="Tile_90" Grid.Row="4" Grid.Column="2"/>
+            <Image x:Name="Tile_91" Grid.Row="4" Grid.Column="3"/>
+            <Image x:Name="Tile_92" Grid.Row="4" Grid.Column="4"/>
+            <Image x:Name="Tile_93" Grid.Row="4" Grid.Column="5"/>
+            <Image x:Name="Tile_94" Grid.Row="4" Grid.Column="6"/>
+            <Image x:Name="Tile_95" Grid.Row="4" Grid.Column="7"/>
+            <Image x:Name="Tile_96" Grid.Row="4" Grid.Column="8"/>
+            <Image x:Name="Tile_97" Grid.Row="4" Grid.Column="9"/>
+            <Image x:Name="Tile_98" Grid.Row="4" Grid.Column="10"/>
+            <Image x:Name="Tile_99" Grid.Row="4" Grid.Column="11"/>
+            <Image x:Name="Tile_100" Grid.Row="4" Grid.Column="12"/>
+            <Image x:Name="Tile_101" Grid.Row="4" Grid.Column="13"/>
+            <Image x:Name="Tile_102" Grid.Row="4" Grid.Column="14"/>
+            <Image x:Name="Tile_103" Grid.Row="4" Grid.Column="15"/>
+            <Image x:Name="Tile_104" Grid.Row="4" Grid.Column="16"/>
+            <Image x:Name="Tile_105" Grid.Row="4" Grid.Column="17"/>
+            <Image x:Name="Tile_106" Grid.Row="4" Grid.Column="18"/>
+            <Image x:Name="Tile_107" Grid.Row="4" Grid.Column="19"/>
+            <Image x:Name="Tile_108" Grid.Row="4" Grid.Column="20"/>
+            <Image x:Name="Tile_109" Grid.Row="4" Grid.Column="21"/>
+
+            <Image x:Name="Tile_110" Grid.Row="5" Grid.Column="0"/>
+            <Image x:Name="Tile_111" Grid.Row="5" Grid.Column="1"/>
+            <Image x:Name="Tile_112" Grid.Row="5" Grid.Column="2"/>
+            <Image x:Name="Tile_113" Grid.Row="5" Grid.Column="3"/>
+            <Image x:Name="Tile_114" Grid.Row="5" Grid.Column="4"/>
+            <Image x:Name="Tile_115" Grid.Row="5" Grid.Column="5"/>
+            <Image x:Name="Tile_116" Grid.Row="5" Grid.Column="6"/>
+            <Image x:Name="Tile_117" Grid.Row="5" Grid.Column="7"/>
+            <Image x:Name="Tile_118" Grid.Row="5" Grid.Column="8"/>
+            <Image x:Name="Tile_119" Grid.Row="5" Grid.Column="9"/>
+            <Image x:Name="Tile_120" Grid.Row="5" Grid.Column="10"/>
+            <Image x:Name="Tile_121" Grid.Row="5" Grid.Column="11"/>
+            <Image x:Name="Tile_122" Grid.Row="5" Grid.Column="12"/>
+            <Image x:Name="Tile_123" Grid.Row="5" Grid.Column="13"/>
+            <Image x:Name="Tile_124" Grid.Row="5" Grid.Column="14"/>
+            <Image x:Name="Tile_125" Grid.Row="5" Grid.Column="15"/>
+            <Image x:Name="Tile_126" Grid.Row="5" Grid.Column="16"/>
+            <Image x:Name="Tile_127" Grid.Row="5" Grid.Column="17"/>
+            <Image x:Name="Tile_128" Grid.Row="5" Grid.Column="18"/>
+            <Image x:Name="Tile_129" Grid.Row="5" Grid.Column="19"/>
+            <Image x:Name="Tile_130" Grid.Row="5" Grid.Column="20"/>
+            <Image x:Name="Tile_131" Grid.Row="5" Grid.Column="21"/>
+
+            <Image x:Name="Tile_132" Grid.Row="6" Grid.Column="0"/>
+            <Image x:Name="Tile_133" Grid.Row="6" Grid.Column="1"/>
+            <Image x:Name="Tile_134" Grid.Row="6" Grid.Column="2"/>
+            <Image x:Name="Tile_135" Grid.Row="6" Grid.Column="3"/>
+            <Image x:Name="Tile_136" Grid.Row="6" Grid.Column="4"/>
+            <Image x:Name="Tile_137" Grid.Row="6" Grid.Column="5"/>
+            <Image x:Name="Tile_138" Grid.Row="6" Grid.Column="6"/>
+            <Image x:Name="Tile_139" Grid.Row="6" Grid.Column="7"/>
+            <Image x:Name="Tile_140" Grid.Row="6" Grid.Column="8"/>
+            <Image x:Name="Tile_141" Grid.Row="6" Grid.Column="9"/>
+            <Image x:Name="Tile_142" Grid.Row="6" Grid.Column="10"/>
+            <Image x:Name="Tile_143" Grid.Row="6" Grid.Column="11"/>
+            <Image x:Name="Tile_144" Grid.Row="6" Grid.Column="12"/>
+            <Image x:Name="Tile_145" Grid.Row="6" Grid.Column="13"/>
+            <Image x:Name="Tile_146" Grid.Row="6" Grid.Column="14"/>
+            <Image x:Name="Tile_147" Grid.Row="6" Grid.Column="15"/>
+            <Image x:Name="Tile_148" Grid.Row="6" Grid.Column="16"/>
+            <Image x:Name="Tile_149" Grid.Row="6" Grid.Column="17"/>
+            <Image x:Name="Tile_150" Grid.Row="6" Grid.Column="18"/>
+            <Image x:Name="Tile_151" Grid.Row="6" Grid.Column="19"/>
+            <Image x:Name="Tile_152" Grid.Row="6" Grid.Column="20"/>
+            <Image x:Name="Tile_153" Grid.Row="6" Grid.Column="21"/>
+
+            <Image x:Name="Tile_154" Grid.Row="7" Grid.Column="0"/>
+            <Image x:Name="Tile_155" Grid.Row="7" Grid.Column="1"/>
+            <Image x:Name="Tile_156" Grid.Row="7" Grid.Column="2"/>
+            <Image x:Name="Tile_157" Grid.Row="7" Grid.Column="3"/>
+            <Image x:Name="Tile_158" Grid.Row="7" Grid.Column="4"/>
+            <Image x:Name="Tile_159" Grid.Row="7" Grid.Column="5"/>
+            <Image x:Name="Tile_160" Grid.Row="7" Grid.Column="6"/>
+            <Image x:Name="Tile_161" Grid.Row="7" Grid.Column="7"/>
+            <Image x:Name="Tile_162" Grid.Row="7" Grid.Column="8"/>
+            <Image x:Name="Tile_163" Grid.Row="7" Grid.Column="9"/>
+            <Image x:Name="Tile_164" Grid.Row="7" Grid.Column="10"/>
+            <Image x:Name="Tile_165" Grid.Row="7" Grid.Column="11"/>
+            <Image x:Name="Tile_166" Grid.Row="7" Grid.Column="12"/>
+            <Image x:Name="Tile_167" Grid.Row="7" Grid.Column="13"/>
+            <Image x:Name="Tile_168" Grid.Row="7" Grid.Column="14"/>
+            <Image x:Name="Tile_169" Grid.Row="7" Grid.Column="15"/>
+            <Image x:Name="Tile_170" Grid.Row="7" Grid.Column="16"/>
+            <Image x:Name="Tile_171" Grid.Row="7" Grid.Column="17"/>
+            <Image x:Name="Tile_172" Grid.Row="7" Grid.Column="18"/>
+            <Image x:Name="Tile_173" Grid.Row="7" Grid.Column="19"/>
+            <Image x:Name="Tile_174" Grid.Row="7" Grid.Column="20"/>
+            <Image x:Name="Tile_175" Grid.Row="7" Grid.Column="21"/>
+
+            <Image x:Name="Tile_176" Grid.Row="8" Grid.Column="0"/>
+            <Image x:Name="Tile_177" Grid.Row="8" Grid.Column="1"/>
+            <Image x:Name="Tile_178" Grid.Row="8" Grid.Column="2"/>
+            <Image x:Name="Tile_179" Grid.Row="8" Grid.Column="3"/>
+            <Image x:Name="Tile_180" Grid.Row="8" Grid.Column="4"/>
+            <Image x:Name="Tile_181" Grid.Row="8" Grid.Column="5"/>
+            <Image x:Name="Tile_182" Grid.Row="8" Grid.Column="6"/>
+            <Image x:Name="Tile_183" Grid.Row="8" Grid.Column="7"/>
+            <Image x:Name="Tile_184" Grid.Row="8" Grid.Column="8"/>
+            <Image x:Name="Tile_185" Grid.Row="8" Grid.Column="9"/>
+            <Image x:Name="Tile_186" Grid.Row="8" Grid.Column="10"/>
+            <Image x:Name="Tile_187" Grid.Row="8" Grid.Column="11"/>
+            <Image x:Name="Tile_188" Grid.Row="8" Grid.Column="12"/>
+            <Image x:Name="Tile_189" Grid.Row="8" Grid.Column="13"/>
+            <Image x:Name="Tile_190" Grid.Row="8" Grid.Column="14"/>
+            <Image x:Name="Tile_191" Grid.Row="8" Grid.Column="15"/>
+            <Image x:Name="Tile_192" Grid.Row="8" Grid.Column="16"/>
+            <Image x:Name="Tile_193" Grid.Row="8" Grid.Column="17"/>
+            <Image x:Name="Tile_194" Grid.Row="8" Grid.Column="18"/>
+            <Image x:Name="Tile_195" Grid.Row="8" Grid.Column="19"/>
+            <Image x:Name="Tile_196" Grid.Row="8" Grid.Column="20"/>
+            <Image x:Name="Tile_197" Grid.Row="8" Grid.Column="21"/>
+
+            <Image x:Name="Tile_198" Grid.Row="9" Grid.Column="0"/>
+            <Image x:Name="Tile_199" Grid.Row="9" Grid.Column="1"/>
+            <Image x:Name="Tile_200" Grid.Row="9" Grid.Column="2"/>
+            <Image x:Name="Tile_201" Grid.Row="9" Grid.Column="3"/>
+            <Image x:Name="Tile_202" Grid.Row="9" Grid.Column="4"/>
+            <Image x:Name="Tile_203" Grid.Row="9" Grid.Column="5"/>
+            <Image x:Name="Tile_204" Grid.Row="9" Grid.Column="6"/>
+            <Image x:Name="Tile_205" Grid.Row="9" Grid.Column="7"/>
+            <Image x:Name="Tile_206" Grid.Row="9" Grid.Column="8"/>
+            <Image x:Name="Tile_207" Grid.Row="9" Grid.Column="9"/>
+            <Image x:Name="Tile_208" Grid.Row="9" Grid.Column="10"/>
+            <Image x:Name="Tile_209" Grid.Row="9" Grid.Column="11"/>
+            <Image x:Name="Tile_210" Grid.Row="9" Grid.Column="12"/>
+            <Image x:Name="Tile_211" Grid.Row="9" Grid.Column="13"/>
+            <Image x:Name="Tile_212" Grid.Row="9" Grid.Column="14"/>
+            <Image x:Name="Tile_213" Grid.Row="9" Grid.Column="15"/>
+            <Image x:Name="Tile_214" Grid.Row="9" Grid.Column="16"/>
+            <Image x:Name="Tile_215" Grid.Row="9" Grid.Column="17"/>
+            <Image x:Name="Tile_216" Grid.Row="9" Grid.Column="18"/>
+            <Image x:Name="Tile_217" Grid.Row="9" Grid.Column="19"/>
+            <Image x:Name="Tile_218" Grid.Row="9" Grid.Column="20"/>
+            <Image x:Name="Tile_219" Grid.Row="9" Grid.Column="21"/>
+
+            <Image x:Name="Tile_220" Grid.Row="10" Grid.Column="0"/>
+            <Image x:Name="Tile_221" Grid.Row="10" Grid.Column="1"/>
+            <Image x:Name="Tile_222" Grid.Row="10" Grid.Column="2"/>
+            <Image x:Name="Tile_223" Grid.Row="10" Grid.Column="3"/>
+            <Image x:Name="Tile_224" Grid.Row="10" Grid.Column="4"/>
+            <Image x:Name="Tile_225" Grid.Row="10" Grid.Column="5"/>
+            <Image x:Name="Tile_226" Grid.Row="10" Grid.Column="6"/>
+            <Image x:Name="Tile_227" Grid.Row="10" Grid.Column="7"/>
+            <Image x:Name="Tile_228" Grid.Row="10" Grid.Column="8"/>
+            <Image x:Name="Tile_229" Grid.Row="10" Grid.Column="9"/>
+            <Image x:Name="Tile_230" Grid.Row="10" Grid.Column="10"/>
+            <Image x:Name="Tile_231" Grid.Row="10" Grid.Column="11"/>
+            <Image x:Name="Tile_232" Grid.Row="10" Grid.Column="12"/>
+            <Image x:Name="Tile_233" Grid.Row="10" Grid.Column="13"/>
+            <Image x:Name="Tile_234" Grid.Row="10" Grid.Column="14"/>
+            <Image x:Name="Tile_235" Grid.Row="10" Grid.Column="15"/>
+            <Image x:Name="Tile_236" Grid.Row="10" Grid.Column="16"/>
+            <Image x:Name="Tile_237" Grid.Row="10" Grid.Column="17"/>
+            <Image x:Name="Tile_238" Grid.Row="10" Grid.Column="18"/>
+            <Image x:Name="Tile_239" Grid.Row="10" Grid.Column="19"/>
+            <Image x:Name="Tile_240" Grid.Row="10" Grid.Column="20"/>
+            <Image x:Name="Tile_241" Grid.Row="10" Grid.Column="21"/>
+
+            <Image x:Name="Tile_242" Grid.Row="11" Grid.Column="0"/>
+            <Image x:Name="Tile_243" Grid.Row="11" Grid.Column="1"/>
+            <Image x:Name="Tile_244" Grid.Row="11" Grid.Column="2"/>
+            <Image x:Name="Tile_245" Grid.Row="11" Grid.Column="3"/>
+            <Image x:Name="Tile_246" Grid.Row="11" Grid.Column="4"/>
+            <Image x:Name="Tile_247" Grid.Row="11" Grid.Column="5"/>
+            <Image x:Name="Tile_248" Grid.Row="11" Grid.Column="6"/>
+            <Image x:Name="Tile_249" Grid.Row="11" Grid.Column="7"/>
+            <Image x:Name="Tile_250" Grid.Row="11" Grid.Column="8"/>
+            <Image x:Name="Tile_251" Grid.Row="11" Grid.Column="9"/>
+            <Image x:Name="Tile_252" Grid.Row="11" Grid.Column="10"/>
+            <Image x:Name="Tile_253" Grid.Row="11" Grid.Column="11"/>
+            <Image x:Name="Tile_254" Grid.Row="11" Grid.Column="12"/>
+            <Image x:Name="Tile_255" Grid.Row="11" Grid.Column="13"/>
+            <Image x:Name="Tile_256" Grid.Row="11" Grid.Column="14"/>
+            <Image x:Name="Tile_257" Grid.Row="11" Grid.Column="15"/>
+            <Image x:Name="Tile_258" Grid.Row="11" Grid.Column="16"/>
+            <Image x:Name="Tile_259" Grid.Row="11" Grid.Column="17"/>
+            <Image x:Name="Tile_260" Grid.Row="11" Grid.Column="18"/>
+            <Image x:Name="Tile_261" Grid.Row="11" Grid.Column="19"/>
+            <Image x:Name="Tile_262" Grid.Row="11" Grid.Column="20"/>
+            <Image x:Name="Tile_263" Grid.Row="11" Grid.Column="21"/>
+
+            <Image x:Name="Tile_264" Grid.Row="12" Grid.Column="0"/>
+            <Image x:Name="Tile_265" Grid.Row="12" Grid.Column="1"/>
+            <Image x:Name="Tile_266" Grid.Row="12" Grid.Column="2"/>
+            <Image x:Name="Tile_267" Grid.Row="12" Grid.Column="3"/>
+            <Image x:Name="Tile_268" Grid.Row="12" Grid.Column="4"/>
+            <Image x:Name="Tile_269" Grid.Row="12" Grid.Column="5"/>
+            <Image x:Name="Tile_270" Grid.Row="12" Grid.Column="6"/>
+            <Image x:Name="Tile_271" Grid.Row="12" Grid.Column="7"/>
+            <Image x:Name="Tile_272" Grid.Row="12" Grid.Column="8"/>
+            <Image x:Name="Tile_273" Grid.Row="12" Grid.Column="9"/>
+            <Image x:Name="Tile_274" Grid.Row="12" Grid.Column="10"/>
+            <Image x:Name="Tile_275" Grid.Row="12" Grid.Column="11"/>
+            <Image x:Name="Tile_276" Grid.Row="12" Grid.Column="12"/>
+            <Image x:Name="Tile_277" Grid.Row="12" Grid.Column="13"/>
+            <Image x:Name="Tile_278" Grid.Row="12" Grid.Column="14"/>
+            <Image x:Name="Tile_279" Grid.Row="12" Grid.Column="15"/>
+            <Image x:Name="Tile_280" Grid.Row="12" Grid.Column="16"/>
+            <Image x:Name="Tile_281" Grid.Row="12" Grid.Column="17"/>
+            <Image x:Name="Tile_282" Grid.Row="12" Grid.Column="18"/>
+            <Image x:Name="Tile_283" Grid.Row="12" Grid.Column="19"/>
+            <Image x:Name="Tile_284" Grid.Row="12" Grid.Column="20"/>
+            <Image x:Name="Tile_285" Grid.Row="12" Grid.Column="21"/>
+
+            <Image x:Name="Tile_286" Grid.Row="13" Grid.Column="0"/>
+            <Image x:Name="Tile_287" Grid.Row="13" Grid.Column="1"/>
+            <Image x:Name="Tile_288" Grid.Row="13" Grid.Column="2"/>
+            <Image x:Name="Tile_289" Grid.Row="13" Grid.Column="3"/>
+            <Image x:Name="Tile_290" Grid.Row="13" Grid.Column="4"/>
+            <Image x:Name="Tile_291" Grid.Row="13" Grid.Column="5"/>
+            <Image x:Name="Tile_292" Grid.Row="13" Grid.Column="6"/>
+            <Image x:Name="Tile_293" Grid.Row="13" Grid.Column="7"/>
+            <Image x:Name="Tile_294" Grid.Row="13" Grid.Column="8"/>
+            <Image x:Name="Tile_295" Grid.Row="13" Grid.Column="9"/>
+            <Image x:Name="Tile_296" Grid.Row="13" Grid.Column="10"/>
+            <Image x:Name="Tile_297" Grid.Row="13" Grid.Column="11"/>
+            <Image x:Name="Tile_298" Grid.Row="13" Grid.Column="12"/>
+            <Image x:Name="Tile_299" Grid.Row="13" Grid.Column="13"/>
+            <Image x:Name="Tile_300" Grid.Row="13" Grid.Column="14"/>
+            <Image x:Name="Tile_301" Grid.Row="13" Grid.Column="15"/>
+            <Image x:Name="Tile_302" Grid.Row="13" Grid.Column="16"/>
+            <Image x:Name="Tile_303" Grid.Row="13" Grid.Column="17"/>
+            <Image x:Name="Tile_304" Grid.Row="13" Grid.Column="18"/>
+            <Image x:Name="Tile_305" Grid.Row="13" Grid.Column="19"/>
+            <Image x:Name="Tile_306" Grid.Row="13" Grid.Column="20"/>
+            <Image x:Name="Tile_307" Grid.Row="13" Grid.Column="21"/>
+
+            <Image x:Name="Tile_308" Grid.Row="14" Grid.Column="0"/>
+            <Image x:Name="Tile_309" Grid.Row="14" Grid.Column="1"/>
+            <Image x:Name="Tile_310" Grid.Row="14" Grid.Column="2"/>
+            <Image x:Name="Tile_311" Grid.Row="14" Grid.Column="3"/>
+            <Image x:Name="Tile_312" Grid.Row="14" Grid.Column="4"/>
+            <Image x:Name="Tile_313" Grid.Row="14" Grid.Column="5"/>
+            <Image x:Name="Tile_314" Grid.Row="14" Grid.Column="6"/>
+            <Image x:Name="Tile_315" Grid.Row="14" Grid.Column="7"/>
+            <Image x:Name="Tile_316" Grid.Row="14" Grid.Column="8"/>
+            <Image x:Name="Tile_317" Grid.Row="14" Grid.Column="9"/>
+            <Image x:Name="Tile_318" Grid.Row="14" Grid.Column="10"/>
+            <Image x:Name="Tile_319" Grid.Row="14" Grid.Column="11"/>
+            <Image x:Name="Tile_320" Grid.Row="14" Grid.Column="12"/>
+            <Image x:Name="Tile_321" Grid.Row="14" Grid.Column="13"/>
+            <Image x:Name="Tile_322" Grid.Row="14" Grid.Column="14"/>
+            <Image x:Name="Tile_323" Grid.Row="14" Grid.Column="15"/>
+            <Image x:Name="Tile_324" Grid.Row="14" Grid.Column="16"/>
+            <Image x:Name="Tile_325" Grid.Row="14" Grid.Column="17"/>
+            <Image x:Name="Tile_326" Grid.Row="14" Grid.Column="18"/>
+            <Image x:Name="Tile_327" Grid.Row="14" Grid.Column="19"/>
+            <Image x:Name="Tile_328" Grid.Row="14" Grid.Column="20"/>
+            <Image x:Name="Tile_329" Grid.Row="14" Grid.Column="21"/>
+        </Grid>
+    </DockPanel>
 </Window>
