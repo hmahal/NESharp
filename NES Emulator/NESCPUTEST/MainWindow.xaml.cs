@@ -18,6 +18,7 @@ namespace NESCPUTEST
         private Memory mem_;
         private bool running;
         private Thread _cpuThread;
+        private string filePath_;
 
         public MainWindow()
         {
@@ -65,6 +66,7 @@ namespace NESCPUTEST
             if (dialog.ShowDialog() == true)
             {
                 cartridgeReader_ = new CartridgeReader(dialog.FileName);
+                filePath_ = dialog.FileName;
                 try
                 {
                     testCartridge_ = cartridgeReader_.readCart();
@@ -150,6 +152,19 @@ namespace NESCPUTEST
         private void UpdateText2(string message)
         {
             memoryBox.Text = message;
+        }
+
+        private void resetButton_Click(object sender, RoutedEventArgs e)
+        {
+            cartridgeReader_ = new CartridgeReader(filePath_);
+            testCartridge_ = cartridgeReader_.readCart();
+            MMC3 mapper = new MMC3(testCartridge_, new PPU());
+            mem_ = new Memory(2048, mapper);
+            cpu_ = new CPU6502(mem_);
+            instructionBox.Text = "";
+            registerBox.Text = "";
+            memoryBox.Text = "";
+            runCPU.Content = "Start/Pause CPU";
         }
     }
 }
