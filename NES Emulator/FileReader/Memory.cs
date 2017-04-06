@@ -1,5 +1,4 @@
-﻿using FileReader;
-using System;
+﻿using System;
 
 /// <summary>
 /// Memory Prototype
@@ -11,7 +10,7 @@ namespace NESEmu
     /// <summary>
     /// CPU Memory. Memory Map based on https://wiki.nesdev.com/w/index.php/CPU_memory_map
     /// </summary>
-    internal class Memory
+    public class Memory
     {
         private byte[] memory;
 
@@ -37,34 +36,40 @@ namespace NESEmu
         /// <returns>Value held at index location</returns>
         public byte ReadMemory(ushort address)
         {
-            if(address < 0x2000)
+            if (address < 0x2000)
             {
                 return memory[address % 0x0800];
-            } else if(address < 0x4000)
+            }
+            else if (address < 0x4000)
             {
                 //return PPU memory
-            } else if(address == 0x4014)
+            }
+            else if (address == 0x4014)
             {
                 //return PPU register value
-            } else if(address == 0x4015)
+            }
+            else if (address == 0x4015)
             {
                 //apu memory value
-            } else if(address == 0x4016)
+            }
+            else if (address == 0x4016)
             {
                 //input 1
-            } else if(address == 0x4017)
+            }
+            else if (address == 0x4017)
             {
                 //input2
-            } else if(address >= 0x6000)
+            }
+            else if (address >= 0x6000)
             {
                 mapper.read(address);
-            } else
+            }
+            else
             {
                 throw new Exception("Invalid memory access requested");
             }
             return 0;
         }
-
 
         /// <summary>
         /// Put value in memory in the specified location
@@ -96,7 +101,7 @@ namespace NESEmu
             else if (address == 0x4016)
             {
                 //input 1
-            }            
+            }
             else if (address >= 0x6000)
             {
                 mapper.write(address, value);
@@ -104,7 +109,7 @@ namespace NESEmu
             else
             {
                 throw new Exception("Invalid memory access requested");
-            }            
+            }
         }
 
         /// <summary>

@@ -7,10 +7,14 @@ using System.Threading.Tasks;
 
 namespace NESEmu
 {
-    abstract class Mapper
+    public abstract class Mapper
     {
-        public Mapper(Cartridge cart) { }
+        public Mapper(Cartridge cart)
+        {
+        }
+
         public abstract byte read(ushort addr);
+
         public abstract void write(ushort addr, byte value);
     }
 }
