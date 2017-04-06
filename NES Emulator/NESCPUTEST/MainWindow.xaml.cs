@@ -28,30 +28,43 @@ namespace NESCPUTEST
 
         private void runCPUTick_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (cpu_ != null)
             {
-                cpu_.Tick();
-                instructionBox.Text = cpu_.CurrentInstruction;
-                registerBox.Text = cpu_.ToString();
-                memoryBox.Text = mem_.ToString();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                try
+                {
+                    cpu_.Tick();
+                    instructionBox.Text = cpu_.CurrentInstruction;
+                    registerBox.Text = cpu_.ToString();
+                    memoryBox.Text = mem_.ToString();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                }
             }
         }
 
         private void runCPUButton_Click(object sender, RoutedEventArgs e)
         {
-            if (running == false)
+            if (cpu_ != null)
             {
-                start();
-                runCPU.Content = "Running...";
-            }
-            else
-            {
-                running = false;
-                runCPU.Content = "Stopped...";
+                try
+                {
+                    if (running == false)
+                    {
+                        start();
+                        runCPU.Content = "Running...";
+                    }
+                    else
+                    {
+                        running = false;
+                        runCPU.Content = "Stopped...";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                }
             }
         }
 
@@ -156,15 +169,18 @@ namespace NESCPUTEST
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            cartridgeReader_ = new CartridgeReader(filePath_);
-            testCartridge_ = cartridgeReader_.readCart();
-            MMC3 mapper = new MMC3(testCartridge_, new PPU());
-            mem_ = new Memory(2048, mapper);
-            cpu_ = new CPU6502(mem_);
-            instructionBox.Text = "";
-            registerBox.Text = "";
-            memoryBox.Text = "";
-            runCPU.Content = "Start/Pause CPU";
+            if (filePath_ != "")
+            {
+                cartridgeReader_ = new CartridgeReader(filePath_);
+                testCartridge_ = cartridgeReader_.readCart();
+                MMC3 mapper = new MMC3(testCartridge_, new PPU());
+                mem_ = new Memory(2048, mapper);
+                cpu_ = new CPU6502(mem_);
+                instructionBox.Text = "";
+                registerBox.Text = "";
+                memoryBox.Text = "";
+                runCPU.Content = "Start/Pause CPU";
+            }
         }
     }
 }

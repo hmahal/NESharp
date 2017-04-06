@@ -18,8 +18,8 @@
         <TextBox x:Name="memoryBox" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Margin="0,0,0,0" FontFamily="Courier New" />
         <Button x:Name="runCPUTick" Content="Run a CPU Cycle" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUTick_Click" Grid.Row="1" Grid.Column="1" />
         <Button x:Name="runCPU" Content="Start/Pause CPU" HorizontalAlignment="Left" Margin="132,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUButton_Click" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="label" Content="Current Instruction:" HorizontalAlignment="Left" Margin="43.5,2,0,0" VerticalAlignment="Top" Grid.Column="1" />
-        <TextBox x:Name="instructionBox" HorizontalAlignment="Left" Height="23" Margin="155.5,6,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="49" Grid.Column="1" />
+        <Label x:Name="label" Content="Current Instruction:" HorizontalAlignment="Left" Margin="27,6,0,0" VerticalAlignment="Top" Grid.Column="1" />
+        <TextBox x:Name="instructionBox" HorizontalAlignment="Left" Height="23" Margin="178,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Grid.Column="1" />
         <Label x:Name="label1" Content="Memory:" HorizontalAlignment="Left" Margin="103,6,0,0" VerticalAlignment="Top" />
         <TextBox x:Name="registerBox" Grid.Column="1" Margin="10,122,10,7" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" />
         <Label x:Name="label2" Content="Registers:" Grid.Column="1" HorizontalAlignment="Left" Margin="44,91,0,0" Grid.Row="1" VerticalAlignment="Top" />
