@@ -461,6 +461,7 @@ namespace NESEmu
             {
                 while (_running)
                 {
+                    Console.WriteLine(_cyclesToWait);
                     if (_cyclesToWait <= 0)
                     {
                         Tick();
