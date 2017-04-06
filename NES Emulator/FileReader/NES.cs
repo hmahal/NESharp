@@ -40,6 +40,7 @@ namespace NESEmu
         public void Start()
         {
             CPU.start();
+            Console.ReadKey();
         }        
     }
 }

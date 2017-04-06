@@ -51,6 +51,7 @@
     <StartupObject>NESEmu.Start</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -72,6 +73,7 @@
     <Compile Include="memoryInfo.cs" />
     <Compile Include="MMC3.cs" />
     <Compile Include="NES.cs" />
+    <Compile Include="Palette.cs" />
     <Compile Include="PPU.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
