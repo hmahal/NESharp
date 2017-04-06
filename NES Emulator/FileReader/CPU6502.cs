@@ -415,7 +415,7 @@ namespace NESEmu
             Debug.WriteLine("Entered: " + methodname);
             try
             {
-                if (_cpuThread != null)
+                if (_cpuThread == null)
                 {
                     _cpuThread = new Thread(new ThreadStart(run));
                     _running = true;
@@ -501,6 +501,7 @@ namespace NESEmu
             interrupt = InterruptMode.NoneInterrupt;
 
             byte opcode = RAM.ReadMemory(pc_register);
+            Console.WriteLine(instructions[opcode]);
             int addrMode = addressingMode[opcode];
             currentInstruction = opcode;
 

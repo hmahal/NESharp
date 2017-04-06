@@ -9,9 +9,9 @@ namespace NESEmu
     class PPU
     {
         //Utility Values
-        int cycles_;
-        int scanlines_;
-        int frames_;
+        public int Cycle { get; set; }
+        public int Scanlines { get; set; }
+        public int Frame { get; set; }
 
         private byte[] OAM = new byte[256];
 
@@ -39,16 +39,17 @@ namespace NESEmu
         //PPUMASK
         private byte grayScale;
         private byte showLeftBack;
-        private byte showLeftSprite;
-        private byte showBackground;
-        private byte showSprite;
+        private byte showLeftSprite;        
         private byte empRed;
         private byte empGreen;
         private byte empBlue;
+        //Access needed by the mapper
+        public byte ShowBackground { get; set; }
+        public byte ShowSprite { get; set; }
 
         //PPU STATUS
         private byte spriteOverflow;
-        private byte spriteZer0;
+        private byte spriteZero;
 
         //Addresses
         private ushort vramAddress;
@@ -61,9 +62,9 @@ namespace NESEmu
         private CPU6502 cpu_;
 
         //TODO: Implement this
-        public PPU(CPU6502 cpu)
+        public PPU()
         {
-            cpu_ = cpu;
+            //cpu_ = cpu;
             //RAM = cpu_.RAM;
         }
 
@@ -71,9 +72,9 @@ namespace NESEmu
 
         public void reset()
         {
-            cycles_ = 0;
-            scanlines_ = 0;
-            frames_ = 0;
+            Cycle = 0;
+            Scanlines = 0;
+            Frame = 0;
             ppuctrl_register = 0;
             ppumask_register = 0;
             frameToggle = false;
@@ -106,8 +107,8 @@ namespace NESEmu
             grayScale       = (byte)((value >> 0) & 1);
             showLeftBack    = (byte)((value >> 1) & 1);
             showLeftSprite  = (byte)((value >> 2) & 1);
-            showBackground  = (byte)((value >> 3) & 1);
-            showSprite      = (byte)((value >> 4) & 1);
+            ShowBackground  = (byte)((value >> 3) & 1);
+            ShowSprite      = (byte)((value >> 4) & 1);
             empRed          = (byte)((value >> 5) & 1);
             empGreen        = (byte)((value >> 6) & 1);
             empBlue         = (byte)((value >> 7) & 1);
