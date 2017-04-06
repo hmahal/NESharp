@@ -9,22 +9,21 @@ using System.Diagnostics;
 /// </summary>
 namespace NESEmu
 {
-
     /// <summary>
     /// Emulation of the Ricoh 6502 CPU and its functions and capabilities
     /// </summary>
-    internal class CPU6502
+    public class CPU6502
     {
         //CPU Registers. The prototype only utilises accumulator, PC and reg x
 
-        /*The 2-byte program counter ‘PC’ supports 65536 direct (unbanked) 
+        /*The 2-byte program counter ‘PC’ supports 65536 direct (unbanked)
          * memory locations, however not all values are sent to the cartridge.
          * It can be accessed either by allowing CPU's internal fetch logic
          *  increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ),
          *   and using the RTS/JMP/JSR/Branch instructions.*/
         private ushort pc_register;
 
-        /*The stack_point register is byte-wide and can be accessed 
+        /*The stack_point register is byte-wide and can be accessed
         using interrupts, pulls, pushes, and transfers.*/
         private byte stack_pointer;
 
@@ -35,16 +34,16 @@ namespace NESEmu
 
         /*X and Y are byte-wide and used for several addressing modes.They
          * can be used as loop counters easily, using increment/decrement
-         * and branch instructions.Not being the accumulator, they have 
+         * and branch instructions.Not being the accumulator, they have
          * limited addressing modes themselves when loading and saving.*/
         private byte reg_x;
 
-        /*This is a very important register. There are instructions for 
+        /*This is a very important register. There are instructions for
          * nearly all of the transformations you can make to the accumulator,
-         *  and the X register. But there are other instructions for 
-         *  things that only the Y register can do. Various machine 
-         *  language instructions allow you to copy the contents of a 
-         *  memory location into the Y register, copy the contents of 
+         *  and the X register. But there are other instructions for
+         *  things that only the Y register can do. Various machine
+         *  language instructions allow you to copy the contents of a
+         *  memory location into the Y register, copy the contents of
          *  the Y register into a memory location, and modify the contents
          *   of the Y, or some other register directly.*/
         private byte reg_y;
@@ -76,7 +75,7 @@ namespace NESEmu
 
         /*This flag is set when a software interrupt (BRK instruction) is
         executed.*/
-        private byte break_flag; 
+        private byte break_flag;
 
         //Byte 5 (simulated bit 5): not used.Supposed to be logical 1 at all times.
         private byte unused_flag;
@@ -87,7 +86,10 @@ namespace NESEmu
 
         /*this is set if the result of an operation is
         negative, cleared if positive.*/
-        private byte sign_flag; 
+        private byte sign_flag;
+
+        private bool inject = false;
+        private byte injectVal;
 
         private InterruptMode interrupt;
         private int stall;
@@ -95,10 +97,21 @@ namespace NESEmu
         private uint _cyclesToWait; //the amount of cycles this operation takes
         private Thread _cpuThread;
         private uint _cycles; //Which cycle is the cpu on
+        private byte currentInstruction;
 
         private Memory RAM;
 
-        delegate void OpCodeMethods(MemoryInfo mem);
+        private delegate void OpCodeMethods(MemoryInfo mem);
+
+        public string CurrentInstruction
+        {
+            get
+            {
+                return instructions[currentInstruction];
+            }
+        }
+
+        #region ArrayMaps
 
         /// <summary>
         /// Array of opcode instruction names.  Used
@@ -160,7 +173,7 @@ namespace NESEmu
             10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2, };
 
         /// <summary>
-        /// Number of cycles/instruction 
+        /// Number of cycles/instruction
         /// </summary>
         private uint[] instructionCycles = new uint[256] {
             7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
@@ -220,47 +233,49 @@ namespace NESEmu
             1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, };
 
         private OpCodeMethods[] instructionAction;
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void addInstructionAction()
         {
             instructionAction = new OpCodeMethods[256] {
                 brk, ora, kil, slo, nop, ora, asl, slo,
-		        php, ora, asl, anc, nop, ora, asl, slo,
-		        bpl, ora, kil, slo, nop, ora, asl, slo,
-		        clc, ora, nop, slo, nop, ora, asl, slo,
-		        jsr, and, kil, rla, bit, and, rol, rla,
-		        plp, and, rol, anc, bit, and, rol, rla,
-		        bmi, and, kil, rla, nop, and, rol, rla,
-		        sec, and, nop, rla, nop, and, rol, rla,
-		        rti, eor, kil, sre, nop, eor, lsr, sre,
-		        pha, eor, lsr, alr, jmp, eor, lsr, sre,
-		        bvc, eor, kil, sre, nop, eor, lsr, sre,
-		        cli, eor, nop, sre, nop, eor, lsr, sre,
-		        rts, adc, kil, rra, nop, adc, ror, rra,
-		        pla, adc, ror, arr, jmp, adc, ror, rra,
-		        bvs, adc, kil, rra, nop, adc, ror, rra,
-		        sei, adc, nop, rra, nop, adc, ror, rra,
-		        nop, sta, nop, sax, sty, sta, stx, sax,
-		        dey, nop, txa, xaa, sty, sta, stx, sax,
-		        bcc, sta, kil, ahx, sty, sta, stx, sax,
-		        tya, sta, txs, tas, shy, sta, shx, ahx,
-		        ldy, lda, ldx, lax, ldy, lda, ldx, lax,
-		        tay, lda, tax, lax, ldy, lda, ldx, lax,
-		        bcs, lda, kil, lax, ldy, lda, ldx, lax,
-		        clv, lda, tsx, las, ldy, lda, ldx, lax,
-		        cpy, cmp, nop, dcp, cpy, cmp, dec, dcp,
-		        iny, cmp, dex, axs, cpy, cmp, dec, dcp,
-		        bne, cmp, kil, dcp, nop, cmp, dec, dcp,
-		        cld, cmp, nop, dcp, nop, cmp, dec, dcp,
-		        cpx, sbc, nop, isc, cpx, sbc, inc, isc,
-		        inx, sbc, nop, sbc, cpx, sbc, inc, isc,
-		        beq, sbc, kil, isc, nop, sbc, inc, isc,
-		        sed, sbc, nop, isc, nop, sbc, inc, isc,
+                php, ora, asl, anc, nop, ora, asl, slo,
+                bpl, ora, kil, slo, nop, ora, asl, slo,
+                clc, ora, nop, slo, nop, ora, asl, slo,
+                jsr, and, kil, rla, bit, and, rol, rla,
+                plp, and, rol, anc, bit, and, rol, rla,
+                bmi, and, kil, rla, nop, and, rol, rla,
+                sec, and, nop, rla, nop, and, rol, rla,
+                rti, eor, kil, sre, nop, eor, lsr, sre,
+                pha, eor, lsr, alr, jmp, eor, lsr, sre,
+                bvc, eor, kil, sre, nop, eor, lsr, sre,
+                cli, eor, nop, sre, nop, eor, lsr, sre,
+                rts, adc, kil, rra, nop, adc, ror, rra,
+                pla, adc, ror, arr, jmp, adc, ror, rra,
+                bvs, adc, kil, rra, nop, adc, ror, rra,
+                sei, adc, nop, rra, nop, adc, ror, rra,
+                nop, sta, nop, sax, sty, sta, stx, sax,
+                dey, nop, txa, xaa, sty, sta, stx, sax,
+                bcc, sta, kil, ahx, sty, sta, stx, sax,
+                tya, sta, txs, tas, shy, sta, shx, ahx,
+                ldy, lda, ldx, lax, ldy, lda, ldx, lax,
+                tay, lda, tax, lax, ldy, lda, ldx, lax,
+                bcs, lda, kil, lax, ldy, lda, ldx, lax,
+                clv, lda, tsx, las, ldy, lda, ldx, lax,
+                cpy, cmp, nop, dcp, cpy, cmp, dec, dcp,
+                iny, cmp, dex, axs, cpy, cmp, dec, dcp,
+                bne, cmp, kil, dcp, nop, cmp, dec, dcp,
+                cld, cmp, nop, dcp, nop, cmp, dec, dcp,
+                cpx, sbc, nop, isc, cpx, sbc, inc, isc,
+                inx, sbc, nop, sbc, cpx, sbc, inc, isc,
+                beq, sbc, kil, isc, nop, sbc, inc, isc,
+                sed, sbc, nop, isc, nop, sbc, inc, isc,
             };
         }
+
+        #endregion ArrayMaps
 
         /// <summary>
         /// Constructor for the CPU. Initializes memory object and provides default values
@@ -274,6 +289,7 @@ namespace NESEmu
         }
 
         #region Helper
+
         private void setZero(int value)
         {
             if (value == 0)
@@ -282,10 +298,9 @@ namespace NESEmu
                 zero_flag = 0;
         }
 
-
         private void setSign(int value)
         {
-            if ((value&0x80) != 0)
+            if ((value & 0x80) != 0)
                 sign_flag = 1;
             else
                 sign_flag = 0;
@@ -299,7 +314,7 @@ namespace NESEmu
         }
 
         private void Compare(int a, int b)
-        {            
+        {
             setZero(a - b);
             setSign(a - b);
 
@@ -323,7 +338,7 @@ namespace NESEmu
 
         private ushort Read16(ushort address)
         {
-            return (ushort)(RAM.ReadMemory((ushort)(address + 1)) << 8 
+            return (ushort)(RAM.ReadMemory((ushort)(address + 1)) << 8
                 | RAM.ReadMemory(address));
         }
 
@@ -391,7 +406,8 @@ namespace NESEmu
             if (interrupt_flag == 0)
                 interrupt = InterruptMode.IRQInterrupt;
         }
-        #endregion
+
+        #endregion Helper
 
         /// <summary>
         /// Starts the cpu, to be called after CPU is properly set up
@@ -425,7 +441,7 @@ namespace NESEmu
 
         /// <summary>
         /// The loop that is run by the cpu thread
-        /// Run as past as possible, the thread may 
+        /// Run as past as possible, the thread may
         /// not keep up with the real cpu cycles per second (~556ns per cycle)
         /// </summary>
         private void run()
@@ -462,11 +478,21 @@ namespace NESEmu
         }
 
         /// <summary>
+        /// used to inject a opcode into cpu for testing purposes
+        /// </summary>
+        /// <param name="val"></param>
+        public void Inject(int val)
+        {
+            inject = true;
+            injectVal = Convert.ToByte(val);
+        }
+
+        /// <summary>
         /// Executes the next instruction at the location of PC in the memory
         /// </summary>
         public uint Tick()
         {
-            if(stall > 0)
+            if (stall > 0)
             {
                 stall--;
                 return 1;
@@ -478,17 +504,25 @@ namespace NESEmu
                 case (InterruptMode.IRQInterrupt):
                     irq();
                     break;
+
                 case (InterruptMode.NMIInterrupt):
                     nmi();
                     break;
+
                 default:
                     break;
             }
-            interrupt = InterruptMode.NoneInterrupt;
-
+            interrupt = InterruptMode.NoneInterrupt;    
+                    
             byte opcode = RAM.ReadMemory(pc_register);
+            if (inject)
+            {
+                opcode = injectVal;
+                inject = false;
+            }
             Console.WriteLine(instructions[opcode]);
             int addrMode = addressingMode[opcode];
+            currentInstruction = opcode;
 
             ushort addr = 0;
             bool pageCrossed = false;
@@ -498,33 +532,42 @@ namespace NESEmu
                 case ((int)AddressingMode.Absolute):
                     addr = Read16((ushort)(pc_register + 1));
                     break;
+
                 case ((int)AddressingMode.AbsoluteX):
                     addr = (ushort)(Read16((ushort)(pc_register + 1)) + reg_x);
                     pageCrossed = pagesDiffer((ushort)(addr - reg_x), addr);
                     break;
+
                 case ((int)AddressingMode.AbsoluteY):
                     addr = (ushort)(Read16((ushort)(pc_register + 1)) + reg_y);
                     pageCrossed = pagesDiffer((ushort)(addr - reg_y), addr);
                     break;
+
                 case ((int)AddressingMode.Accumulator):
                     addr = 0;
                     break;
+
                 case ((int)AddressingMode.Immediate):
                     addr = (ushort)(pc_register + 1);
                     break;
+
                 case ((int)AddressingMode.Implied):
                     addr = 0;
                     break;
+
                 case ((int)AddressingMode.IndirectX):
                     addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_x)));
                     break;
+
                 case ((int)AddressingMode.Indirect):
                     addr = Read16(Read16((ushort)(pc_register + 1)));
                     break;
+
                 case ((int)AddressingMode.IndirectY):
                     addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_y)));
                     pageCrossed = pagesDiffer((ushort)(addr - reg_y), addr);
                     break;
+
                 case ((int)AddressingMode.Relative):
                     ushort offset = RAM.ReadMemory((byte)(pc_register + 1));
                     if (offset < 0x80)
@@ -532,12 +575,15 @@ namespace NESEmu
                     else
                         addr = (ushort)(pc_register + 2 + offset - 0x100);
                     break;
+
                 case ((int)AddressingMode.ZeroPage):
                     addr = Read16(RAM.ReadMemory((byte)(pc_register + 1)));
                     break;
+
                 case ((int)AddressingMode.ZeroPageX):
                     addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
                     break;
+
                 case ((int)AddressingMode.ZeroPageY):
                     addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
                     break;
@@ -552,7 +598,6 @@ namespace NESEmu
             return _cycles - cycles;
         }
 
-
         /// <summary>
         /// Gets the value held at the PC location in memory and increments PC
         /// </summary>
@@ -563,7 +608,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void nmi()
         {
@@ -575,7 +620,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void irq()
         {
@@ -587,6 +632,7 @@ namespace NESEmu
         }
 
         #region OpCode Methods
+
         private void adc(MemoryInfo mem)
         {
             byte acc = accumulator;
@@ -614,7 +660,7 @@ namespace NESEmu
 
         private void asl(MemoryInfo mem)
         {
-            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
+            if (mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 carry_flag = (byte)((accumulator >> 7) & 1);
                 accumulator <<= 1;
@@ -634,7 +680,7 @@ namespace NESEmu
 
         private void bcc(MemoryInfo mem)
         {
-            if(carry_flag == 0)
+            if (carry_flag == 0)
             {
                 pc_register = mem.Address;
                 addCycles(mem);
@@ -657,7 +703,6 @@ namespace NESEmu
                 pc_register = mem.Address;
                 addCycles(mem);
             }
-
         }
 
         private void bit(MemoryInfo mem)
@@ -788,7 +833,7 @@ namespace NESEmu
         private void inc(MemoryInfo mem)
         {
             byte value = (byte)(RAM.ReadMemory(mem.Address) + 1);
-            RAM.WriteMemory(mem.Address, value);            
+            RAM.WriteMemory(mem.Address, value);
             setZero(value);
             setSign(value);
         }
@@ -841,13 +886,14 @@ namespace NESEmu
 
         private void lsr(MemoryInfo mem)
         {
-            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
+            if (mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 carry_flag = (byte)(accumulator & 1);
                 accumulator >>= 1;
                 setZero(accumulator);
                 setSign(accumulator);
-            } else
+            }
+            else
             {
                 byte value = RAM.ReadMemory(mem.Address);
                 carry_flag = (byte)(value & 1);
@@ -894,14 +940,15 @@ namespace NESEmu
 
         private void rol(MemoryInfo mem)
         {
-            if(mem.Addr_mode == (int)AddressingMode.Accumulator)
+            if (mem.Addr_mode == (int)AddressingMode.Accumulator)
             {
                 byte carry = carry_flag;
                 carry_flag = (byte)((accumulator >> 7) & 1);
                 accumulator = (byte)((accumulator << 1) | carry);
                 setZero(accumulator);
                 setSign(accumulator);
-            } else
+            }
+            else
             {
                 byte carry = carry_flag;
                 byte value = RAM.ReadMemory(mem.Address);
@@ -911,7 +958,6 @@ namespace NESEmu
                 setZero(value);
                 setSign(value);
             }
-
         }
 
         private void ror(MemoryInfo mem)
@@ -1036,86 +1082,85 @@ namespace NESEmu
             setSign(accumulator);
         }
 
-        //TODO: Illegal Opcodes below 
+        //TODO: Illegal Opcodes below
 
         private void ahx(MemoryInfo mem)
         {
-
         }
+
         private void alr(MemoryInfo mem)
         {
-
         }
+
         private void anc(MemoryInfo mem)
         {
-
         }
+
         private void arr(MemoryInfo mem)
         {
-
         }
+
         private void axs(MemoryInfo mem)
         {
-
         }
+
         private void dcp(MemoryInfo mem)
         {
-
         }
+
         private void isc(MemoryInfo mem)
         {
-
         }
+
         private void kil(MemoryInfo mem)
         {
-
         }
+
         private void las(MemoryInfo mem)
         {
-
         }
 
         private void lax(MemoryInfo mem)
         {
-
         }
+
         private void rla(MemoryInfo mem)
         {
-
         }
+
         private void rra(MemoryInfo mem)
         {
-
         }
+
         private void sax(MemoryInfo mem)
         {
-
         }
+
         private void shx(MemoryInfo mem)
         {
-
         }
+
         private void shy(MemoryInfo mem)
         {
-
         }
+
         private void slo(MemoryInfo mem)
         {
-
         }
+
         private void sre(MemoryInfo mem)
         {
-
         }
+
         private void tas(MemoryInfo mem)
         {
-
         }
+
         private void xaa(MemoryInfo mem)
         {
-
         }
-        #endregion
+
+        #endregion OpCode Methods
 
         /// <summary>
         /// Prints the values held by ACC and the INDEX X registers
@@ -1129,7 +1174,20 @@ namespace NESEmu
         public override string ToString()
         {
             string rtn = "";
-            rtn += "Accumulator: " + accumulator.ToString("X");
+            rtn += String.Format("{0,-28}{1,4}", "Program Counter: ", pc_register.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Stack Pointer: ", stack_pointer.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Accumulator: ", accumulator.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Register X: ", reg_x.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Register Y: ", reg_y.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Carry Flag: ", carry_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Zero Flag: ", zero_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Interrupt Flag: ", interrupt_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Decimal Flag: ", decimal_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Break Flag: ", break_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Unused Flag: ", unused_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Overflow Flag: ", overflow_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-28}{1,4}", "Sign Flag: ", sign_flag.ToString("X")) + "\n";
+
             return rtn;
         }
     }

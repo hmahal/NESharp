@@ -7,7 +7,7 @@ using NESEmu;
 
 namespace NESEmu
 {
-    class MMC3 : Mapper
+    public class MMC3 : Mapper
     {
         private int[] prgbank = new int[4];
         private int[] chrbank = new int[8];
@@ -31,9 +31,9 @@ namespace NESEmu
         {
             this.cart = cart;
             this.ppu = ppu;
-            prgbank[0] = prgBankOffset(0);  
+            prgbank[0] = prgBankOffset(0);
             prgbank[1] = prgBankOffset(1);
-            prgbank[2] = prgBankOffset(-2); 
+            prgbank[2] = prgBankOffset(-2);
             prgbank[3] = prgBankOffset(-1);
         }
 
@@ -65,18 +65,18 @@ namespace NESEmu
         //PRG banks are located between 0x8000 and 0xFFFF inclusive, so we can start at 0x8000
         public override byte read(ushort addr)
         {
-            if(addr < 0x2000)
+            if (addr < 0x2000)
             {
                 int bank = addr / 0x0400;
                 int offset = addr % 0x0400;
                 return cart.Chrrom[chrbank[bank] + offset];
-
-            } else if(addr >= 0x8000)
+            }
+            else if (addr >= 0x8000)
             {
                 int tmp = addr - 0x8000;
                 int bank = tmp / 0x2000;
                 int offset = tmp % 0x2000;
-                return cart.Prgrom[prgbank[bank]+offset];
+                return cart.Prgrom[prgbank[bank] + offset];
             }
             return 0;
         }
@@ -166,7 +166,6 @@ namespace NESEmu
                 prgbank[2] = prgBankOffset(registers[6]);
                 prgbank[3] = prgBankOffset(1);
             }
-
             if(chrMode == 0)
             {
                 chrbank[0] = chrBankOffset(registers[0] & 0xFE);
