@@ -1173,19 +1173,19 @@ namespace NESEmu
         public override string ToString()
         {
             string rtn = "";
-            rtn += String.Format("{0,-20}{1,20}", "Program Counter: ", pc_register.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Stack Pointer: ", stack_pointer.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Accumulator: ", accumulator.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Register X: ", reg_x.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Register Y: ", reg_y.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Carry Flag: ", carry_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Zero Flag: ", zero_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Interrupt Flag: ", interrupt_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Decimal Flag: ", decimal_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Break Flag: ", break_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Unused Flag: ", unused_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Overflow Flag: ", overflow_flag.ToString("X")) + "\n";
-            rtn += String.Format("{0,-20}{1,20}", "Sign Flag: ", sign_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Program Counter: ", pc_register.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Stack Pointer: ", stack_pointer.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Accumulator: ", accumulator.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Register X: ", reg_x.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Register Y: ", reg_y.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Carry Flag: ", carry_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Zero Flag: ", zero_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Interrupt Flag: ", interrupt_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Decimal Flag: ", decimal_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Break Flag: ", break_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Unused Flag: ", unused_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Overflow Flag: ", overflow_flag.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,4}", "Sign Flag: ", sign_flag.ToString("X")) + "\n";
 
             return rtn;
         }
