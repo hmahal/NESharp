@@ -135,8 +135,6 @@ namespace NESEmu
             string rtn = "";
             for (int i = 0; i < memory.Length; i++)
             {
-                if (i % 6 == 0)
-                    rtn += "\n";
                 rtn += memory[i].ToString("X");
             }
             return rtn;

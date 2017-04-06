@@ -13,6 +13,7 @@ namespace NESCPUTEST
         private CartridgeReader cartridgeReader_;
         private Cartridge testCartridge_;
         private CPU6502 cpu_;
+        private Memory mem_;
 
         public MainWindow()
         {
@@ -25,6 +26,8 @@ namespace NESCPUTEST
             {
                 cpu_.Tick();
                 instructionBox.Text = cpu_.CurrentInstruction;
+                registerBox.Text = cpu_.ToString();
+                memoryBox.Text = mem_.ToString();
             }
             catch (Exception ex)
             {
@@ -50,9 +53,9 @@ namespace NESCPUTEST
                 try
                 {
                     testCartridge_ = cartridgeReader_.readCart();
-                    MMC3 mapper = new MMC3(testCartridge_);
-                    Memory memory = new Memory(2048, mapper);
-                    cpu_ = new CPU6502(memory);
+                    MMC3 mapper = new MMC3(testCartridge_, new PPU());
+                    mem_ = new Memory(2048, mapper);
+                    cpu_ = new CPU6502(mem_);
                 }
                 catch (Exception ex)
                 {

@@ -1155,7 +1155,12 @@ namespace NESEmu
         public override string ToString()
         {
             string rtn = "";
-            rtn += "Accumulator: " + accumulator.ToString("X");
+            rtn += String.Format("{0,-20}{1,20}", "Program Counter: ", pc_register.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,20}", "Stack Pointer: ", stack_pointer.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,20}", "Accumulator: ", accumulator.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,20}", "Register X: ", reg_x.ToString("X")) + "\n";
+            rtn += String.Format("{0,-20}{1,20}", "Register Y: ", reg_y.ToString("X")) + "\n";
+
             return rtn;
         }
     }

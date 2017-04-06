@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace NESEmu
 {
-    class PPU
+    public class PPU
     {
         //Utility Values
         public int Cycle { get; set; }
+
         public int Scanlines { get; set; }
         public int Frame { get; set; }
 
@@ -17,6 +18,7 @@ namespace NESEmu
 
         //Registers
         private byte ppuctrl_register;      //$2000
+
         private byte ppumask_register;      //$2001
         private byte ppustatus_register;    //$2002
         private byte oamdaddr_value;        //$2003 OAM
@@ -29,6 +31,7 @@ namespace NESEmu
         //Register Flags
         //PPUCTRL
         private byte nametableAddr;
+
         private byte addrIncrement;
         private byte sprTableAddr;
         private byte backPttrAddr;
@@ -38,21 +41,26 @@ namespace NESEmu
 
         //PPUMASK
         private byte grayScale;
+
         private byte showLeftBack;
-        private byte showLeftSprite;        
+        private byte showLeftSprite;
         private byte empRed;
         private byte empGreen;
         private byte empBlue;
+
         //Access needed by the mapper
         public byte ShowBackground { get; set; }
+
         public byte ShowSprite { get; set; }
 
         //PPU STATUS
         private byte spriteOverflow;
+
         private byte spriteZero;
 
         //Addresses
         private ushort vramAddress;
+
         private ushort tempAddress;
         private byte xScroll;
         private bool writeFlag;
@@ -93,25 +101,25 @@ namespace NESEmu
 
         private void writeControl(byte value)
         {
-            nametableAddr       = (byte)((value >> 0) & 3); // Since nametable addr occupies two bits instead of 1
-            addrIncrement       = (byte)((value >> 2) & 1);
-            sprTableAddr        = (byte)((value >> 3) & 1);
-            backPttrAddr        = (byte)((value >> 4) & 1);
-            spriteSize          = (byte)((value >> 5) & 1);
-            masterSlaveSelect   = (byte)((value >> 6) & 1);
-            generateNMI         = (byte)((value >> 7) & 1);
+            nametableAddr = (byte)((value >> 0) & 3); // Since nametable addr occupies two bits instead of 1
+            addrIncrement = (byte)((value >> 2) & 1);
+            sprTableAddr = (byte)((value >> 3) & 1);
+            backPttrAddr = (byte)((value >> 4) & 1);
+            spriteSize = (byte)((value >> 5) & 1);
+            masterSlaveSelect = (byte)((value >> 6) & 1);
+            generateNMI = (byte)((value >> 7) & 1);
         }
 
         private void writeMask(byte value)
         {
-            grayScale       = (byte)((value >> 0) & 1);
-            showLeftBack    = (byte)((value >> 1) & 1);
-            showLeftSprite  = (byte)((value >> 2) & 1);
-            ShowBackground  = (byte)((value >> 3) & 1);
-            ShowSprite      = (byte)((value >> 4) & 1);
-            empRed          = (byte)((value >> 5) & 1);
-            empGreen        = (byte)((value >> 6) & 1);
-            empBlue         = (byte)((value >> 7) & 1);
+            grayScale = (byte)((value >> 0) & 1);
+            showLeftBack = (byte)((value >> 1) & 1);
+            showLeftSprite = (byte)((value >> 2) & 1);
+            ShowBackground = (byte)((value >> 3) & 1);
+            ShowSprite = (byte)((value >> 4) & 1);
+            empRed = (byte)((value >> 5) & 1);
+            empGreen = (byte)((value >> 6) & 1);
+            empBlue = (byte)((value >> 7) & 1);
         }
 
         //TODO: Fix this
@@ -169,7 +177,8 @@ namespace NESEmu
                 tempAddress = (ushort)((tempAddress & 0x8FFF) | (((ushort)(value) & 0x07) << 12));
                 tempAddress = (ushort)((tempAddress & 0xFC1F) | (((ushort)(value) & 0xF8) << 2));
                 writeFlag = false;
-            } else
+            }
+            else
             {
                 tempAddress = (ushort)((tempAddress & 0xFFE0) | ((ushort)(value) >> 3));
                 tempAddress = (ushort)((ushort)(value) & 0x07);
@@ -195,23 +204,18 @@ namespace NESEmu
         //TODO: This
         private void writeOAMDma(byte value)
         {
-
         }
-        
 
         private void renderPixel()
         {
-
         }
 
         public void Run()
         {
-
         }
 
         public void tick()
         {
-
         }
     }
 }
