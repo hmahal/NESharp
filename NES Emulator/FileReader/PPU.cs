@@ -82,8 +82,8 @@ namespace NESEmu
         private byte[] spritePriority = new byte[8];
         private byte[] spriteIndex = new byte[8];
 
-        Bitmap front = new Bitmap(1, 1);
-        Bitmap back = new Bitmap(1,1);
+        Bitmap front = new Bitmap(256, 240);
+        Bitmap back = new Bitmap(256,240);
 
         //TODO: Implement this
         public PPU()
@@ -385,16 +385,16 @@ namespace NESEmu
 
         private void renderPixel()
         {
-            int x = Cycle - 1;
-            int y = Scanlines;
+            int x_coord = Cycle - 1;
+            int y_coord = Scanlines;
             byte backPixel = background();
             Tuple<byte, byte> spritePixel = sprite();
             byte sprite_ = spritePixel.Item2;
             byte spritePix = spritePixel.Item1;
 
-            if (x < 8 && showLeftBack == 0)
+            if (x_coord < 8 && showLeftBack == 0)
                 backPixel = 0;
-            if (x < 8 && ShowSprite == 0)
+            if (x_coord < 8 && ShowSprite == 0)
                 sprite_ = 0;
             bool b = backPixel % 4 != 0;
             bool s = sprite_ % 4 != 0;
@@ -413,7 +413,7 @@ namespace NESEmu
             }
             else
             {
-                if (spriteIndex[spritePix] == 0 && x < 255)
+                if (spriteIndex[spritePix] == 0 && x_coord < 255)
                     spriteZero = 1;
                 if (spritePriority[spritePix] == 0)
                     colour = (byte)(sprite_ | 0x10);
@@ -422,13 +422,13 @@ namespace NESEmu
             }
 
             Color col = palette.ColorPalette[((ushort)(colour))%64];
-            back.SetPixel(x, y, col);
+            back.SetPixel(x_coord, y_coord, col);
         }
 
-        private uint getSpritePattern()
-        {
+        //private uint getSpritePattern()
+        //{
 
-        }
+        //}
 
         private void checkSprites()
         {

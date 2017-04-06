@@ -56,7 +56,7 @@ namespace NESEmu
                 //input2
             } else if(address >= 0x6000)
             {
-                mapper.read(address);
+                return mapper.read(address);
             } else
             {
                 throw new Exception("Invalid memory access requested");
