@@ -50,11 +50,11 @@ namespace FileReader
         {
             if (addr < 0x2000)
             {
-
+                //Does nothing yet
             }
             else if (addr >= 0x8000)
             {
-
+                writeRegister(addr, value);
             }
         }
 

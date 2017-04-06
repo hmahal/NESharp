@@ -16,12 +16,15 @@ namespace FileReader
         public CPU6502 CPU { get; }
         public Memory RAM { get; }
         public PPU PPU { get; }
+        public Mapper Mapper { get; }
+
 
         public NES()
         {
             Cart = new Cartridge();
+            Mapper = new MMC3(Cart);
             //Create and pass the mapper to the memory
-            RAM = new Memory(2048);
+            RAM = new Memory(2048, Mapper);
             //Pass the memory to the CPU & PPU
             CPU = new CPU6502(RAM);            
         }

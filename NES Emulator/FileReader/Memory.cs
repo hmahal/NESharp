@@ -22,9 +22,10 @@ namespace NES
         /// the specified size
         /// </summary>
         /// <param name="size">Size to initialize memory array with</param>
-        public Memory(int size)
+        public Memory(int size, Mapper mapper)
         {
             memory = new byte[size];
+            this.mapper = mapper;
             ClearMemory();
         }
 

@@ -65,7 +65,7 @@ namespace FileReader
         public PPU(CPU6502 cpu)
         {
             cpu_ = cpu;
-            RAM = cpu_.RAM;
+            //RAM = cpu_.RAM;
         }
 
         //TODO: Palette
