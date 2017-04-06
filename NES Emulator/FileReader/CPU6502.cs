@@ -88,6 +88,9 @@ namespace NESEmu
         negative, cleared if positive.*/
         private byte sign_flag;
 
+        private bool inject = false;
+        private byte injectVal;
+
         private InterruptMode interrupt;
         private int stall;
         private bool _running; //set to false to shut down the cpu
@@ -474,6 +477,16 @@ namespace NESEmu
         }
 
         /// <summary>
+        /// used to inject a opcode into cpu for testing purposes
+        /// </summary>
+        /// <param name="val"></param>
+        public void Inject(int val)
+        {
+            inject = true;
+            injectVal = Convert.ToByte(val);
+        }
+
+        /// <summary>
         /// Executes the next instruction at the location of PC in the memory
         /// </summary>
         public uint Tick()
@@ -498,9 +511,14 @@ namespace NESEmu
                 default:
                     break;
             }
-            interrupt = InterruptMode.NoneInterrupt;
-
+            interrupt = InterruptMode.NoneInterrupt;    
+                    
             byte opcode = RAM.ReadMemory(pc_register);
+            if (inject)
+            {
+                opcode = injectVal;
+                inject = false;
+            }
             Console.WriteLine(instructions[opcode]);
             int addrMode = addressingMode[opcode];
             currentInstruction = opcode;

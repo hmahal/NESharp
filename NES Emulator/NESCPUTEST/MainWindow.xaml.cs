@@ -94,9 +94,6 @@ namespace NESCPUTEST
             }
         }
 
-        /// <summary>
-        /// Starts the cpu, to be called after CPU is properly set up
-        /// </summary>
         public void start()
         {
             try
@@ -120,11 +117,6 @@ namespace NESCPUTEST
 
         public delegate void UpdateTextCallback(string message);
 
-        /// <summary>
-        /// The loop that is run by the cpu thread
-        /// Run as past as possible, the thread may
-        /// not keep up with the real cpu cycles per second (~556ns per cycle)
-        /// </summary>
         private void run()
         {
             try
@@ -180,6 +172,19 @@ namespace NESCPUTEST
                 registerBox.Text = "";
                 memoryBox.Text = "";
                 runCPU.Content = "Start/Pause CPU";
+            }
+        }
+
+        private void injectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(opCodeInjectBox.Text != "" && cpu_ != null)
+            {
+                int opcode;
+                bool success = int.TryParse(opCodeInjectBox.Text, out opcode);
+                if (success)
+                {
+                    cpu_.Inject(opcode);
+                }
             }
         }
     }
