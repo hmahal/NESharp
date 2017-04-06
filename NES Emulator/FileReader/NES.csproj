@@ -48,7 +48,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>FileReader.Start</StartupObject>
+    <StartupObject>NESEmu.Start</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

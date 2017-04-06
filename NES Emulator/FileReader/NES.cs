@@ -22,8 +22,10 @@ namespace NESEmu
         {
             Cart = new Cartridge();
             const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
-            Cart.getCart(FileName);
-            Mapper = new MMC3(Cart);
+            //TODO:Fix this
+            PPU ppu = new PPU();
+            Cart = Cart.getCart(FileName);
+            Mapper = new MMC3(Cart, ppu);
             //Create and pass the mapper to the memory
             RAM = new Memory(2048, Mapper);
             //Pass the memory to the CPU & PPU

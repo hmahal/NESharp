@@ -11,6 +11,8 @@ namespace NESEmu
         private static void Main(string[] args)
         {
             NES nes = new NES();
+            nes.reset();
+            nes.Start();
         }
     }
 }

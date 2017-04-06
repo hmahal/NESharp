@@ -1,5 +1,4 @@
-﻿using FileReader;
-using System;
+﻿using System;
 
 /// <summary>
 /// Memory Prototype
