@@ -33,6 +33,11 @@ namespace NESCPUTEST
                 try
                 {
                     cpu_.Tick();
+                    if (instructionBox.Text != "")
+                    {
+                        prevInstrBox.Text += instructionBox.Text + "\n";
+                        prevInstrBox.ScrollToEnd();
+                    }
                     instructionBox.Text = cpu_.CurrentInstruction;
                     registerBox.Text = cpu_.ToString();
                     memoryBox.Text = mem_.ToString();
@@ -146,6 +151,11 @@ namespace NESCPUTEST
 
         private void UpdateText(string message)
         {
+            if (instructionBox.Text != "")
+            {
+                prevInstrBox.Text += instructionBox.Text + "\n";
+                prevInstrBox.ScrollToEnd();
+            }
             instructionBox.Text = message;
         }
 
@@ -171,6 +181,7 @@ namespace NESCPUTEST
                 instructionBox.Text = "";
                 registerBox.Text = "";
                 memoryBox.Text = "";
+                prevInstrBox.Text = "";
                 runCPU.Content = "Start/Pause CPU";
             }
         }
