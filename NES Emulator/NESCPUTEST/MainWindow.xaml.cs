@@ -41,6 +41,7 @@ namespace NESCPUTEST
                     instructionBox.Text = cpu_.CurrentInstruction;
                     registerBox.Text = cpu_.ToString();
                     memoryBox.Text = mem_.ToString();
+                    addressBox.Text = cpu_.CurrentAddress.ToString("X4");
                 }
                 catch (Exception ex)
                 {
@@ -141,6 +142,10 @@ namespace NESCPUTEST
                         new UpdateTextCallback(this.UpdateText2),
                         new object[] { mem_.ToString() }
                     );
+                    memoryBox.Dispatcher.Invoke(
+                        new UpdateTextCallback(this.UpdateText3),
+                        new object[] { cpu_.CurrentAddress.ToString("X4") }
+                    );
                 }
             }
             catch (Exception ex)
@@ -169,6 +174,11 @@ namespace NESCPUTEST
             memoryBox.Text = message;
         }
 
+        private void UpdateText3(string message)
+        {
+            addressBox.Text = message;
+        }
+
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
             if (filePath_ != null)
@@ -182,6 +192,7 @@ namespace NESCPUTEST
                 registerBox.Text = "";
                 memoryBox.Text = "";
                 prevInstrBox.Text = "";
+                addressBox.Text = "";
                 runCPU.Content = "Start/Pause CPU";
             }
         }

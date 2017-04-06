@@ -98,6 +98,7 @@ namespace NESEmu
         private Thread _cpuThread;
         private uint _cycles; //Which cycle is the cpu on
         private byte currentInstruction;
+        private uint currentAddress;
 
         private Memory RAM;
 
@@ -108,6 +109,14 @@ namespace NESEmu
             get
             {
                 return instructions[currentInstruction];
+            }
+        }
+
+        public uint CurrentAddress
+        {
+            get
+            {
+                return currentAddress;
             }
         }
 
@@ -592,6 +601,7 @@ namespace NESEmu
             _cycles += instructionCycles[opcode];
             if (pageCrossed)
                 _cycles += pageCrossedCycle[opcode];
+            currentAddress = addr;
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
             instructionAction[opcode](mem);
             return _cycles - cycles;
