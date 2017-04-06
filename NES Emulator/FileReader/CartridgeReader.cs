@@ -41,8 +41,38 @@ namespace NESEmu
                 throw new Exception("Unable to open file due to incorrect format or corruption.");
             }
 
+            //TODO: Fix reading offsets by including trainer and SRAM
             cart.Prgrom = new byte[_prgromConst * cart.Header[4]];
+
+            try
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(_filePath, FileMode.Open)))
+                {
+                    reader.BaseStream.Position = 16;
+                    cart.Prgrom = reader.ReadBytes(cart.Prgrom.Length);
+
+                }
+            }
+            catch (FileNotFoundException filenotfound)
+            {
+                throw filenotfound;
+            }
+
             cart.Chrrom = new byte[_chrromConst * cart.Header[5]];
+
+            try
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(_filePath, FileMode.Open)))
+                {
+                    reader.BaseStream.Position = cart.Prgrom.Length + 16;
+                    cart.Chrrom = reader.ReadBytes(cart.Chrrom.Length);
+
+                }
+            }
+            catch (FileNotFoundException filenotfound)
+            {
+                throw filenotfound;
+            }
 
             flags6 = cart.Header[6];
 
@@ -66,7 +96,7 @@ namespace NESEmu
             {
                 cart.Sram = new byte[0x2000];
             }
-                      
+                                 
             return cart;
         }
     }

@@ -48,6 +48,7 @@
     <Compile Include="CartridgeReader.cs" />
     <Compile Include="CPU6502.cs" />
     <Compile Include="InterruptMode.cs" />
+    <Compile Include="Mapper.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="memoryInfo.cs" />
     <Compile Include="PPU.cs" />

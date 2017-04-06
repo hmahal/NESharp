@@ -267,9 +267,9 @@ namespace NES
         /// Constructor for the CPU. Initializes memory object and provides default values
         /// for PC and Stack Pointer
         /// </summary>
-        public CPU6502()
+        public CPU6502(Memory mem)
         {
-            RAM = new Memory(0x10);//TODO:Fix this 
+            RAM = mem;//TODO:Fix this 
             addInstructionAction();
             Reset();
         }
@@ -439,7 +439,7 @@ namespace NES
                 {
                     if (_cyclesToWait <= 0)
                     {
-                        //doNext();
+                        Tick();
                     }
                     if (_cycles == 3)
                     {

@@ -59,11 +59,13 @@ namespace FileReader
         private bool frameToggle;
 
         private Memory RAM;
+        private CPU6502 cpu_;
 
         //TODO: Implement this
-        public PPU()
+        public PPU(CPU6502 cpu)
         {
-
+            cpu_ = cpu;
+            //RAM = cpu_.RAM;
         }
 
         //TODO: Palette
@@ -73,6 +75,9 @@ namespace FileReader
             cycles_ = 0;
             scanlines_ = 0;
             frames_ = 0;
+            ppuctrl_register = 0;
+            ppumask_register = 0;
+            frameToggle = false;
         }
 
         //TODO:Fix this
@@ -186,6 +191,27 @@ namespace FileReader
                 writeFlag = true;
             }
         }
+
+        //TODO: This
+        private void writeOAMDma(byte value)
+        {
+
+        }
         
+
+        private void renderPixel()
+        {
+
+        }
+
+        public void Run()
+        {
+
+        }
+
+        public void tick()
+        {
+
+        }
     }
 }
