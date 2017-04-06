@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace NESEmu
 {
-    //TODO: Review this later
-    enum InterruptMode
+    class Start
     {
-        NoneInterrupt = 1,
-        NMIInterrupt = 2,
-        IRQInterrupt = 3
+        private static void Main(string[] args)
+        {
+            NES nes = new NES();
+        }
     }
 }

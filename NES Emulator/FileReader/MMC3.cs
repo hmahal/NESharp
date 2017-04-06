@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NESEmu;
 
-namespace FileReader
+namespace NESEmu
 {
     class MMC3 : Mapper
     {
@@ -39,8 +39,8 @@ namespace FileReader
             } else if(addr >= 0x8000)
             {
                 int tmp = addr - 0x8000;
-                int bank = addr / 0x2000;
-                int offset = addr % 0x2000;
+                int bank = tmp / 0x2000;
+                int offset = tmp % 0x2000;
                 return cart.Prgrom[prgbank[bank]+offset];
             }
             return 0;

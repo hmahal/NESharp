@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Diagnostics;
-using FileReader;
 
 /// <summary>
 /// Ricoh 6502 CPU
 /// Author: Harman Mahal, George Lee, Steven Ma
 /// Version: 1.0
 /// </summary>
-namespace NES
+namespace NESEmu
 {
 
     /// <summary>
@@ -269,7 +268,7 @@ namespace NES
         /// </summary>
         public CPU6502(Memory mem)
         {
-            RAM = mem;//TODO:Fix this 
+            RAM = mem;
             addInstructionAction();
             Reset();
         }

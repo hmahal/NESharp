@@ -6,7 +6,7 @@ using System;
 /// Author: Harman
 /// Version: 1.0
 /// </summary>
-namespace NES
+namespace NESEmu
 {
     /// <summary>
     /// CPU Memory. Memory Map based on https://wiki.nesdev.com/w/index.php/CPU_memory_map
