@@ -21,7 +21,7 @@ namespace NESEmu
         public NES()
         {
             Cart = new Cartridge();
-            const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
+            const string FileName = @"C:\Users\panda\Downloads\cpu_dummy_reads.nes";
             //TODO:Fix this
             PPU ppu = new PPU();
             Cart = Cart.getCart(FileName);
@@ -39,7 +39,12 @@ namespace NESEmu
 
         public void Start()
         {
-            CPU.start();
+            for(int i = 0; i < 1000000; i++)
+            {
+                CPU.Tick();                
+            }
+            Console.ReadKey();
+
         }        
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace NESEmu
 {
@@ -28,6 +29,7 @@ namespace NESEmu
         private byte ppudata_register;      //$2007
         private byte oamdma_value;          //$4014 OAM
 
+        private byte register;
         //Register Flags
         //PPUCTRL
         private byte nametableAddr;
@@ -53,6 +55,11 @@ namespace NESEmu
 
         public byte ShowSprite { get; set; }
 
+        private bool nmiOccured;
+        private bool nmiOutput;
+        private bool nmiPrevious;
+        private byte nmiDelay;
+
         //PPU STATUS
         private byte spriteOverflow;
 
@@ -66,17 +73,33 @@ namespace NESEmu
         private bool writeFlag;
         private bool frameToggle;
 
+        private byte nameTable;
+        private byte attrTable;
+        private byte lowTile;
+        private byte highTile;
+        private ulong tileData;
+
         private Memory RAM;
         private CPU6502 cpu_;
+        private Palette palette;
+        private byte bufferedData;
+
+        private int spriteCount;
+        private uint[] spritePatterns = new uint[8];
+        private byte[] spritePositions = new byte[8];
+        private byte[] spritePriority = new byte[8];
+        private byte[] spriteIndex = new byte[8];
+
+        Bitmap front = new Bitmap(256, 240);
+        Bitmap back = new Bitmap(256,240);
 
         //TODO: Implement this
         public PPU()
         {
             //cpu_ = cpu;
             //RAM = cpu_.RAM;
-        }
-
-        //TODO: Palette
+            palette = new Palette();
+        }        
 
         public void reset()
         {
@@ -125,8 +148,14 @@ namespace NESEmu
         //TODO: Fix this
         private byte readStatus()
         {
-            byte result = 0;
-
+            byte result = (byte)(register & 0x1F);
+            result |= (byte)(spriteOverflow << 5);
+            result |= (byte)(spriteZero << 6);
+            if (nmiOccured)
+                result |= 1 << 7;
+            nmiOccured = false;
+            nmiChange();
+            writeFlag = false;            
             return result;
         }
 
@@ -160,7 +189,15 @@ namespace NESEmu
         {
             byte value = RAM.ReadMemory(vramAddress);
 
-            //TODO: Add buffered reading
+            if(vramAddress % 0x4000 < 0x3F00)
+            {
+                byte buffer = bufferedData;
+                bufferedData = value;
+                value = buffer;
+            } else
+            {
+                bufferedData = RAM.ReadMemory((ushort)(vramAddress - 0x1000));
+            }
 
             if (addrIncrement == 0)
                 vramAddress++;
@@ -203,11 +240,207 @@ namespace NESEmu
 
         //TODO: This
         private void writeOAMDma(byte value)
-        {
+        {            
         }
+        
+        private void incrementX()
+        {
+            if ((vramAddress & 0x001F) == 31)
+            {
+                vramAddress &= 0xFFE0;
+                vramAddress ^= 0x0400;
+            }
+            else
+                vramAddress++;
+        }
+
+        private void incrementY()
+        {
+            if ((vramAddress & 0x7000) != 0x7000)
+                vramAddress = 0x1000;
+            else
+            {
+                vramAddress &= 0x8FFF;
+                byte y = (byte)((vramAddress & 0x03E0) >> 5);
+                if (y == 29)
+                {
+                    y = 0;
+                    vramAddress ^= 0x800;
+                }
+                else if (y == 31)
+                    y = 0;
+                else
+                    y++;
+                vramAddress = (ushort)((vramAddress & 0xFC1F) | (y << 5));
+            }
+        }
+
+        private void copyX()
+        {
+            vramAddress = (ushort)((vramAddress & 0xFBE0) | (tempAddress & 0x041F));
+        }
+
+        private void copyY()
+        {
+            vramAddress = (ushort)((vramAddress & 0x841F) | (tempAddress & 0x7BE0));
+        }
+
+        private void nmiChange()
+        {
+            if ((nmiOutput && nmiOccured) && !nmiPrevious)
+                nmiDelay = 15;
+            nmiPrevious = (nmiOutput && nmiOccured);
+        }
+
+        private void setVerticalBlank()
+        {
+            Bitmap tmp = front;
+            front = back;
+            back = tmp;
+            nmiOccured = true;
+            nmiChange();
+        }
+
+        private void clearVerticalBlank()
+        {
+            nmiOccured = false;
+            nmiChange();
+        }
+
+        private void getNameTableValue()
+        {
+            ushort tmp = vramAddress;
+            ushort addr = (ushort)(0x2000 | (tmp & 0x0FFF));
+            nameTable = RAM.ReadMemory(addr);
+        }
+
+        private void getAttrTable()
+        {
+            ushort tmp = vramAddress;
+            ushort addr = (ushort)(0x23C0 | (tmp & 0x0C00)
+                | ((tmp >> 4) & 0x38) | ((vramAddress >> 2) & 0x07));
+            ushort shift = (ushort)(((tmp >> 4) & 4) | (tmp & 2));
+            attrTable = (byte)(((RAM.ReadMemory(addr) >> shift) & 3) << 2);
+        }
+
+        private void getTileLowByte()
+        {
+            byte y = (byte)((vramAddress >> 12) & 7);
+            byte table = backPttrAddr;
+            byte tile = nameTable;
+            ushort addr = (ushort)(0x1000 * table + tile * 16 + y);
+            lowTile = RAM.ReadMemory(addr);
+        }
+
+        private void getTileHighByte()
+        {
+            byte y = (byte)((vramAddress >> 12) & 7);
+            byte table = backPttrAddr;
+            byte tile = nameTable;
+            ushort addr = (ushort)(0x1000 * table + tile * 16 + y);
+            lowTile = RAM.ReadMemory((ushort)(addr + 8));
+        }
+
+        private void setTile()
+        {
+            uint data = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                byte attr = attrTable;
+                byte low = (byte)((lowTile & 0x80) >> 7);
+                byte high = (byte)((highTile & 0x80) >> 6);
+                lowTile <<= 1;
+                highTile <<= 1;
+                data <<= 4;
+                data |= (uint)(attr | low | high);
+            }
+            tileData |= data;
+        }
+
+        private uint getTile()
+        {
+            return (uint)(tileData >> 32);
+        }
+
+        private byte background()
+        {
+            if (ShowBackground == 0)
+                return 0;
+            uint data = getTile() >> ((7 - xScroll) * 4);
+            return (byte)(data & 0x0F);
+
+        }
+
+        private Tuple<byte, byte> sprite()
+        {
+            if(ShowSprite == 0)
+                return Tuple.Create<byte, byte>(0, 0);
+            for(int i =0; i < spriteCount; i++)
+            {
+                int offset = (Cycle - 1) - spritePositions[i];
+                if (offset < 0 || offset > 7)
+                    continue;                
+                offset = 7 - offset;
+                byte colour = (byte)(spritePatterns[i] >> (byte)(offset * 4) & 0x0F);
+                if (colour % 4 == 0)
+                    continue;
+                return Tuple.Create<byte, byte>((byte)i, colour);
+                
+            }
+            return Tuple.Create<byte, byte>(0, 0);
+        }       
+
 
         private void renderPixel()
         {
+            int x_coord = Cycle - 1;
+            int y_coord = Scanlines;
+            byte backPixel = background();
+            Tuple<byte, byte> spritePixel = sprite();
+            byte sprite_ = spritePixel.Item2;
+            byte spritePix = spritePixel.Item1;
+
+            if (x_coord < 8 && showLeftBack == 0)
+                backPixel = 0;
+            if (x_coord < 8 && ShowSprite == 0)
+                sprite_ = 0;
+            bool b = backPixel % 4 != 0;
+            bool s = sprite_ % 4 != 0;
+            byte colour;
+            if(!b && !s)
+            {
+                colour = 0;
+            }
+            else if(!b && s)
+            {
+                colour = (byte)(sprite_ | 0x10);
+            }
+            else if(b && !s)
+            {
+                colour = backPixel;
+            }
+            else
+            {
+                if (spriteIndex[spritePix] == 0 && x_coord < 255)
+                    spriteZero = 1;
+                if (spritePriority[spritePix] == 0)
+                    colour = (byte)(sprite_ | 0x10);
+                else
+                    colour = backPixel;
+            }
+
+            Color col = palette.ColorPalette[((ushort)(colour))%64];
+            back.SetPixel(x_coord, y_coord, col);
+        }
+
+        //private uint getSpritePattern()
+        //{
+
+        //}
+
+        private void checkSprites()
+        {
+
         }
 
         public void Run()
