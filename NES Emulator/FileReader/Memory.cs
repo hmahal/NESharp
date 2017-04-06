@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileReader;
+using System;
 
 /// <summary>
 /// Memory Prototype
@@ -13,6 +14,8 @@ namespace NES
     internal class Memory
     {
         private byte[] memory;
+
+        private Mapper mapper;
 
         /// <summary>
         /// Constructor for the memory object. Initializes memory array to
@@ -54,7 +57,7 @@ namespace NES
                 //input2
             } else if(address >= 0x6000)
             {
-                //read from the ROM using memory maps
+                mapper.read(address);
             } else
             {
                 throw new Exception("Invalid memory access requested");
@@ -96,7 +99,7 @@ namespace NES
             }            
             else if (address >= 0x6000)
             {
-                //read from the ROM using memory maps
+                mapper.write(address, value);
             }
             else
             {
