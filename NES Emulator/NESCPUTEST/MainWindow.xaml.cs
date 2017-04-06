@@ -35,7 +35,7 @@ namespace NESCPUTEST
                     cpu_.Tick();
                     if (instructionBox.Text != "")
                     {
-                        prevInstrBox.Text += instructionBox.Text + "\n";
+                        prevInstrBox.Text += instructionBox.Text + " " + addressBox.Text + "\n";
                         prevInstrBox.ScrollToEnd();
                     }
                     instructionBox.Text = cpu_.CurrentInstruction;
@@ -158,7 +158,7 @@ namespace NESCPUTEST
         {
             if (instructionBox.Text != "")
             {
-                prevInstrBox.Text += instructionBox.Text + "\n";
+                prevInstrBox.Text += instructionBox.Text + " " + addressBox.Text + "\n";
                 prevInstrBox.ScrollToEnd();
             }
             instructionBox.Text = message;
