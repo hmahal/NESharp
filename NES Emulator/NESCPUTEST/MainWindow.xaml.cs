@@ -169,7 +169,7 @@ namespace NESCPUTEST
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (filePath_ != "")
+            if (filePath_ != null)
             {
                 cartridgeReader_ = new CartridgeReader(filePath_);
                 testCartridge_ = cartridgeReader_.readCart();
