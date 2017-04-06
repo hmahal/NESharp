@@ -62,7 +62,7 @@ namespace NESEmu
             }
             else if (address >= 0x6000)
             {
-                mapper.read(address);
+                return mapper.read(address);
             }
             else
             {
