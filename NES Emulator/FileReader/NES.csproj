@@ -68,6 +68,7 @@
     <Compile Include="Cartridge.cs" />
     <Compile Include="CartridgeReader.cs" />
     <Compile Include="CPU6502.cs" />
+    <Compile Include="Input.cs" />
     <Compile Include="InterruptMode.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mapper.cs" />

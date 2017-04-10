@@ -14,22 +14,26 @@ namespace NESEmu
         public Cartridge Cart { get; }
         public CPU6502 CPU { get; }
         public Memory RAM { get; }
-        public PPU PPU { get; }
+        public PPU ppu { get; }
         public Mapper Mapper { get; }
 
 
         public NES()
         {
             Cart = new Cartridge();
-            const string FileName = @"C:\Users\panda\Downloads\cpu_dummy_reads.nes";
+            const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
             //TODO:Fix this
-            PPU ppu = new PPU();
+            Input input1 = new Input();
+            Input input2 = new Input();
+            ppu = PPU.Instance;
             Cart = Cart.getCart(FileName);
-            Mapper = new MMC3(Cart, ppu);
+            Mapper = new MMC3(Cart);
             //Create and pass the mapper to the memory
-            RAM = new Memory(2048, Mapper);
+            Memory.Create(2048, Mapper, input1, input2);
+            RAM = Memory.Instance;
             //Pass the memory to the CPU & PPU
-            CPU = new CPU6502(RAM);            
+            CPU6502.Create(RAM);
+            CPU = CPU6502.Instance;           
         }
 
         public void reset()
@@ -37,14 +41,25 @@ namespace NESEmu
             CPU.Reset();
         }
 
-        public void Start()
-        {
-            for(int i = 0; i < 1000000; i++)
+        public uint Start()
+        {            
+            
+            uint cycles = CPU.Tick();
+            uint ppuCycles = cycles * 3;
+            for (int i = 0; i < ppuCycles; i++)
             {
-                CPU.Tick();                
+                ppu.run();
+                Mapper.Tick();
             }
-            Console.ReadKey();
+            return cycles;
+        }
 
-        }        
+        public void StepFrame()
+        {
+            for(int i = ppu.Frame; i < 1000;)
+            {
+                Start();                
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*" />
-            <RowDefinition Height="15*" />
+            <RowDefinition Height="15*" />            
         </Grid.RowDefinitions>
         <TextBox x:Name="memoryBox" TextWrapping="Wrap" Grid.Column="0" Margin="10,57,0.286,7.286" FontFamily="Courier New" Grid.RowSpan="2" />
         <Button x:Name="runCPUTick" Content="Run a CPU Cycle" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUTick_Click" Grid.Row="1" Grid.Column="1" />
@@ -30,6 +30,6 @@
         <TextBox x:Name="prevInstrBox" Grid.Column="1" Margin="263.714,32.857,0,7.286" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" HorizontalAlignment="Left" Width="120"/>
         <Label x:Name="label3" Content="Previous Instructions:" Grid.Column="1" HorizontalAlignment="Left" Margin="263.714,6.857,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="-0.458,0.429"/>
         <TextBox x:Name="addressBox" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="263.714,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label x:Name="label4" Content="Address:" Grid.Column="1" HorizontalAlignment="Left" Margin="208.714,6,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label4" Content="Address:" Grid.Column="1" HorizontalAlignment="Left" Margin="208.714,6,0,0" VerticalAlignment="Top"/>        
     </Grid>
 </Window>

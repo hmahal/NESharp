@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Diagnostics;
+using System.IO;
 
 /// <summary>
 /// Ricoh 6502 CPU
@@ -92,18 +93,20 @@ namespace NESEmu
         private byte injectVal;
 
         private InterruptMode interrupt;
-        private int stall;
+        public int Stall { get; set; }
         private bool _running; //set to false to shut down the cpu
         private uint _cyclesToWait; //the amount of cycles this operation takes
         private Thread _cpuThread;
-        private uint _cycles; //Which cycle is the cpu on
+        public uint Cycle { get; set; } //Which cycle is the cpu on
         private byte currentInstruction;
         private uint currentAddress;
 
-        private Memory RAM;
+        public Memory RAM { get; set; }
 
         private delegate void OpCodeMethods(MemoryInfo mem);
 
+        private static CPU6502 instance;
+        private StreamWriter sw;
         public string CurrentInstruction
         {
             get
@@ -205,7 +208,7 @@ namespace NESEmu
         /// <summary>
         /// # of bytes for a given instruction
         /// </summary>
-        private int[] instructionSize = new int[256] {
+        private ushort[] instructionSize = new ushort[256] {
             1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
             2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
             3, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
@@ -290,16 +293,38 @@ namespace NESEmu
         /// Constructor for the CPU. Initializes memory object and provides default values
         /// for PC and Stack Pointer
         /// </summary>
-        public CPU6502(Memory mem)
+        private CPU6502(Memory mem)
         {
             RAM = mem;
             addInstructionAction();
             Reset();
+            sw = new StreamWriter(@"C:\Users\panda\Desktop\test1.txt", true);
+        }
+
+        public static CPU6502 Instance
+        {
+            get
+            {
+                if(instance == null)
+                {
+                    throw new Exception("CPU not created");
+                }
+                return instance;
+            }
+        }
+
+        public static void Create(Memory mem)
+        {
+            if(instance != null)
+            {
+                throw new Exception("Object already created");
+            }
+            instance = new CPU6502(mem);
         }
 
         #region Helper
 
-        private void setZero(int value)
+        private void setZero(byte value)
         {
             if (value == 0)
                 zero_flag = 1;
@@ -307,10 +332,12 @@ namespace NESEmu
                 zero_flag = 0;
         }
 
-        private void setSign(int value)
+        private void setSign(byte value)
         {
             if ((value & 0x80) != 0)
-                sign_flag = 1;
+            {
+                sign_flag = 1;                
+            }
             else
                 sign_flag = 0;
         }
@@ -322,10 +349,10 @@ namespace NESEmu
             setFlags(0x24);
         }
 
-        private void Compare(int a, int b)
+        private void Compare(byte a, byte b)
         {
-            setZero(a - b);
-            setSign(a - b);
+            setZero((byte)(a - b));
+            setSign((byte)(a - b));
 
             if (a >= b)
                 carry_flag = 1;
@@ -335,20 +362,35 @@ namespace NESEmu
 
         private void push(byte value)
         {
-            RAM.WriteMemory(stack_pointer, value);
+            ushort addr = (ushort)(0x100 | stack_pointer);
+            RAM.WriteMemory(addr, value);
             stack_pointer--;
         }
 
         private byte pull()
         {
             stack_pointer++;
-            return RAM.ReadMemory(stack_pointer);
+            ushort addr = (ushort)(0x100 | stack_pointer);
+            return RAM.ReadMemory(addr);
         }
 
         private ushort Read16(ushort address)
         {
-            return (ushort)(RAM.ReadMemory((ushort)(address + 1)) << 8
-                | RAM.ReadMemory(address));
+            byte lowByte = RAM.ReadMemory(address);
+            byte highByte = RAM.ReadMemory((ushort)(address + 1));
+            ushort result = (ushort)(highByte << 8 | lowByte);
+            return result;
+        }
+
+        private ushort errorRead16(ushort address)
+        {
+            ushort tmp = address;
+            ushort tmp_2 = (ushort)((tmp & 0xFF00) | ((byte)(tmp))+1);
+            byte lowByte = RAM.ReadMemory(tmp);
+            byte highByte = RAM.ReadMemory(tmp_2);
+            ushort result = (ushort)(highByte << 8 | lowByte);
+            return result;
+
         }
 
         private void Push16(ushort value)
@@ -373,9 +415,9 @@ namespace NESEmu
 
         private void addCycles(MemoryInfo mem)
         {
-            _cycles++;
+            Cycle++;
             if (pagesDiffer(pc_register, mem.Address))
-                _cycles++;
+                Cycle++;
         }
 
         private byte Flags()
@@ -405,12 +447,12 @@ namespace NESEmu
         }
 
         //TODO: Review this later
-        private void triggerNMI()
+        public void triggerNMI()
         {
             interrupt = InterruptMode.NMIInterrupt;
         }
 
-        private void triggerIRQ()
+        public void triggerIRQ()
         {
             if (interrupt_flag == 0)
                 interrupt = InterruptMode.IRQInterrupt;
@@ -466,14 +508,14 @@ namespace NESEmu
                     {
                         Tick();
                     }
-                    if (_cycles == 3)
+                    if (Cycle == 3)
                     {
                         //do ppu
                         //do apu
-                        _cycles -= 3;
+                        Cycle -= 3;
                     }
                     _cyclesToWait--;
-                    _cycles++;
+                    Cycle++;
                 }
             }
             catch (Exception ex)
@@ -501,13 +543,13 @@ namespace NESEmu
         /// </summary>
         public uint Tick()
         {
-            if (stall > 0)
+            if (Stall > 0)
             {
-                stall--;
+                Stall--;
                 return 1;
             }
 
-            uint cycles = _cycles;
+            uint cycles = Cycle;
             switch (interrupt)
             {
                 case (InterruptMode.IRQInterrupt):
@@ -524,13 +566,13 @@ namespace NESEmu
             interrupt = InterruptMode.NoneInterrupt;    
                     
             byte opcode = RAM.ReadMemory(pc_register);
+            //Console.Write(instructions[opcode]);
             if (inject)
             {
                 opcode = injectVal;
                 inject = false;
             }
-            Console.WriteLine(instructions[opcode]);
-            int addrMode = addressingMode[opcode];
+            int addrMode = addressingMode[opcode];            
             currentInstruction = opcode;
 
             ushort addr = 0;
@@ -565,57 +607,52 @@ namespace NESEmu
                     break;
 
                 case ((int)AddressingMode.IndirectX):
-                    addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_x)));
+                    addr = errorRead16((ushort)(RAM.ReadMemory((ushort)(pc_register + 1)) + reg_x));
                     break;
 
                 case ((int)AddressingMode.Indirect):
-                    addr = Read16(Read16((ushort)(pc_register + 1)));
+                    addr = errorRead16(Read16((ushort)(pc_register + 1)));
                     break;
 
                 case ((int)AddressingMode.IndirectY):
-                    addr = Read16(RAM.ReadMemory((ushort)((byte)(pc_register + 1) + reg_y)));
+                    addr = (ushort)(errorRead16(RAM.ReadMemory((ushort)(pc_register + 1))) + reg_y);
                     pageCrossed = pagesDiffer((ushort)(addr - reg_y), addr);
                     break;
 
                 case ((int)AddressingMode.Relative):
-                    ushort offset = RAM.ReadMemory((byte)(pc_register + 1));
+                    int offset = RAM.ReadMemory((ushort)(pc_register + 1));
+                               
                     if (offset < 0x80)
                         addr = (ushort)(pc_register + 2 + offset);
                     else
-                        addr = (ushort)(pc_register + 2 + offset - 0x100);
+                        addr = (ushort)(pc_register + 2 + offset - 0x100);                    
                     break;
 
                 case ((int)AddressingMode.ZeroPage):
-                    addr = Read16(RAM.ReadMemory((byte)(pc_register + 1)));
+                    addr = RAM.ReadMemory((ushort)(pc_register + 1));
+                    
                     break;
 
                 case ((int)AddressingMode.ZeroPageX):
-                    addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
+                    addr = (ushort)(RAM.ReadMemory((ushort)(pc_register + 1)) + reg_x);
                     break;
 
                 case ((int)AddressingMode.ZeroPageY):
-                    addr = Read16(RAM.ReadMemory((byte)((byte)(pc_register + 1) + reg_y)));
+                    addr = (ushort)(RAM.ReadMemory((ushort)(pc_register + 1)) + reg_y);
                     break;
             }
-
-            pc_register += (ushort)instructionSize[opcode];
-            _cycles += instructionCycles[opcode];
+            //sw.WriteLine(instructions[opcode] + " " + pc_register.ToString("X4") + " " + addr.ToString("X4"));      
+            pc_register += instructionSize[opcode];       
+            Cycle += instructionCycles[opcode];
             if (pageCrossed)
-                _cycles += pageCrossedCycle[opcode];
+                Cycle += pageCrossedCycle[opcode];
             currentAddress = addr;
+            //Console.WriteLine(addr);
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
             instructionAction[opcode](mem);
-            return _cycles - cycles;
+            return Cycle - cycles;
         }
 
-        /// <summary>
-        /// Gets the value held at the PC location in memory and increments PC
-        /// </summary>
-        /// <returns>returns value held in memory</returns>
-        private byte getNext()
-        {
-            return RAM.ReadMemory(pc_register++);
-        }
 
         /// <summary>
         ///
@@ -626,7 +663,7 @@ namespace NESEmu
             php(new MemoryInfo());
             pc_register = Read16(0xFFFA);
             interrupt_flag = 1;
-            _cycles += 7;
+            Cycle += 7;
         }
 
         /// <summary>
@@ -638,7 +675,7 @@ namespace NESEmu
             php(new MemoryInfo());
             pc_register = Read16(0xFFFE);
             interrupt_flag = 1;
-            _cycles += 7;
+            Cycle += 7;
         }
 
         #region OpCode Methods
@@ -719,7 +756,7 @@ namespace NESEmu
         {
             byte value = RAM.ReadMemory(mem.Address);
             overflow_flag = (byte)((value >> 6) & 1);
-            setZero(value & accumulator);
+            setZero((byte)(value & accumulator));
             setSign(value);
         }
 
@@ -744,7 +781,7 @@ namespace NESEmu
         private void bpl(MemoryInfo mem)
         {
             if (sign_flag == 0)
-            {
+            {                
                 pc_register = mem.Address;
                 addCycles(mem);
             }
@@ -755,7 +792,7 @@ namespace NESEmu
             Push16(pc_register);
             php(mem);
             sei(mem);
-            pc_register = Read16(0xFFEE);
+            pc_register = Read16(0xFFFE);
         }
 
         private void bvc(MemoryInfo mem)
@@ -813,7 +850,7 @@ namespace NESEmu
 
         private void dec(MemoryInfo mem)
         {
-            byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);
+            byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);                      
             RAM.WriteMemory(mem.Address, value);
             setZero(value);
             setSign(value);
@@ -1011,11 +1048,11 @@ namespace NESEmu
             setZero(accumulator);
             setSign(accumulator);
             int diff = accumulator - value - (1 - carry_flag);
-            if (diff > 0xFF)
+            if (diff >= 0)
                 carry_flag = 1;
             else
                 carry_flag = 0;
-            if (((acc ^ value) & 0x80) == 0 && ((acc ^ accumulator) & 0x80) == 0)
+            if (((acc ^ value) & 0x80) != 0 && ((acc ^ accumulator) & 0x80) != 0)
                 overflow_flag = 1;
             else
                 overflow_flag = 0;

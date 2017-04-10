@@ -75,8 +75,10 @@ namespace NESEmu
             }
 
             flags6 = cart.Header[6];
+            byte mirroringByte1 = (byte)(flags6 & 1);
+            byte mirroringByte2 = (byte)((flags6 >> 3) & 1);
 
-            cart.VerticalMirroring = (flags6 & 1) == 1;
+            cart.Mirroring = (byte)(mirroringByte1 | mirroringByte2 << 1);
             cart.Save_RAM = (flags6 & 2) == 2;
             cart.Trainer_Present = (flags6 & 4) == 4;
             cart.Four_Screen_Mirroring = (flags6 & 8) == 8;

@@ -3,7 +3,7 @@
     public class Cartridge
     {       
 
-        public bool VerticalMirroring { get; set; }
+        public byte Mirroring { get; set; }
         public bool Save_RAM { get; set; }
         public bool Trainer_Present { get; set; }
         public bool Four_Screen_Mirroring { get; set; }

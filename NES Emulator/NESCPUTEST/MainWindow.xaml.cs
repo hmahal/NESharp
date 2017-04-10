@@ -16,13 +16,16 @@ namespace NESCPUTEST
         private Cartridge testCartridge_;
         private CPU6502 cpu_;
         private Memory mem_;
+        private PPU ppu_;
+        private Input input1;
+        private Input input2;
         private bool running;
         private Thread _cpuThread;
         private string filePath_;
 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent();            
             running = false;
         }
 
@@ -33,6 +36,9 @@ namespace NESCPUTEST
                 try
                 {
                     cpu_.Tick();
+                    ppu_.run();
+                    ppu_.run();
+                    ppu_.run();
                     if (instructionBox.Text != "")
                     {
                         prevInstrBox.Text += instructionBox.Text + " " + addressBox.Text + "\n";
@@ -88,10 +94,15 @@ namespace NESCPUTEST
                 filePath_ = dialog.FileName;
                 try
                 {
+                    input1 = new Input();
+                    input2 = new Input();
                     testCartridge_ = cartridgeReader_.readCart();
-                    MMC3 mapper = new MMC3(testCartridge_, new PPU());
-                    mem_ = new Memory(2048, mapper);
-                    cpu_ = new CPU6502(mem_);
+                    MMC3 mapper = new MMC3(testCartridge_);
+                    ppu_ = PPU.Instance;
+                    Memory.Create(2048, mapper, input1, input2);
+                    mem_ = Memory.Instance;
+                    CPU6502.Create(mem_);                                      
+                    cpu_ = CPU6502.Instance;
                 }
                 catch (Exception ex)
                 {
@@ -130,6 +141,9 @@ namespace NESCPUTEST
                 while (running)
                 {
                     cpu_.Tick();
+                    ppu_.run();
+                    ppu_.run();
+                    ppu_.run();
                     instructionBox.Dispatcher.Invoke(
                         new UpdateTextCallback(this.UpdateText),
                         new object[] { cpu_.CurrentInstruction }
@@ -185,9 +199,10 @@ namespace NESCPUTEST
             {
                 cartridgeReader_ = new CartridgeReader(filePath_);
                 testCartridge_ = cartridgeReader_.readCart();
-                MMC3 mapper = new MMC3(testCartridge_, new PPU());
-                mem_ = new Memory(2048, mapper);
-                cpu_ = new CPU6502(mem_);
+                ppu_ = PPU.Instance;
+                MMC3 mapper = new MMC3(testCartridge_);
+                mem_ = Memory.Instance;                                
+                cpu_ = CPU6502.Instance;
                 instructionBox.Text = "";
                 registerBox.Text = "";
                 memoryBox.Text = "";

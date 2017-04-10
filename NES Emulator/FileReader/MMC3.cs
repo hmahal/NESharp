@@ -11,9 +11,7 @@ namespace NESEmu
     {
         private int[] prgbank = new int[4];
         private int[] chrbank = new int[8];
-        private Cartridge cart;
-        private PPU ppu; 
-
+        public new Cartridge cart { get; set; }       
         //Registers
         private byte register;
         private byte[] registers = new byte[8];
@@ -27,10 +25,9 @@ namespace NESEmu
         private int chrMode;
 
         //At the beginning, value of registers is unspecified, so we initialize offsets using the values below.
-        public MMC3(Cartridge cart, PPU ppu) : base(cart)
+        public MMC3(Cartridge cart) : base(cart)
         {
-            this.cart = cart;
-            this.ppu = ppu;
+            this.cart = cart;            
             prgbank[0] = prgBankOffset(0);
             prgbank[1] = prgBankOffset(1);
             prgbank[2] = prgBankOffset(-2);
@@ -40,10 +37,16 @@ namespace NESEmu
 
 
         //TODO: Implement methods for the PPU operations. Scanline counting etc.
-        public void Tick()
+        public override void Tick()
         {
-            if (ppu.Cycle == 260 && ppu.Scanlines < 239 && ppu.Scanlines > 261 && ppu.ShowBackground != 0 && ppu.ShowSprite != 0)
-                scanLine();
+            PPU ppu = PPU.Instance;
+            if (ppu.Cycle != 280)
+                return;
+            if (ppu.Scanlines > 239 && ppu.Scanlines < 261)
+                return;
+            if (ppu.ShowBackground == 0 && ppu.ShowSprite == 0)
+                return;
+            scanLine();
         }
 
         private void scanLine()
@@ -55,12 +58,11 @@ namespace NESEmu
                 counter--;
                 if(counter == 0 && irqEnable)
                 {
-                    //TODO: trigger irq for CPU
+                    CPU6502.Instance.triggerIRQ();
                 }
             }
         }
-        //TODO: Implement methods to deal with IRQ and mirroring
-
+        
         //CHR banks are located between 0x0000 and 0x1fff inclusive, so we can delineate at 0x2000
         //PRG banks are located between 0x8000 and 0xFFFF inclusive, so we can start at 0x8000
         public override byte read(ushort addr)
@@ -73,9 +75,9 @@ namespace NESEmu
             }
             else if (addr >= 0x8000)
             {
-                int tmp = addr - 0x8000;
-                int bank = tmp / 0x2000;
-                int offset = tmp % 0x2000;
+                addr = (ushort)(addr - 0x8000);
+                int bank = addr / 0x2000;
+                int offset = addr % 0x2000;
                 return cart.Prgrom[prgbank[bank] + offset];
             }
             return 0;
@@ -111,7 +113,16 @@ namespace NESEmu
 
         private void writeMirror(byte value)
         {
-
+            value = (byte)(value & 1);
+            switch (value)
+            {
+                case 0:
+                    cart.Mirroring = 0;
+                    break;
+                case 1:
+                    cart.Mirroring = 1;
+                    break;
+            }
         }
 
         private void writeRegister(ushort addr, byte value)
@@ -164,7 +175,7 @@ namespace NESEmu
                 prgbank[0] = prgBankOffset(-2);
                 prgbank[1] = prgBankOffset(registers[7]);
                 prgbank[2] = prgBankOffset(registers[6]);
-                prgbank[3] = prgBankOffset(1);
+                prgbank[3] = prgBankOffset(-1);
             }
             if(chrMode == 0)
             {

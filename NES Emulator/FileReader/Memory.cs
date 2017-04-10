@@ -15,17 +15,51 @@ namespace NESEmu
         private byte[] memory;
 
         private Mapper mapper;
+        private Input input1, input2;
+        private static Memory instance;
+
+        private ushort[][] Mirror = new ushort[5][]
+        {
+            new ushort[] { 0,0,1,1 },
+            new ushort[] { 0,1,0,1 },
+            new ushort[] { 0,0,0,0 },
+            new ushort[] { 1,1,1,1 },
+            new ushort[] { 0,1,2,3 }
+        };
 
         /// <summary>
         /// Constructor for the memory object. Initializes memory array to
         /// the specified size
         /// </summary>
         /// <param name="size">Size to initialize memory array with</param>
-        public Memory(int size, Mapper mapper)
+        private Memory(int size, Mapper mapper, Input input1, Input input2)
         {
             memory = new byte[size];
             this.mapper = mapper;
+            this.input1 = input1;
+            this.input2 = input2;       
             ClearMemory();
+        }
+
+        public static Memory Instance
+        {
+            get
+            {
+                if(instance == null)
+                {
+                    throw new Exception("Memory doesn't exist");
+                }
+                return instance;
+            }
+        }
+
+        public static void Create(int size, Mapper mapper, Input input1, Input input2)
+        {
+            if(instance != null)
+            {
+                throw new Exception("Memory already exists");
+            }
+            instance = new Memory(size, mapper, input1, input2);
         }
 
         /// <summary>
@@ -42,23 +76,25 @@ namespace NESEmu
             }
             else if (address < 0x4000)
             {
-                //return PPU memory
+                PPU ppu = PPU.Instance;
+                return ppu.readRegister((ushort)(0x2000 + address%8));        
             }
             else if (address == 0x4014)
             {
-                //return PPU register value
+                PPU ppu = PPU.Instance;
+                return ppu.readRegister(address);
             }
             else if (address == 0x4015)
-            {
-                //apu memory value
+            {                
+                throw new NotImplementedException();
             }
             else if (address == 0x4016)
             {
-                //input 1
+                return input1.Read();
             }
             else if (address == 0x4017)
             {
-                //input2
+                return input2.Read();
             }
             else if (address >= 0x6000)
             {
@@ -67,8 +103,7 @@ namespace NESEmu
             else
             {
                 throw new Exception("Invalid memory access requested");
-            }
-            return 0;
+            }            
         }
 
         /// <summary>
@@ -84,23 +119,31 @@ namespace NESEmu
             }
             else if (address < 0x4000)
             {
-                //set PPU memory
+                PPU ppu = PPU.Instance;
+                ppu.writeRegister((ushort)(0x2000 + address % 8), value);
             }
             else if (address < 0x4014)
             {
                 //set APU register value
+                //throw new NotImplementedException();
             }
             else if (address == 0x4014)
             {
-                //set PPU register value
+                PPU ppu = PPU.Instance;
+                ppu.writeRegister(address, value);
             }
             else if (address == 0x4015)
             {
-                //apu memory value
+                //throw new NotImplementedException();
             }
             else if (address == 0x4016)
             {
-                //input 1
+                input1.Write(value);
+                input2.Write(value);
+            }
+            else if (address == 0x4017)
+            {
+                //throw new NotImplementedException();
             }
             else if (address >= 0x6000)
             {
@@ -110,6 +153,65 @@ namespace NESEmu
             {
                 throw new Exception("Invalid memory access requested");
             }
+        }
+
+
+        public byte PpuRead(ushort addr)
+        {
+            addr = (ushort)(addr % 0x4000);
+            if(addr < 0x2000)
+            {
+                return mapper.read(addr);
+            }
+            else if(addr < 0x3F00)
+            {
+                PPU ppu = PPU.Instance;
+                byte mode = mapper.cart.Mirroring;
+                return ppu.nameTableData[MirroredAddress(mode, addr) % 2048];
+            }
+            else if(addr < 0x4000)
+            {
+                PPU ppu = PPU.Instance;
+                ppu.readPalette((ushort)(addr % 32));
+            }
+            else
+            {
+                throw new Exception("Invalid memory access requested");
+            }
+            return 0;
+        }
+
+        public void PpuWrite(ushort addr, byte value)
+        {
+            addr = (ushort)(addr % 0x4000);
+            if (addr < 0x2000)
+            {
+                mapper.write(addr, value);
+            }
+            else if (addr < 0x3F00)
+            {
+                PPU ppu = PPU.Instance;
+                byte mode = mapper.cart.Mirroring;
+                ppu.nameTableData[MirroredAddress(mode, addr) % 2048] = value;
+            }
+            else if (addr < 0x4000)
+            {               
+                PPU ppu = PPU.Instance;
+                ppu.writePalette((ushort)(addr % 32), value);
+            }
+            else
+            {
+                throw new Exception("Invalid memory access requested");
+            }
+        }
+
+        public ushort MirroredAddress(byte mode, ushort address)
+        {
+            address = (ushort)((address - 0x2000) % 0x1000);
+            ushort table = (ushort)(address / 0x0400);
+            ushort offset = (ushort)(address % 0x0400);
+            ushort result = (ushort)(0x2000 + Mirror[mode][table] * 0x0400 + offset);
+            return result;
         }
 
         /// <summary>

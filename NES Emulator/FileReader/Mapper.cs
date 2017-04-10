@@ -9,12 +9,14 @@ namespace NESEmu
 {
     public abstract class Mapper
     {
+        public Cartridge cart { get; set; }
         public Mapper(Cartridge cart)
         {
+            this.cart = cart;
         }
 
         public abstract byte read(ushort addr);
-
+        public abstract void Tick();
         public abstract void write(ushort addr, byte value);
     }
 }
