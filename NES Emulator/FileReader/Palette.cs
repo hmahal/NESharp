@@ -30,6 +30,9 @@ namespace NESEmu
             coloursToPalette();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void coloursToPalette()
         {
             for(int i = 0; i < colours.Length; i++)

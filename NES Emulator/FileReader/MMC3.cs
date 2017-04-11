@@ -22,6 +22,10 @@ namespace NESEmu
         private int chrMode;
 
         //At the beginning, value of registers is unspecified, so we initialize offsets using the values below.
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cart"></param>
         public MMC3(Cartridge cart) : base(cart)
         {
             this.cart = cart;            
@@ -34,6 +38,9 @@ namespace NESEmu
 
 
         //TODO: Implement methods for the PPU operations. Scanline counting etc.
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Tick()
         {
             PPU ppu = PPU.Instance;
@@ -46,6 +53,9 @@ namespace NESEmu
             scanLine();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void scanLine()
         {
             if (counter == 0)
@@ -62,6 +72,11 @@ namespace NESEmu
         
         //CHR banks are located between 0x0000 and 0x1fff inclusive, so we can delineate at 0x2000
         //PRG banks are located between 0x8000 and 0xFFFF inclusive, so we can start at 0x8000
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <returns></returns>
         public override byte read(ushort addr)
         {
             if (addr < 0x2000)
@@ -80,6 +95,11 @@ namespace NESEmu
             return 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="value"></param>
         public override void write(ushort addr, byte value)
         {
             if (addr < 0x2000)
@@ -94,6 +114,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void writeBankSelect(byte value)
         {
             prgMode = (value >> 6) & 1;
@@ -102,12 +126,20 @@ namespace NESEmu
             resetOffsets();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void writeBankData(byte value)
         {
             registers[register] = value;
             resetOffsets();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void writeMirror(byte value)
         {
             value = (byte)(value & 1);
@@ -122,6 +154,11 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="value"></param>
         private void writeRegister(ushort addr, byte value)
         {
             if((addr <= 0x9FFF) && (addr % 2 == 0))
@@ -158,6 +195,9 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void resetOffsets()
         {
             if(prgMode == 0)
@@ -199,6 +239,11 @@ namespace NESEmu
         }
 
         //Since PRG banks start from 0x8000 and are 0x2000 long each
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         private int prgBankOffset(int index)
         {
             int offset;
@@ -211,6 +256,11 @@ namespace NESEmu
             return offset;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         private int chrBankOffset(int index)
         {
             int offset;

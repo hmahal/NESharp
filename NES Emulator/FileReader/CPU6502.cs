@@ -108,6 +108,9 @@ namespace NESEmu
         private static CPU6502 instance;
         private StreamWriter sw;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string CurrentInstruction
         {
             get
@@ -116,6 +119,9 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public uint CurrentAddress
         {
             get
@@ -127,7 +133,7 @@ namespace NESEmu
         #region ArrayMaps
 
         /// <summary>
-        /// Array of opcode instruction names.  Used
+        /// Array of opcode instruction names.
         /// </summary>
         private string[] instructions = new string[256] {
             "BRK", "ORA", "KIL", "SLO", "NOP", "ORA", "ASL", "SLO",
@@ -227,6 +233,9 @@ namespace NESEmu
             2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
             2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0, };
 
+        /// <summary>
+        /// 
+        /// </summary>
         private uint[] pageCrossedCycle = new uint[256] {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
@@ -303,6 +312,9 @@ namespace NESEmu
             sw = new StreamWriter(path, true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static CPU6502 Instance
         {
             get
@@ -315,6 +327,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         public static void Create(Memory mem)
         {
             if (instance != null)
@@ -326,6 +342,10 @@ namespace NESEmu
 
         #region Helper
 
+        /// <summary>
+        /// Sets byte value to zero.
+        /// </summary>
+        /// <param name="value"></param>
         private void setZero(byte value)
         {
             if (value == 0)
@@ -334,6 +354,10 @@ namespace NESEmu
                 zero_flag = 0;
         }
 
+        /// <summary>
+        /// Sets byte value to change signs.
+        /// </summary>
+        /// <param name="value"></param>
         private void setSign(byte value)
         {
             if ((value & 0x80) != 0)
@@ -344,6 +368,9 @@ namespace NESEmu
                 sign_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Reset()
         {
             pc_register = Read16(0xFFFC);
@@ -353,6 +380,11 @@ namespace NESEmu
             PPU.Instance.reset();
         }
 
+        /// <summary>
+        /// Compares byte a and byte b.  Sets carry flag if a is greater than b.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
         private void Compare(byte a, byte b)
         {
             setZero((byte)(a - b));
@@ -364,6 +396,10 @@ namespace NESEmu
                 carry_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void push(byte value)
         {
             ushort addr = (ushort)(0x100 | stack_pointer);
@@ -371,6 +407,10 @@ namespace NESEmu
             stack_pointer--;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private byte pull()
         {
             stack_pointer++;
@@ -378,6 +418,11 @@ namespace NESEmu
             return RAM.ReadMemory(addr);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         private ushort Read16(ushort address)
         {
             byte lowByte = RAM.ReadMemory(address);
@@ -396,6 +441,10 @@ namespace NESEmu
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void Push16(ushort value)
         {
             byte highByte = (byte)(value >> 8);
@@ -404,6 +453,10 @@ namespace NESEmu
             push(lowByte);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private ushort Pull16()
         {
             ushort low = pull();
@@ -411,11 +464,21 @@ namespace NESEmu
             return (ushort)(high << 8 | low);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         private bool pagesDiffer(ushort a, ushort b)
         {
             return (a & 0xFF00) != (b & 0xFF00);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void addCycles(MemoryInfo mem)
         {
             Cycle++;
@@ -423,6 +486,10 @@ namespace NESEmu
                 Cycle++;
         }
 
+        /// <summary>
+        /// Returns the flags as bytes to simulate bit flags in actual NES.  
+        /// </summary>
+        /// <returns></returns>
         private byte Flags()
         {
             byte flags = 0;
@@ -437,6 +504,10 @@ namespace NESEmu
             return flags;
         }
 
+        /// <summary>
+        /// Sets flags as bytes to simulate the big flags used in actual NES.  
+        /// </summary>
+        /// <param name="flags"></param>
         private void setFlags(byte flags)
         {
             carry_flag = (byte)((flags >> 0) & 1);
@@ -450,11 +521,17 @@ namespace NESEmu
         }
 
         //TODO: Review this later
+        /// <summary>
+        /// 
+        /// </summary>
         public void triggerNMI()
         {
             interrupt = InterruptMode.NMIInterrupt;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void triggerIRQ()
         {
             if (interrupt_flag == 0)
@@ -681,6 +758,10 @@ namespace NESEmu
 
         #region OpCode Methods
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void adc(MemoryInfo mem)
         {
             byte acc = accumulator;
@@ -700,6 +781,10 @@ namespace NESEmu
                 overflow_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void and(MemoryInfo mem)
         {
             accumulator = (byte)(accumulator & RAM.ReadMemory(mem.Address));
@@ -707,6 +792,10 @@ namespace NESEmu
             setSign(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void asl(MemoryInfo mem)
         {
             if (mem.Addr_mode == (int)AddressingMode.Accumulator)
@@ -727,6 +816,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bcc(MemoryInfo mem)
         {
             if (carry_flag == 0)
@@ -736,6 +829,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bcs(MemoryInfo mem)
         {
             if (carry_flag != 0)
@@ -744,7 +841,11 @@ namespace NESEmu
                 addCycles(mem);
             }
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void beq(MemoryInfo mem)
         {
             if (zero_flag != 0)
@@ -754,6 +855,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bit(MemoryInfo mem)
         {
             byte value = RAM.ReadMemory(mem.Address);
@@ -762,6 +867,10 @@ namespace NESEmu
             setSign(value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bmi(MemoryInfo mem)
         {
             if (sign_flag != 0)
@@ -771,6 +880,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bne(MemoryInfo mem)
         {
             if (zero_flag == 0)
@@ -780,6 +893,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bpl(MemoryInfo mem)
         {
             if (sign_flag == 0)
@@ -789,6 +906,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void brk(MemoryInfo mem)
         {
             Push16(pc_register);
@@ -797,6 +918,10 @@ namespace NESEmu
             pc_register = Read16(0xFFFE);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bvc(MemoryInfo mem)
         {
             if (overflow_flag == 0)
@@ -806,6 +931,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void bvs(MemoryInfo mem)
         {
             if (overflow_flag != 0)
@@ -815,41 +944,73 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void clc(MemoryInfo mem)
         {
             carry_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void cld(MemoryInfo mem)
         {
             decimal_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void cli(MemoryInfo mem)
         {
             interrupt_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void clv(MemoryInfo mem)
         {
             overflow_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void cmp(MemoryInfo mem)
         {
             Compare(accumulator, RAM.ReadMemory(mem.Address));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void cpx(MemoryInfo mem)
         {
             Compare(reg_x, RAM.ReadMemory(mem.Address));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void cpy(MemoryInfo mem)
         {
             Compare(reg_y, RAM.ReadMemory(mem.Address));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void dec(MemoryInfo mem)
         {
             byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);
@@ -858,6 +1019,10 @@ namespace NESEmu
             setSign(value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void dex(MemoryInfo mem)
         {
             reg_x--;
@@ -865,6 +1030,10 @@ namespace NESEmu
             setSign(reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void dey(MemoryInfo mem)
         {
             reg_y--;
@@ -872,6 +1041,10 @@ namespace NESEmu
             setSign(reg_y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void eor(MemoryInfo mem)
         {
             accumulator = (byte)(accumulator ^ RAM.ReadMemory(mem.Address));
@@ -879,6 +1052,10 @@ namespace NESEmu
             setSign(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void inc(MemoryInfo mem)
         {
             byte value = (byte)(RAM.ReadMemory(mem.Address) + 1);
@@ -887,6 +1064,10 @@ namespace NESEmu
             setSign(value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void inx(MemoryInfo mem)
         {
             reg_x++;
@@ -894,6 +1075,10 @@ namespace NESEmu
             setSign(reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void iny(MemoryInfo mem)
         {
             reg_y++;
@@ -901,17 +1086,29 @@ namespace NESEmu
             setSign(reg_y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void jmp(MemoryInfo mem)
         {
             pc_register = mem.Address;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void jsr(MemoryInfo mem)
         {
             Push16((ushort)(pc_register - 1));
             pc_register = mem.Address;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void lda(MemoryInfo mem)
         {
             accumulator = RAM.ReadMemory(mem.Address);
@@ -919,6 +1116,10 @@ namespace NESEmu
             setSign(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void ldx(MemoryInfo mem)
         {
             reg_x = RAM.ReadMemory(mem.Address);
@@ -926,6 +1127,10 @@ namespace NESEmu
             setSign(reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void ldy(MemoryInfo mem)
         {
             reg_y = RAM.ReadMemory(mem.Address);
@@ -933,6 +1138,10 @@ namespace NESEmu
             setSign(reg_y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void lsr(MemoryInfo mem)
         {
             if (mem.Addr_mode == (int)AddressingMode.Accumulator)
@@ -953,11 +1162,19 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void nop(MemoryInfo mem)
         {
             //Do nothing;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void ora(MemoryInfo mem)
         {
             accumulator = (byte)(accumulator | RAM.ReadMemory(mem.Address));
@@ -965,16 +1182,28 @@ namespace NESEmu
             setSign(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void pha(MemoryInfo mem)
         {
             push(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void php(MemoryInfo mem)
         {
             push((byte)(Flags() | 0x10));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void pla(MemoryInfo mem)
         {
             accumulator = pull();
@@ -982,11 +1211,19 @@ namespace NESEmu
             setSign(accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void plp(MemoryInfo mem)
         {
             setFlags((byte)(pull() & 0xEF | 0x20));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void rol(MemoryInfo mem)
         {
             if (mem.Addr_mode == (int)AddressingMode.Accumulator)
@@ -1009,6 +1246,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void ror(MemoryInfo mem)
         {
             if (mem.Addr_mode == (int)AddressingMode.Accumulator)
@@ -1031,17 +1272,29 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void rti(MemoryInfo mem)
         {
             setFlags((byte)(pull() & 0xEF | 0x20));
             pc_register = Pull16();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void rts(MemoryInfo mem)
         {
             pc_register = (ushort)(Pull16() + 1);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sbc(MemoryInfo mem)
         {
             byte acc = accumulator;
@@ -1061,36 +1314,64 @@ namespace NESEmu
                 overflow_flag = 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sec(MemoryInfo mem)
         {
             carry_flag = 1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sed(MemoryInfo mem)
         {
             decimal_flag = 1;
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sei(MemoryInfo mem)
         {
             interrupt_flag = 1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sta(MemoryInfo mem)
         {
             RAM.WriteMemory(mem.Address, accumulator);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void stx(MemoryInfo mem)
         {
             RAM.WriteMemory(mem.Address, reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void sty(MemoryInfo mem)
         {
             RAM.WriteMemory(mem.Address, reg_y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void tax(MemoryInfo mem)
         {
             reg_x = accumulator;
@@ -1098,6 +1379,10 @@ namespace NESEmu
             setSign(reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void tay(MemoryInfo mem)
         {
             reg_y = accumulator;
@@ -1105,6 +1390,10 @@ namespace NESEmu
             setSign(reg_y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void tsx(MemoryInfo mem)
         {
             reg_x = stack_pointer;
@@ -1112,6 +1401,10 @@ namespace NESEmu
             setSign(reg_x);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void txa(MemoryInfo mem)
         {
             accumulator = reg_x;
@@ -1119,12 +1412,19 @@ namespace NESEmu
             setSign(accumulator);
         }
 
-        //Transfer the value stored at X to the stack pointer
+        /// <summary>
+        /// Transfer the value stored at X to the stack pointer
+        /// </summary>
+        /// <param name="mem"></param>
         private void txs(MemoryInfo mem)
         {
             stack_pointer = reg_x;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mem"></param>
         private void tya(MemoryInfo mem)
         {
             accumulator = reg_y;
@@ -1221,6 +1521,10 @@ namespace NESEmu
             Console.WriteLine("{0,20} {1,20}", accumulator.ToString("X"), reg_x.ToString("X"));
         }
 
+        /// <summary>
+        /// Converts the current values of the resgisters and flags in the CPU to strings.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string rtn = "";

@@ -21,6 +21,10 @@ namespace NESEmu
             this._filePath = FilePath;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Cartridge readCart()
         {
             cart = new Cartridge();
