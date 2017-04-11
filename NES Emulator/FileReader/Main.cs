@@ -14,7 +14,7 @@ namespace NESEmu
            
             NES nes = new NES();
             nes.reset();
-            nes.StepFrame();
+            nes.Start();
             
         }
     }

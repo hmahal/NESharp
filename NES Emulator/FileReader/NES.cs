@@ -41,25 +41,19 @@ namespace NESEmu
             CPU.Reset();
         }
 
-        public uint Start()
-        {            
-            
-            uint cycles = CPU.Tick();
-            uint ppuCycles = cycles * 3;
-            for (int i = 0; i < ppuCycles; i++)
+        public void Start()
+        {
+            for (int j = 0; j < 10000000; j++)
             {
-                ppu.run();
-                Mapper.Tick();
+                uint cycles = CPU.Tick();
+                uint ppuCycles = cycles * 3;
+                for (int i = 0; i < ppuCycles; i++)
+                {
+                    ppu.run();
+                    Mapper.Tick();
+                }                
             }
-            return cycles;
         }
 
-        public void StepFrame()
-        {
-            for(int i = ppu.Frame; i < 1000;)
-            {
-                Start();                
-            }
-        }
     }
 }

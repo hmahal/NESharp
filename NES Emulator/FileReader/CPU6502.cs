@@ -416,7 +416,7 @@ namespace NESEmu
         private void addCycles(MemoryInfo mem)
         {
             Cycle++;
-            if (pagesDiffer(pc_register, mem.Address))
+            if (pagesDiffer(mem.PC_register, mem.Address))
                 Cycle++;
         }
 
@@ -620,7 +620,7 @@ namespace NESEmu
                     break;
 
                 case ((int)AddressingMode.Relative):
-                    int offset = RAM.ReadMemory((ushort)(pc_register + 1));
+                    ushort offset = RAM.ReadMemory((ushort)(pc_register + 1));
                                
                     if (offset < 0x80)
                         addr = (ushort)(pc_register + 2 + offset);
@@ -629,8 +629,7 @@ namespace NESEmu
                     break;
 
                 case ((int)AddressingMode.ZeroPage):
-                    addr = RAM.ReadMemory((ushort)(pc_register + 1));
-                    
+                    addr = RAM.ReadMemory((ushort)(pc_register + 1));                    
                     break;
 
                 case ((int)AddressingMode.ZeroPageX):
@@ -641,12 +640,11 @@ namespace NESEmu
                     addr = (ushort)(RAM.ReadMemory((ushort)(pc_register + 1)) + reg_y);
                     break;
             }
-            //sw.WriteLine(instructions[opcode] + " " + pc_register.ToString("X4") + " " + addr.ToString("X4"));      
+            //sw.WriteLine(instructions[opcode] + " " + pc_register.ToString("X4") + " " + addr.ToString("X4"));
             pc_register += instructionSize[opcode];       
             Cycle += instructionCycles[opcode];
             if (pageCrossed)
-                Cycle += pageCrossedCycle[opcode];
-            currentAddress = addr;
+                Cycle += pageCrossedCycle[opcode];            
             //Console.WriteLine(addr);
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
             instructionAction[opcode](mem);
@@ -684,15 +682,16 @@ namespace NESEmu
         {
             byte acc = accumulator;
             byte value = RAM.ReadMemory(mem.Address);
-            accumulator = (byte)(accumulator + value + carry_flag);
+            byte carry = carry_flag;
+            accumulator = (byte)(accumulator + value + carry);
             setZero(accumulator);
             setSign(accumulator);
-            int sum = accumulator + value + carry_flag;
+            int sum = accumulator + value + carry;
             if (sum > 0xFF)
                 carry_flag = 1;
             else
                 carry_flag = 0;
-            if (((acc ^ value) & 0x80) == 0 && ((acc ^ accumulator) & 0x80) == 0)
+            if (((acc ^ value) & 0x80) == 0 && ((acc ^ accumulator) & 0x80) != 0)
                 overflow_flag = 1;
             else
                 overflow_flag = 0;
@@ -1044,10 +1043,11 @@ namespace NESEmu
         {
             byte acc = accumulator;
             byte value = RAM.ReadMemory(mem.Address);
-            accumulator = (byte)(accumulator - value - (1 - carry_flag));
+            byte carry = carry_flag;
+            accumulator = (byte)(accumulator - value - (1 - carry));
             setZero(accumulator);
             setSign(accumulator);
-            int diff = accumulator - value - (1 - carry_flag);
+            int diff = accumulator - value - (1 - carry);
             if (diff >= 0)
                 carry_flag = 1;
             else

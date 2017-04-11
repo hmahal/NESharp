@@ -15,9 +15,6 @@ namespace NESEmu
         //Registers
         private byte register;
         private byte[] registers = new byte[8];
-        private bool mirroring;
-        private byte prgRamProtected;
-        private byte irqLatch;
         private byte irqReload;
         private bool irqEnable;
         private int counter;
@@ -117,10 +114,10 @@ namespace NESEmu
             switch (value)
             {
                 case 0:
-                    cart.Mirroring = 0;
+                    cart.Mirroring = 1;
                     break;
                 case 1:
-                    cart.Mirroring = 1;
+                    cart.Mirroring = 0;
                     break;
             }
         }
@@ -131,29 +128,29 @@ namespace NESEmu
             {
                 writeBankSelect(value);
             }
-            else if ((addr <= 0xBFFF) && (addr % 2 == 0))
-            {
-                writeMirror(value);
-            }
-            else if((addr <= 0xDFFF) && (addr % 2 == 0))
-            {
-                irqReload = value;
-            }
-            else if ((addr <= 0xFFFF) && (addr % 2 == 0))
-            {
-                irqEnable = false;
-            }
             else if ((addr <= 0x9FFF) && (addr % 2 == 1))
             {
                 writeBankData(value);
+            }
+            else if ((addr <= 0xBFFF) && (addr % 2 == 0))
+            {
+                writeMirror(value);
             }
             else if ((addr <= 0xBFFF) && (addr % 2 == 1))
             {
                 //SRAM not implemented
             }
+            else if((addr <= 0xDFFF) && (addr % 2 == 0))
+            {
+                irqReload = value;
+            }
             else if ((addr <= 0xDFFF) && (addr % 2 == 1))
             {
                 counter = 0;
+            }
+            else if ((addr <= 0xFFFF) && (addr % 2 == 0))
+            {
+                irqEnable = false;
             }
             else if ((addr <= 0xFFFF) && (addr % 2 == 1))
             {
@@ -180,9 +177,9 @@ namespace NESEmu
             if(chrMode == 0)
             {
                 chrbank[0] = chrBankOffset(registers[0] & 0xFE);
-                chrbank[1] = chrBankOffset(registers[0] | 0x10);
+                chrbank[1] = chrBankOffset(registers[0] | 0x01);
                 chrbank[2] = chrBankOffset(registers[1] & 0xFE);
-                chrbank[3] = chrBankOffset(registers[1] | 0x10);
+                chrbank[3] = chrBankOffset(registers[1] | 0x01);
                 chrbank[4] = chrBankOffset(registers[2]);
                 chrbank[5] = chrBankOffset(registers[3]);
                 chrbank[6] = chrBankOffset(registers[4]);
@@ -195,9 +192,9 @@ namespace NESEmu
                 chrbank[2] = chrBankOffset(registers[4]);
                 chrbank[3] = chrBankOffset(registers[5]);
                 chrbank[4] = chrBankOffset(registers[0] & 0xFE);
-                chrbank[5] = chrBankOffset(registers[0] | 0x10);
+                chrbank[5] = chrBankOffset(registers[0] | 0x01);
                 chrbank[6] = chrBankOffset(registers[1] & 0xFE);
-                chrbank[7] = chrBankOffset(registers[1] | 0x10);
+                chrbank[7] = chrBankOffset(registers[1] | 0x01);
             }
         }
 
@@ -207,8 +204,7 @@ namespace NESEmu
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
-            int tmp = cart.Prgrom.Length / 0x2000;
-            index = index % tmp;
+            index %= cart.Prgrom.Length / 0x2000;            
             offset = index * 0x2000;
             if (offset < 0)
                 offset += cart.Prgrom.Length;
@@ -220,8 +216,7 @@ namespace NESEmu
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
-            int tmp = cart.Chrrom.Length / 0x0400;
-            index = index % tmp;
+            index %= cart.Chrrom.Length / 0x0400;            
             offset = index * 0x0400;
             if (offset < 0)
                 offset += cart.Chrrom.Length;

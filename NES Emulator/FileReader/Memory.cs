@@ -172,13 +172,12 @@ namespace NESEmu
             else if(addr < 0x4000)
             {
                 PPU ppu = PPU.Instance;
-                ppu.readPalette((ushort)(addr % 32));
+                return ppu.readPalette((ushort)(addr % 32));
             }
             else
             {
                 throw new Exception("Invalid memory access requested");
-            }
-            return 0;
+            }            
         }
 
         public void PpuWrite(ushort addr, byte value)

@@ -263,7 +263,7 @@ namespace NESEmu
         {
             if (writeFlag == 0)
             {
-                tempAddress = (ushort)((tempAddress & 0xFFE0) | ((ushort)(value) >> 3));
+                tempAddress = (ushort)((tempAddress & 0xFFE0) | value >> 3);
                 xScroll = (byte)(value & 0x07);
                 writeFlag = 1;
             }
@@ -279,7 +279,7 @@ namespace NESEmu
         {
             if (writeFlag == 0)
             {
-                tempAddress = (ushort)((tempAddress * 0x80FF) | (value & 0x3F) << 8);
+                tempAddress = (ushort)((tempAddress & 0x80FF) | (value & 0x3F) << 8);
                 writeFlag = 1;
             }
             else
@@ -297,7 +297,7 @@ namespace NESEmu
             ushort addr = (ushort)(value << 8);
             for(int i = 0; i < 256; i++)
             {
-                OAM[oamdaddr_value] = cpu.RAM.PpuRead(addr);
+                OAM[oamdaddr_value] = cpu.RAM.ReadMemory(addr);
                 oamdaddr_value++;
                 addr++;
             }
@@ -357,9 +357,9 @@ namespace NESEmu
 
         private void setVerticalBlank()
         {
-            Bitmap tmp = front;
-            front = back;
-            back = tmp;
+            Bitmap tmp = new Bitmap(front);
+            front = new Bitmap(back);
+            back = new Bitmap(front);
             nmiOccured = true;
             nmiChange();
         }
@@ -442,7 +442,7 @@ namespace NESEmu
         {
             if(ShowSprite == 0)
                 return Tuple.Create<byte, byte>(0, 0);
-            for(int i =0; i < spriteCount; i++)
+            for(int i = 0; i < spriteCount; i++)
             {
                 int offset = (Cycle - 1) - spritePositions[i];
                 if (offset < 0 || offset > 7)
@@ -464,15 +464,15 @@ namespace NESEmu
             int y_coord = Scanlines;
             byte backPixel = background();
             Tuple<byte, byte> spritePixel = sprite();
-            byte sprite_ = spritePixel.Item2;
+            byte spriteColour = spritePixel.Item2;
             byte spritePix = spritePixel.Item1;
 
             if (x_coord < 8 && showLeftBack == 0)
                 backPixel = 0;
             if (x_coord < 8 && ShowSprite == 0)
-                sprite_ = 0;
+                spriteColour = 0;
             bool b = backPixel % 4 != 0;
-            bool s = sprite_ % 4 != 0;
+            bool s = spriteColour % 4 != 0;
             byte colour;
             if(!b && !s)
             {
@@ -480,7 +480,7 @@ namespace NESEmu
             }
             else if(!b && s)
             {
-                colour = (byte)(sprite_ | 0x10);
+                colour = (byte)(spriteColour | 0x10);
             }
             else if(b && !s)
             {
@@ -491,7 +491,7 @@ namespace NESEmu
                 if (spriteIndex[spritePix] == 0 && x_coord < 255)
                     spriteZero = 1;
                 if (spritePriority[spritePix] == 0)
-                    colour = (byte)(sprite_ | 0x10);
+                    colour = (byte)(spriteColour | 0x10);
                 else
                     colour = backPixel;
             }            
@@ -536,8 +536,8 @@ namespace NESEmu
                 {
                     p1 = (byte)((lowTileByte & 1) << 0);
                     p2 = (byte)((highTileByte & 1) << 1);
-                    lowTileByte = (byte)(lowTileByte << 1);
-                    highTileByte = (byte)(highTileByte << 1);
+                    lowTileByte = (byte)(lowTileByte >> 1);
+                    highTileByte = (byte)(highTileByte >> 1);
                 }
                 else
                 {
@@ -547,7 +547,7 @@ namespace NESEmu
                     highTileByte = (byte)(highTileByte << 1);
                 }
                 data = data << 4;
-                data |= (uint)((attrShf | p1 | p2));
+                data |= (uint)(attrShf | p1 | p2);
             }
             return data;
         }
@@ -683,7 +683,7 @@ namespace NESEmu
             }
 
             if (Scanlines == 241 && Cycle == 1)
-            {                             
+            {                
                 setVerticalBlank();                
             }
                 
