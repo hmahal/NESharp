@@ -107,6 +107,7 @@ namespace NESEmu
 
         private static CPU6502 instance;
         private StreamWriter sw;
+
         public string CurrentInstruction
         {
             get
@@ -298,14 +299,15 @@ namespace NESEmu
             RAM = mem;
             addInstructionAction();
             Reset();
-            sw = new StreamWriter(@"C:\Users\panda\Desktop\test1.txt", true);
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test1.txt";
+            sw = new StreamWriter(path, true);
         }
 
         public static CPU6502 Instance
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     throw new Exception("CPU not created");
                 }
@@ -315,7 +317,7 @@ namespace NESEmu
 
         public static void Create(Memory mem)
         {
-            if(instance != null)
+            if (instance != null)
             {
                 throw new Exception("Object already created");
             }
@@ -336,7 +338,7 @@ namespace NESEmu
         {
             if ((value & 0x80) != 0)
             {
-                sign_flag = 1;                
+                sign_flag = 1;
             }
             else
                 sign_flag = 0;
@@ -347,6 +349,7 @@ namespace NESEmu
             pc_register = Read16(0xFFFC);
             stack_pointer = 0xFD;
             setFlags(0x24);
+            RAM.ClearMemory();
         }
 
         private void Compare(byte a, byte b)
@@ -385,12 +388,11 @@ namespace NESEmu
         private ushort errorRead16(ushort address)
         {
             ushort tmp = address;
-            ushort tmp_2 = (ushort)((tmp & 0xFF00) | ((byte)(tmp))+1);
+            ushort tmp_2 = (ushort)((tmp & 0xFF00) | ((byte)(tmp)) + 1);
             byte lowByte = RAM.ReadMemory(tmp);
             byte highByte = RAM.ReadMemory(tmp_2);
             ushort result = (ushort)(highByte << 8 | lowByte);
             return result;
-
         }
 
         private void Push16(ushort value)
@@ -563,8 +565,8 @@ namespace NESEmu
                 default:
                     break;
             }
-            interrupt = InterruptMode.NoneInterrupt;    
-                    
+            interrupt = InterruptMode.NoneInterrupt;
+
             byte opcode = RAM.ReadMemory(pc_register);
             //Console.Write(instructions[opcode]);
             if (inject)
@@ -572,7 +574,7 @@ namespace NESEmu
                 opcode = injectVal;
                 inject = false;
             }
-            int addrMode = addressingMode[opcode];            
+            int addrMode = addressingMode[opcode];
             currentInstruction = opcode;
 
             ushort addr = 0;
@@ -621,15 +623,15 @@ namespace NESEmu
 
                 case ((int)AddressingMode.Relative):
                     ushort offset = RAM.ReadMemory((ushort)(pc_register + 1));
-                               
+
                     if (offset < 0x80)
                         addr = (ushort)(pc_register + 2 + offset);
                     else
-                        addr = (ushort)(pc_register + 2 + offset - 0x100);                    
+                        addr = (ushort)(pc_register + 2 + offset - 0x100);
                     break;
 
                 case ((int)AddressingMode.ZeroPage):
-                    addr = RAM.ReadMemory((ushort)(pc_register + 1));                    
+                    addr = RAM.ReadMemory((ushort)(pc_register + 1));
                     break;
 
                 case ((int)AddressingMode.ZeroPageX):
@@ -641,16 +643,15 @@ namespace NESEmu
                     break;
             }
             //sw.WriteLine(instructions[opcode] + " " + pc_register.ToString("X4") + " " + addr.ToString("X4"));
-            pc_register += instructionSize[opcode];       
+            pc_register += instructionSize[opcode];
             Cycle += instructionCycles[opcode];
             if (pageCrossed)
-                Cycle += pageCrossedCycle[opcode];            
+                Cycle += pageCrossedCycle[opcode];
             //Console.WriteLine(addr);
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
             instructionAction[opcode](mem);
             return Cycle - cycles;
         }
-
 
         /// <summary>
         ///
@@ -780,7 +781,7 @@ namespace NESEmu
         private void bpl(MemoryInfo mem)
         {
             if (sign_flag == 0)
-            {                
+            {
                 pc_register = mem.Address;
                 addCycles(mem);
             }
@@ -849,7 +850,7 @@ namespace NESEmu
 
         private void dec(MemoryInfo mem)
         {
-            byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);                      
+            byte value = (byte)(RAM.ReadMemory(mem.Address) - 1);
             RAM.WriteMemory(mem.Address, value);
             setZero(value);
             setSign(value);

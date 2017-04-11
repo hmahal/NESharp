@@ -4,6 +4,10 @@ using NESEmu;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Drawing;
+using System.IO;
 
 namespace NESCPUTEST
 {
@@ -25,8 +29,25 @@ namespace NESCPUTEST
 
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
             running = false;
+            ppu_ = PPU.Instance;
+        }
+
+        private BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
         }
 
         private void runCPUTick_Click(object sender, RoutedEventArgs e)
@@ -48,6 +69,7 @@ namespace NESCPUTEST
                     registerBox.Text = cpu_.ToString();
                     memoryBox.Text = mem_.ToString();
                     addressBox.Text = cpu_.CurrentAddress.ToString("X4");
+                    Display.Source = BitmapToImageSource(ppu_.getFrame());
                 }
                 catch (Exception ex)
                 {
@@ -101,8 +123,12 @@ namespace NESCPUTEST
                     ppu_ = PPU.Instance;
                     Memory.Create(2048, mapper, input1, input2);
                     mem_ = Memory.Instance;
-                    CPU6502.Create(mem_);                                      
+                    CPU6502.Create(mem_);
                     cpu_ = CPU6502.Instance;
+                    registerBox.Text = cpu_.ToString();
+                    memoryBox.Text = mem_.ToString();
+                    addressBox.Text = cpu_.CurrentAddress.ToString("X4");
+                    Display.Source = BitmapToImageSource(ppu_.getFrame());
                 }
                 catch (Exception ex)
                 {
@@ -134,6 +160,8 @@ namespace NESCPUTEST
 
         public delegate void UpdateTextCallback(string message);
 
+        public delegate void UpdateDisplayCallback();
+
         private void run()
         {
             try
@@ -145,21 +173,23 @@ namespace NESCPUTEST
                     ppu_.run();
                     ppu_.run();
                     instructionBox.Dispatcher.Invoke(
-                        new UpdateTextCallback(this.UpdateText),
+                        new UpdateTextCallback(this.UpdateInstr),
                         new object[] { cpu_.CurrentInstruction }
                     );
                     registerBox.Dispatcher.Invoke(
-                        new UpdateTextCallback(this.UpdateText1),
+                        new UpdateTextCallback(this.UpdateRegister),
                         new object[] { cpu_.ToString() }
                     );
                     memoryBox.Dispatcher.Invoke(
-                        new UpdateTextCallback(this.UpdateText2),
+                        new UpdateTextCallback(this.UpdateMemoryBox),
                         new object[] { mem_.ToString() }
                     );
                     memoryBox.Dispatcher.Invoke(
-                        new UpdateTextCallback(this.UpdateText3),
+                        new UpdateTextCallback(this.UpdateAddrBox),
                         new object[] { cpu_.CurrentAddress.ToString("X4") }
                     );
+                    Display.Dispatcher.Invoke(
+                        new UpdateDisplayCallback(this.UpdateDisplay));
                 }
             }
             catch (Exception ex)
@@ -168,7 +198,7 @@ namespace NESCPUTEST
             }
         }
 
-        private void UpdateText(string message)
+        private void UpdateInstr(string message)
         {
             if (instructionBox.Text != "")
             {
@@ -178,43 +208,40 @@ namespace NESCPUTEST
             instructionBox.Text = message;
         }
 
-        private void UpdateText1(string message)
+        private void UpdateRegister(string message)
         {
             registerBox.Text = message;
         }
 
-        private void UpdateText2(string message)
+        private void UpdateMemoryBox(string message)
         {
             memoryBox.Text = message;
         }
 
-        private void UpdateText3(string message)
+        private void UpdateAddrBox(string message)
         {
             addressBox.Text = message;
         }
 
+        private void UpdateDisplay()
+        {
+            Display.Source = BitmapToImageSource(ppu_.getFrame());
+        }
+
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (filePath_ != null)
-            {
-                cartridgeReader_ = new CartridgeReader(filePath_);
-                testCartridge_ = cartridgeReader_.readCart();
-                ppu_ = PPU.Instance;
-                MMC3 mapper = new MMC3(testCartridge_);
-                mem_ = Memory.Instance;                                
-                cpu_ = CPU6502.Instance;
-                instructionBox.Text = "";
-                registerBox.Text = "";
-                memoryBox.Text = "";
-                prevInstrBox.Text = "";
-                addressBox.Text = "";
-                runCPU.Content = "Start/Pause CPU";
-            }
+            cpu_.Reset();
+            instructionBox.Text = "";
+            registerBox.Text = "";
+            memoryBox.Text = "";
+            prevInstrBox.Text = "";
+            addressBox.Text = "";
+            runCPU.Content = "Start/Pause CPU";
         }
 
         private void injectButton_Click(object sender, RoutedEventArgs e)
         {
-            if(opCodeInjectBox.Text != "" && cpu_ != null)
+            if (opCodeInjectBox.Text != "" && cpu_ != null)
             {
                 int opcode;
                 bool success = int.TryParse(opCodeInjectBox.Text, out opcode);
