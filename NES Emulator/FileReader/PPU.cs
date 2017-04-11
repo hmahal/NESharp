@@ -473,14 +473,14 @@ namespace NESEmu
                 spriteColour = 0;
             bool b = backPixel % 4 != 0;
             bool s = spriteColour % 4 != 0;
-            byte colour;
+            ushort colour;
             if(!b && !s)
             {
                 colour = 0;
             }
             else if(!b && s)
             {
-                colour = (byte)(spriteColour | 0x10);
+                colour = (ushort)(spriteColour | 0x10);
             }
             else if(b && !s)
             {
@@ -491,7 +491,7 @@ namespace NESEmu
                 if (spriteIndex[spritePix] == 0 && x_coord < 255)
                     spriteZero = 1;
                 if (spritePriority[spritePix] == 0)
-                    colour = (byte)(spriteColour | 0x10);
+                    colour = (ushort)(spriteColour | 0x10);
                 else
                     colour = backPixel;
             }            
@@ -657,7 +657,7 @@ namespace NESEmu
                         setTile();
                 }
 
-                if (preRender && Cycle >= 280 && Cycle <= 304)
+                if (preRender && Cycle >= 260 && Cycle <= 304)
                     copyY();
 
                 if (renderLine)

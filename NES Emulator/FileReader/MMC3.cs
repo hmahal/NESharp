@@ -11,7 +11,7 @@ namespace NESEmu
     {
         private int[] prgbank = new int[4];
         private int[] chrbank = new int[8];
-        public new Cartridge cart { get; set; }       
+       
         //Registers
         private byte register;
         private byte[] registers = new byte[8];
@@ -37,7 +37,7 @@ namespace NESEmu
         public override void Tick()
         {
             PPU ppu = PPU.Instance;
-            if (ppu.Cycle != 280)
+            if (ppu.Cycle != 260)
                 return;
             if (ppu.Scanlines > 239 && ppu.Scanlines < 261)
                 return;

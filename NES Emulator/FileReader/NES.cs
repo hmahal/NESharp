@@ -21,7 +21,7 @@ namespace NESEmu
         public NES()
         {
             Cart = new Cartridge();
-            const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
+            const string FileName = @"C:\Users\panda\Downloads\Star Wars - The Empire Strikes Back (USA).nes";
             //TODO:Fix this
             Input input1 = new Input();
             Input input2 = new Input();
