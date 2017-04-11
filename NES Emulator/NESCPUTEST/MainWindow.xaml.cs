@@ -74,6 +74,7 @@ namespace NESCPUTEST
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                    Debug.WriteLine(ex.StackTrace);
                 }
             }
         }
@@ -98,6 +99,7 @@ namespace NESCPUTEST
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                    Debug.WriteLine(ex.StackTrace);
                 }
             }
         }
@@ -133,6 +135,7 @@ namespace NESCPUTEST
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Exception!", MessageBoxButton.OK);
+                    Debug.WriteLine(ex.StackTrace);
                 }
             }
         }
@@ -155,6 +158,7 @@ namespace NESCPUTEST
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
 
@@ -195,6 +199,7 @@ namespace NESCPUTEST
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
 

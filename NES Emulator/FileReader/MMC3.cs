@@ -216,7 +216,9 @@ namespace NESEmu
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
-            index %= cart.Chrrom.Length / 0x0400;            
+            int temp = cart.Chrrom.Length / 0x0400;
+            if(temp != 0)
+                index %= temp;            
             offset = index * 0x0400;
             if (offset < 0)
                 offset += cart.Chrrom.Length;
