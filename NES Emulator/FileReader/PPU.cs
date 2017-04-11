@@ -89,9 +89,6 @@ namespace NESEmu
 
         private PPU()
         {
-            palette = new Palette();
-            front = new Bitmap(256, 240);
-            back = new Bitmap(256, 240);
             reset();
         }
 
@@ -114,6 +111,9 @@ namespace NESEmu
 
         public void reset()
         {
+            palette = new Palette();
+            front = new Bitmap(256, 240);
+            back = new Bitmap(256, 240);
             Cycle = 340;
             Scanlines = 240;
             Frame = 0;

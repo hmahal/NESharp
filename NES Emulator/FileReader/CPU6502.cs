@@ -350,6 +350,7 @@ namespace NESEmu
             stack_pointer = 0xFD;
             setFlags(0x24);
             RAM.ClearMemory();
+            PPU.Instance.reset();
         }
 
         private void Compare(byte a, byte b)
