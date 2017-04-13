@@ -27,6 +27,10 @@ namespace NESCPUTEST
         private Thread _cpuThread;
         private string filePath_;
 
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -34,6 +38,11 @@ namespace NESCPUTEST
             ppu_ = PPU.Instance;
         }
 
+        /// <summary>
+        /// Converts Bitmaps to ImageSource so it can be displayed to WPF controls
+        /// </summary>
+        /// <param name="bitmap">The bitmap to convert</param>
+        /// <returns>BitmapImage which can be set as wpf imagesource</returns>
         private BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -50,6 +59,12 @@ namespace NESCPUTEST
             }
         }
 
+
+        /// <summary>
+        /// Run the CPU for one tick
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void runCPUTick_Click(object sender, RoutedEventArgs e)
         {
             if (cpu_ != null)
@@ -79,6 +94,11 @@ namespace NESCPUTEST
             }
         }
 
+        /// <summary>
+        /// Run the CPU on a new thread
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void runCPUButton_Click(object sender, RoutedEventArgs e)
         {
             if (cpu_ != null)
@@ -104,6 +124,11 @@ namespace NESCPUTEST
             }
         }
 
+        /// <summary>
+        /// Open a NES rom
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openNesRom_Click(object sender, RoutedEventArgs e)
         {
             // Configure open file dialog box
@@ -140,6 +165,9 @@ namespace NESCPUTEST
             }
         }
 
+        /// <summary>
+        /// Creates a new thread and runs the cpu
+        /// </summary>
         public void start()
         {
             try
@@ -162,10 +190,20 @@ namespace NESCPUTEST
             }
         }
 
+        /// <summary>
+        /// Callback used to allow a seperate thread to update the WPF Textboxes
+        /// </summary>
+        /// <param name="message">The string text to update</param>
         public delegate void UpdateTextCallback(string message);
 
+        /// <summary>
+        /// Callback used to allow a seperate thread to update the WPF Display
+        /// </summary>
         public delegate void UpdateDisplayCallback();
 
+        /// <summary>
+        /// The loop that the thread runs
+        /// </summary>
         private void run()
         {
             try
@@ -203,6 +241,10 @@ namespace NESCPUTEST
             }
         }
 
+        /// <summary>
+        /// Called to update the instructionBox
+        /// </summary>
+        /// <param name="message">The string to update with</param>
         private void UpdateInstr(string message)
         {
             if (instructionBox.Text != "")
@@ -213,26 +255,46 @@ namespace NESCPUTEST
             instructionBox.Text = message;
         }
 
+        /// <summary>
+        /// Called to update the registerBox
+        /// </summary>
+        /// <param name="message">The string to update with</param>
         private void UpdateRegister(string message)
         {
             registerBox.Text = message;
         }
 
+        /// <summary>
+        /// Called to update the memoryBox
+        /// </summary>
+        /// <param name="message">The string to update with</param>
         private void UpdateMemoryBox(string message)
         {
             memoryBox.Text = message;
         }
 
+        /// <summary>
+        /// Called to update the addressBox
+        /// </summary>
+        /// <param name="message">The string to update with</param>
         private void UpdateAddrBox(string message)
         {
             addressBox.Text = message;
         }
 
+        /// <summary>
+        /// Called to update the Display
+        /// </summary>
         private void UpdateDisplay()
         {
             Display.Source = BitmapToImageSource(ppu_.getFrame());
         }
 
+        /// <summary>
+        /// Resets the CPU to starting state
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
             cpu_.Reset();
@@ -244,6 +306,11 @@ namespace NESCPUTEST
             runCPU.Content = "Start/Pause CPU";
         }
 
+        /// <summary>
+        /// Injects a opcode into the CPU based on whats in the opCodeInjectBox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void injectButton_Click(object sender, RoutedEventArgs e)
         {
             if (opCodeInjectBox.Text != "" && cpu_ != null)
