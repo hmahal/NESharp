@@ -109,7 +109,7 @@ namespace NESEmu
         private StreamWriter sw;
 
         /// <summary>
-        /// 
+        /// Returns a string value from the array of instructions array. 
         /// </summary>
         public string CurrentInstruction
         {
@@ -120,7 +120,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the uint type of the current address.  
         /// </summary>
         public uint CurrentAddress
         {
@@ -257,7 +257,7 @@ namespace NESEmu
         private OpCodeMethods[] instructionAction;
 
         /// <summary>
-        ///
+        /// Intializes the instructionAction to be OpCodeMethods object array of 256.
         /// </summary>
         private void addInstructionAction()
         {
@@ -328,7 +328,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Method for creating an object in memory.  If object already exists 
+        /// an error is thrown.  
         /// </summary>
         /// <param name="mem"></param>
         public static void Create(Memory mem)
@@ -369,7 +370,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Method for reseting the CPU (flags, stack pointer, memory, PPU, etc.)
         /// </summary>
         public void Reset()
         {
@@ -397,7 +398,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Method for writing byte value to memory at the address specified by 
+        /// the stack pointer. 
         /// </summary>
         /// <param name="value"></param>
         private void push(byte value)
@@ -408,7 +410,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Method for pulling the byte object from memory in the address specified.  
         /// </summary>
         /// <returns></returns>
         private byte pull()
@@ -431,6 +433,11 @@ namespace NESEmu
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         private ushort errorRead16(ushort address)
         {
             ushort tmp = address;
@@ -759,7 +766,7 @@ namespace NESEmu
         #region OpCode Methods
 
         /// <summary>
-        /// 
+        /// Add memory to accumulator with carry
         /// </summary>
         /// <param name="mem"></param>
         private void adc(MemoryInfo mem)
@@ -782,7 +789,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// "AND" memory with accumulator 
         /// </summary>
         /// <param name="mem"></param>
         private void and(MemoryInfo mem)
@@ -793,7 +800,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// ASL Shift Left One Bit (Memory or Accumulator)
         /// </summary>
         /// <param name="mem"></param>
         private void asl(MemoryInfo mem)
@@ -817,7 +824,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BCC Branch on Carry Clear
         /// </summary>
         /// <param name="mem"></param>
         private void bcc(MemoryInfo mem)
@@ -830,7 +837,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BCS Branch on carry set 
         /// </summary>
         /// <param name="mem"></param>
         private void bcs(MemoryInfo mem)
@@ -841,9 +848,9 @@ namespace NESEmu
                 addCycles(mem);
             }
         }
-        
+
         /// <summary>
-        /// 
+        /// BEQ Branch on result zero 
         /// </summary>
         /// <param name="mem"></param>
         private void beq(MemoryInfo mem)
@@ -856,7 +863,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BIT Test bits in memory with accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void bit(MemoryInfo mem)
@@ -868,7 +875,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BMI Branch on result minus
         /// </summary>
         /// <param name="mem"></param>
         private void bmi(MemoryInfo mem)
@@ -881,7 +888,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BNE Branch on result not zero
         /// </summary>
         /// <param name="mem"></param>
         private void bne(MemoryInfo mem)
@@ -894,7 +901,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BPL Branch on result plus
         /// </summary>
         /// <param name="mem"></param>
         private void bpl(MemoryInfo mem)
@@ -907,7 +914,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BRK Force Break
         /// </summary>
         /// <param name="mem"></param>
         private void brk(MemoryInfo mem)
@@ -919,7 +926,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BVC Branch on overflow clear
         /// </summary>
         /// <param name="mem"></param>
         private void bvc(MemoryInfo mem)
@@ -932,7 +939,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// BVS Branch on overflow set
         /// </summary>
         /// <param name="mem"></param>
         private void bvs(MemoryInfo mem)
@@ -945,7 +952,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CLC Clear carry flag
         /// </summary>
         /// <param name="mem"></param>
         private void clc(MemoryInfo mem)
@@ -954,7 +961,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CLD Clear decimal mode
         /// </summary>
         /// <param name="mem"></param>
         private void cld(MemoryInfo mem)
@@ -963,7 +970,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CLI Clear interrupt disable bit
         /// </summary>
         /// <param name="mem"></param>
         private void cli(MemoryInfo mem)
@@ -972,7 +979,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CLV Clear overflow flag
         /// </summary>
         /// <param name="mem"></param>
         private void clv(MemoryInfo mem)
@@ -981,7 +988,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CMP Compare memory and accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void cmp(MemoryInfo mem)
@@ -990,7 +997,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CPX Compare Memory and Index X
         /// </summary>
         /// <param name="mem"></param>
         private void cpx(MemoryInfo mem)
@@ -999,7 +1006,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// CPY Compare memory and index Y
         /// </summary>
         /// <param name="mem"></param>
         private void cpy(MemoryInfo mem)
@@ -1008,7 +1015,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// DEC Decrement memory by one
         /// </summary>
         /// <param name="mem"></param>
         private void dec(MemoryInfo mem)
@@ -1020,7 +1027,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// DEX Decrement index X by one
         /// </summary>
         /// <param name="mem"></param>
         private void dex(MemoryInfo mem)
@@ -1031,7 +1038,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// DEY Decrement index Y by one
         /// </summary>
         /// <param name="mem"></param>
         private void dey(MemoryInfo mem)
@@ -1042,7 +1049,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// EOR "Exclusive-Or" memory with accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void eor(MemoryInfo mem)
@@ -1053,7 +1060,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// INC Increment memory by one    
         /// </summary>
         /// <param name="mem"></param>
         private void inc(MemoryInfo mem)
@@ -1065,7 +1072,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// INX Increment Index X by one 
         /// </summary>
         /// <param name="mem"></param>
         private void inx(MemoryInfo mem)
@@ -1076,7 +1083,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// INY Increment Index Y by one
         /// </summary>
         /// <param name="mem"></param>
         private void iny(MemoryInfo mem)
@@ -1087,7 +1094,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// JMP Jump to new location
         /// </summary>
         /// <param name="mem"></param>
         private void jmp(MemoryInfo mem)
@@ -1096,7 +1103,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// JSR Jump to new location saving return address 
         /// </summary>
         /// <param name="mem"></param>
         private void jsr(MemoryInfo mem)
@@ -1106,7 +1113,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// LDA Load accumulator with memory
         /// </summary>
         /// <param name="mem"></param>
         private void lda(MemoryInfo mem)
@@ -1117,7 +1124,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// LDX Load index X with memory
         /// </summary>
         /// <param name="mem"></param>
         private void ldx(MemoryInfo mem)
@@ -1128,7 +1135,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// LDY Load index Y with memory 
         /// </summary>
         /// <param name="mem"></param>
         private void ldy(MemoryInfo mem)
@@ -1139,7 +1146,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// LSR Shift right one bit (memory or accumulator) 
         /// </summary>
         /// <param name="mem"></param>
         private void lsr(MemoryInfo mem)
@@ -1163,7 +1170,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// NOP No operation
         /// </summary>
         /// <param name="mem"></param>
         private void nop(MemoryInfo mem)
@@ -1172,7 +1179,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// ORA "OR" memory with accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void ora(MemoryInfo mem)
@@ -1183,7 +1190,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// PHA Push accumulator on stack
         /// </summary>
         /// <param name="mem"></param>
         private void pha(MemoryInfo mem)
@@ -1192,7 +1199,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// PHP Push processor status on stack 
         /// </summary>
         /// <param name="mem"></param>
         private void php(MemoryInfo mem)
@@ -1201,7 +1208,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// PLA Pull accumulator from stack 
         /// </summary>
         /// <param name="mem"></param>
         private void pla(MemoryInfo mem)
@@ -1212,7 +1219,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// PLP Pull processor status from stack
         /// </summary>
         /// <param name="mem"></param>
         private void plp(MemoryInfo mem)
@@ -1221,7 +1228,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// ROL Rotate one bit left (memory or accumulator)
         /// </summary>
         /// <param name="mem"></param>
         private void rol(MemoryInfo mem)
@@ -1247,7 +1254,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// ROR Rotate one bit right (memory or accumulator)
         /// </summary>
         /// <param name="mem"></param>
         private void ror(MemoryInfo mem)
@@ -1273,7 +1280,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// RTI Return from interrupt 
         /// </summary>
         /// <param name="mem"></param>
         private void rti(MemoryInfo mem)
@@ -1283,7 +1290,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// RTS Return from subroutine 
         /// </summary>
         /// <param name="mem"></param>
         private void rts(MemoryInfo mem)
@@ -1292,7 +1299,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// SBC Subtract memory from accumulator with borrow
         /// </summary>
         /// <param name="mem"></param>
         private void sbc(MemoryInfo mem)
@@ -1315,7 +1322,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// SEC Set carry flag 
         /// </summary>
         /// <param name="mem"></param>
         private void sec(MemoryInfo mem)
@@ -1324,16 +1331,16 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// SED Set decimal mode
         /// </summary>
         /// <param name="mem"></param>
         private void sed(MemoryInfo mem)
         {
             decimal_flag = 1;
         }
-        
+
         /// <summary>
-        /// 
+        /// SEI Set interrupt disable status
         /// </summary>
         /// <param name="mem"></param>
         private void sei(MemoryInfo mem)
@@ -1342,7 +1349,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// STA Store accumulator in memory
         /// </summary>
         /// <param name="mem"></param>
         private void sta(MemoryInfo mem)
@@ -1351,7 +1358,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        ///  STX Store index X in memory
         /// </summary>
         /// <param name="mem"></param>
         private void stx(MemoryInfo mem)
@@ -1360,7 +1367,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// STY Store index Y in memory 
         /// </summary>
         /// <param name="mem"></param>
         private void sty(MemoryInfo mem)
@@ -1369,7 +1376,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// TAX Transfer accumulator to index X 
         /// </summary>
         /// <param name="mem"></param>
         private void tax(MemoryInfo mem)
@@ -1380,7 +1387,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// TAY Transfer accumulator to index Y
         /// </summary>
         /// <param name="mem"></param>
         private void tay(MemoryInfo mem)
@@ -1391,7 +1398,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// TSX Transfer stack pointer to index X 
         /// </summary>
         /// <param name="mem"></param>
         private void tsx(MemoryInfo mem)
@@ -1402,7 +1409,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// TXA Transfer index X to accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void txa(MemoryInfo mem)
@@ -1422,7 +1429,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// TYA Transfer index Y to accumulator
         /// </summary>
         /// <param name="mem"></param>
         private void tya(MemoryInfo mem)

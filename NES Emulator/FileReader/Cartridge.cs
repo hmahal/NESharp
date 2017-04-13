@@ -18,7 +18,7 @@
         public byte[] Title { get; set; }
 
         /// <summary>
-        /// 
+        /// Method for returning a Cartridge object from a file path.
         /// </summary>
         /// <param name="filepath"></param>
         /// <returns></returns>

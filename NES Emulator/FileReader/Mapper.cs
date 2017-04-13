@@ -10,6 +10,11 @@ namespace NESEmu
     public abstract class Mapper
     {
         public Cartridge cart { get; set; }
+
+        /// <summary>
+        /// Constructor for the Mapper class.  MMVC3 is used.  
+        /// </summary>
+        /// <param name="cart"></param>
         public Mapper(Cartridge cart)
         {
             this.cart = cart;
