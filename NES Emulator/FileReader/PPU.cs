@@ -4,18 +4,25 @@ using System.Drawing;
 //TODO: Comments
 namespace NESEmu
 {
+    /// <summary>
+    /// Emulates the Picture Processing Unit of the NES. This class is responsible for the
+    /// graphics rendering. It currently renders the graphics to a bitmap by setting each pixel.
+    /// </summary>
     public class PPU
     {
+        //PPU cycles 0-340
         public int Cycle;
+        //261 Scanlines. 0-239 rendering lines, 240 post rendering, 241-261 vblank operations 261 pre rendering
         public int Scanline;
+        //Frame Counter
         public ulong Frame;
 
+        //Storage tables to mimic the PPU memory
         private byte[] paletteData = new byte[32];
         public byte[] nameTableData = new byte[2048];
         private byte[] oamData = new byte[256];
-
-
-
+        
+        //PPU registers
         private ushort vramAddress;
         private ushort tempAddress;
         private ushort xScroll;
@@ -23,25 +30,26 @@ namespace NESEmu
         private ushort frameFlag;
 
         private byte register;
+
+        //NMI flags
         private bool nmiOccured;
         private bool nmiOutput;
         private bool nmiPrevious;
         private byte nmiDelay;
 
-
+        //temporary variables
         private byte nameTableByte;
         private byte attributeTableByte;
         private byte lowTileByte;
         private byte highTileByte;
         private ulong tileData;
-
-
         private int spriteCount;
         private uint[] spritePatterns = new uint[8];
         private byte[] spritePositions = new byte[8];
         private byte[] spritePriorities = new byte[8];
         private byte[] spriteIndexes = new byte[8];
 
+        //PPUCTRL register $2000
         private byte flagNameTable;
         private byte flagIncrement;
         private byte flagSpriteTable;
@@ -49,6 +57,7 @@ namespace NESEmu
         private byte flagSpriteSize;
         private byte flagMasterSlave;
 
+        //PPUMASK register $2001
         private byte flagGrayscale;
         private byte flagShowLeftBackground;
         private byte flagShowLeftSprites;
@@ -58,20 +67,31 @@ namespace NESEmu
         private byte flagGreenTint;
         private byte flagBlueTint;
 
+        //PPUSTATUS register $2002
         private byte flagSpriteZeroHit;
         private byte flagSpriteOverflow;
 
+        //OAMADDR register $2003
         private byte oamAddress;
+
+        //PPUDATA register $2007
         private byte bufferedData;
 
+        //Bitmap buffer
         public Bitmap Front { get; set; }
+        //Rendering bitmap used in the background by the PPU
         private Bitmap back;
 
 
         private Palette palette;
+
+        //Static instance used for Singleton pattern
         private static PPU ppu;
 
-
+        /// <summary>
+        /// Constructor for the PPU class. Instantiates the palette and the bitmaps.
+        /// Calls the reset method on initialization.
+        /// </summary>
         private PPU()
         {            
             palette = new Palette();
@@ -80,6 +100,10 @@ namespace NESEmu
             reset();
         }
 
+        /// <summary>
+        /// Returns the PPU instance if it exists. Creates one and returns it otherwise.
+        /// Utilizes the singleton pattern.
+        /// </summary>
         public static PPU Instance
         {
             get
@@ -92,19 +116,17 @@ namespace NESEmu
             }
         }
 
+        //Returns the current frame value.
         public Bitmap getFrame()
         {
             return Front;
         }
 
         /// <summary>
-        /// 
+        /// Resets the Cycle/Scanline count and writes starting values to the registers.
         /// </summary>
         public void reset()
-        {
-            palette = new Palette();
-            Front = new Bitmap(256, 240);
-            back = new Bitmap(256, 240);
+        {          
             Cycle = 340;
             Scanline = 240;
             Frame = 0;
@@ -114,10 +136,12 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the value held in the paletteData table at the address passed as the parameter.
         /// </summary>
         /// <param name="addr"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// Value contained in the paletteData table.
+        /// </returns>
         public byte readPalette(ushort addr)
         {
             if (addr >= 16 && addr % 4 == 0)
@@ -126,7 +150,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Write the value parameter at the address passed in.
         /// </summary>
         /// <param name="addr"></param>
         /// <param name="value"></param>
@@ -138,17 +162,18 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Reads the PPU registers based on the address passed in as a parameter.
         /// </summary>
         /// <param name="addr"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// Value stored in the register specified by the address.
+        /// </returns>
         public byte readRegister(ushort addr)
         {
             switch (addr)
             {
                 case (0x2002):
                     return readStatus();
-
                 case (0x2004):
                     return readOAMData();
                 case (0x2007):
@@ -158,7 +183,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Writes the value to the register specified by the address.
         /// </summary>
         /// <param name="addr"></param>
         /// <param name="value"></param>
@@ -202,7 +227,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Writes the value parameter to the PPUCTRL register flags
         /// </summary>
         /// <param name="value"></param>
         private void writeControl(byte value)
@@ -219,7 +244,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// writes the value to the PPUMASK register flags
         /// </summary>
         /// <param name="value"></param>
         private void writeMask(byte value)
@@ -235,9 +260,11 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the values stored in the PPUStatus register flags.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// Values contained in the PPUSTATUS register flags
+        /// </returns>
         private byte readStatus()
         {
             byte result = (byte)(register & 0x1F);
@@ -251,25 +278,40 @@ namespace NESEmu
             return result;
         }
 
+        /// <summary>
+        /// Writes the value to the OAMADDR register
+        /// </summary>
+        /// <param name="value"></param>
         private void writeOAMAddress(byte value)
         {
             oamAddress = value;
         }
 
-
+        /// <summary>
+        /// returns the value stored in the oamData table at the oamAddr register value
+        /// </summary>
+        /// <returns>
+        /// Value in the oamData table stored at the oamAddress
+        /// </returns>
         private byte readOAMData()
         {
             return oamData[oamAddress];
         }
 
-
+        /// <summary>
+        /// Writes data to the oamData table
+        /// </summary>
+        /// <param name="value"></param>
         private void writeOAMData(byte value)
         {
             oamData[oamAddress] = value;
             oamAddress++;
         }
 
-
+        /// <summary>
+        /// Writes data to the PPUSCROLL register
+        /// </summary>
+        /// <param name="value"></param>
         private void writeScroll(byte value)
         {
             if (writeToggle == 0)
@@ -286,6 +328,10 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// Writes data to the vramAddress of the PPU
+        /// </summary>
+        /// <param name="value"></param>
         private void writeAddress(byte value)
         {
             if (writeToggle == 0)
@@ -302,9 +348,11 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Reads data stored in memory at the vramAddress location.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns the data stored in memory at the vramAddress location
+        /// </returns>
         private byte readPPUData()
         {
             Memory RAM = Memory.Instance;
@@ -329,6 +377,10 @@ namespace NESEmu
             return value;
         }
 
+        /// <summary>
+        /// Writes data to memory at the location specified by vramAddress
+        /// </summary>
+        /// <param name="value"></param>
         private void writePPUData(byte value)
         {
             Memory RAM = Memory.Instance;
@@ -339,11 +391,13 @@ namespace NESEmu
             else
                 vramAddress = (ushort)(vramAddress + 32);
         }
+               
 
-        
 
-
-        
+        /// <summary>
+        /// Writes data to PPUDMA register
+        /// </summary>
+        /// <param name="value"></param>
         private void writeDMA(byte value)
         {
             CPU6502 cpu = CPU6502.Instance;
@@ -359,9 +413,7 @@ namespace NESEmu
                 cpu.Stall++;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+#region NTSCTIMING
         private void incrementX()
         {
             if ((vramAddress & 0x001F) == 31)
@@ -373,9 +425,8 @@ namespace NESEmu
                 vramAddress++;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
+        
         private void incrementY()
         {
             if ((vramAddress & 0x7000) != 0x7000)
@@ -397,21 +448,18 @@ namespace NESEmu
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        
         private void copyX()
         {
             vramAddress = (ushort)((vramAddress & 0xFBE0) | (tempAddress & 0x041F));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        
         private void copyY()
         {
             vramAddress = (ushort)((vramAddress & 0x841F) | (tempAddress & 0x7BE0));
         }
+        #endregion
 
         /// <summary>
         /// 
@@ -445,6 +493,9 @@ namespace NESEmu
             nmiChange();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void fetchNameTableByte()
         {
             Memory RAM = Memory.Instance;
@@ -453,7 +504,9 @@ namespace NESEmu
             nameTableByte = RAM.PpuRead(addr);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void fetchAttributeTableByte()
         {
             Memory RAM = Memory.Instance;
@@ -464,7 +517,9 @@ namespace NESEmu
             attributeTableByte = (byte)(((RAM.PpuRead(addr) >> shift) & 3) << 2);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void fetchLowTileByte()
         {
             Memory RAM = Memory.Instance;
@@ -475,7 +530,9 @@ namespace NESEmu
             lowTileByte = RAM.PpuRead(addr);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void fetchHighTileByte()
         {
             Memory RAM = Memory.Instance;
@@ -486,7 +543,9 @@ namespace NESEmu
             lowTileByte = RAM.PpuRead((ushort)(addr + 8));
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void storeTileData()
         {
             uint data = 0;
@@ -503,13 +562,19 @@ namespace NESEmu
             tileData |= data;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private uint fetchTileData()
         {
             return (uint)(tileData >> 32);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private byte backgroundPixel()
         {
             if (flagShowbackground == 0)
@@ -518,7 +583,10 @@ namespace NESEmu
             return (byte)(data & 0x0F);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private Tuple<byte, byte> spritePixel()
         {
             if(flagShowSprite == 0)
@@ -581,6 +649,12 @@ namespace NESEmu
             back.SetPixel(x_coord, y_coord, col);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
         private uint fetchSpritePattern(int index, int row)
         {
             Memory RAM = Memory.Instance;
@@ -713,7 +787,9 @@ namespace NESEmu
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Step()
         {
             tick();
