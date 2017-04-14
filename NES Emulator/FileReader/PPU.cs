@@ -9,82 +9,72 @@ namespace NESEmu
 {
     public class PPU
     {
-        //Utility Values
-        public int Cycle { get; set; }
-
-        public int Scanlines { get; set; }
-        public int Frame { get; set; }
-
-        private byte[] OAM = new byte[256];
-
-        public byte[] nameTableData = new byte[2048];
+        public int Cycle;
+        public int Scanline;
+        public ulong Frame;
 
         private byte[] paletteData = new byte[32];
+        public byte[] nameTableData = new byte[2048];
+        private byte[] oamData = new byte[256];
 
-        private byte oamdaddr_value;        //$2003 OAM
 
+        private ushort vramAddress;
+        private ushort tempAddress;
+        private ushort xScroll;
+        private ushort writeToggle;
+        private ushort frameFlag;
 
         private byte register;
-        //Register Flags
-        //PPUCTRL
-        private byte nametableAddr;
-        private byte addrIncrement;
-        private byte sprTableAddr;
-        private byte backPttrAddr;
-        private byte spriteSize;
-        private byte masterSlaveSelect;
-
-        //PPUMASK
-        private byte grayScale;
-        private byte showLeftBack;
-        private byte showLeftSprite;
-        private byte empRed;
-        private byte empGreen;
-        private byte empBlue;
-
-        //Access needed by the mapper
-        public byte ShowBackground { get; set; }
-        public byte ShowSprite { get; set; }
 
         private bool nmiOccured;
         private bool nmiOutput;
         private bool nmiPrevious;
         private byte nmiDelay;
 
-        //PPU STATUS
-        private byte spriteOverflow;
-        private byte spriteZero;
-
-        //Addresses
-        private ushort vramAddress;
-        private ushort tempAddress;
-        private byte xScroll;
-        private byte writeFlag;
-        private byte frameToggle;
-
-        private byte nameTable;
-        private byte attrTable;
-        private byte lowTile;
-        private byte highTile;
+        private byte nameTableByte;
+        private byte attributeTableByte;
+        private byte lowTileByte;
+        private byte highTileByte;
         private ulong tileData;
-        
-        private Palette palette;
-        private byte bufferedData;
 
         private int spriteCount;
         private uint[] spritePatterns = new uint[8];
         private byte[] spritePositions = new byte[8];
-        private byte[] spritePriority = new byte[8];
-        private byte[] spriteIndex = new byte[8];
+        private byte[] spritePriorities = new byte[8];
+        private byte[] spriteIndexes = new byte[8];
 
-        Bitmap back;
-        Bitmap front;
+        private byte flagNameTable;
+        private byte flagIncrement;
+        private byte flagSpriteTable;
+        private byte flagBackgroundTable;
+        private byte flagSpriteSize;
+        private byte flagMasterSlave;
+
+        private byte flagGrayscale;
+        private byte flagShowLeftBackground;
+        private byte flagShowLeftSprites;
+        public byte flagShowbackground;
+        public byte flagShowSprite;
+        private byte flagRedTint;
+        private byte flagGreenTint;
+        private byte flagBlueTint;
+
+        private byte flagSpriteZeroHit;
+        private byte flagSpriteOverflow;
+
+        private byte oamAddress;
+        private byte bufferedData;
+
+        public Bitmap Front { get; set; }
+        private Bitmap back;
+
+        private Palette palette;
 
         private static PPU ppu;        
         private PPU()
         {            
             palette = new Palette();
-            front = new Bitmap(256, 240);
+            Front = new Bitmap(256, 240);
             back = new Bitmap(256, 240);
             reset();       
         }
@@ -104,24 +94,24 @@ namespace NESEmu
         public void reset()
         {
             Cycle = 340;
-            Scanlines = 240;
+            Scanline = 240;
             Frame = 0;
             writeControl(0);
             writeMask(0);
-            writeOAMaddr(0);          
+            writeOAMAddress(0);          
         }
 
         public byte readPalette(ushort addr)
         {
             if (addr >= 16 && addr % 4 == 0)
-                addr = (ushort)(addr - 16);
+                addr -= 16;
             return paletteData[addr];
         }
 
         public void writePalette(ushort addr, byte value)
         {
             if (addr >= 16 && addr % 4 == 0)
-                addr = (ushort)(addr - 16);
+                addr -= 16;
             paletteData[addr] = value;
         }
 
@@ -132,7 +122,7 @@ namespace NESEmu
                 case (0x2002):
                     return readStatus();
                 case (0x2004):
-                    return readOAMdata();
+                    return readOAMData();
                 case (0x2007):
                     return readPPUData();
             }
@@ -151,89 +141,110 @@ namespace NESEmu
                     writeMask(value);                    
                     break;
                 case (0x2003):
-                    writeOAMaddr(value);
+                    writeOAMAddress(value);
                     break;
                 case (0x2004):
-                    writeOAMdata(value);
+                    writeOAMData(value);
                     break;
                 case (0x2005):
-                    writePPUScroll(value);
+                    writeScroll(value);
                     break;
                 case (0x2006):
-                    writePPUAddr(value);
+                    writeAddress(value);
                     break;
                 case (0x2007):
                     writePPUData(value);
                     break;
                 case (0x4014):
-                    writeOAMDma(value);
+                    writeDMA(value);
                     break;
             }
         }
 
         private void writeControl(byte value)
         {
-            nametableAddr = (byte)((value >> 0) & 3); // Since nametable addr occupies two bits instead of 1
-            addrIncrement = (byte)((value >> 2) & 1);
-            sprTableAddr = (byte)((value >> 3) & 1);
-            backPttrAddr = (byte)((value >> 4) & 1);
-            spriteSize = (byte)((value >> 5) & 1);
-            masterSlaveSelect = (byte)((value >> 6) & 1);
-            nmiOutput = (byte)((value >> 7) & 1) == 1;
+            flagNameTable = (byte)((value >> 0) & 3);
+            flagIncrement = (byte)((value >> 2) & 1);
+            flagSpriteTable = (byte)((value >> 3) & 1);
+            flagBackgroundTable = (byte)((value >> 4) & 1);
+            flagSpriteSize = (byte)((value >> 5) & 1);
+            flagMasterSlave = (byte)((value >> 6) & 1);
+            nmiOutput = ((value >> 7) & 1) == 1;
             nmiChange();
             tempAddress = (ushort)((tempAddress & 0xF3FF) | ((value & 0x03) << 10));
         }
 
         private void writeMask(byte value)
         {
-            grayScale = (byte)((value >> 0) & 1);
-            showLeftBack = (byte)((value >> 1) & 1);
-            showLeftSprite = (byte)((value >> 2) & 1);
-            ShowBackground = (byte)((value >> 3) & 1);
-            ShowSprite = (byte)((value >> 4) & 1);
-            empRed = (byte)((value >> 5) & 1);
-            empGreen = (byte)((value >> 6) & 1);
-            empBlue = (byte)((value >> 7) & 1);
+            flagGrayscale = (byte)((value >> 0) & 1);
+            flagShowLeftBackground = (byte)((value >> 1) & 1);
+            flagShowLeftSprites = (byte)((value >> 2) & 1);
+            flagShowbackground = (byte)((value >> 3) & 1);
+            flagShowSprite = (byte)((value >> 4) & 1);
+            flagRedTint = (byte)((value >> 5) & 1);
+            flagGreenTint = (byte)((value >> 6) & 1);
+            flagBlueTint = (byte)((value >> 7) & 1);
         }
 
         private byte readStatus()
         {
             byte result = (byte)(register & 0x1F);
-            result |= (byte)(spriteOverflow << 5);
-            result |= (byte)(spriteZero << 6);
+            result |= (byte)(flagSpriteOverflow << 5);
+            result |= (byte)(flagSpriteZeroHit << 6);
             if (nmiOccured)
-                result |= 1 << 7;
+                result |= (byte)(1 << 7);
             nmiOccured = false;
             nmiChange();
-            writeFlag = 0;            
+            writeToggle = 0;
             return result;
         }
 
-        private void writeOAMaddr(byte value)
+        private void writeOAMAddress(byte value)
         {
-            oamdaddr_value = value;
+            oamAddress = value;
         }
 
-        private byte readOAMdata()
+        private byte readOAMData()
         {
-            return OAM[oamdaddr_value];
+            return oamData[oamAddress];
         }
 
-        private void writeOAMdata(byte value)
+        private void writeOAMData(byte value)
         {
-            OAM[oamdaddr_value] = value;
-            oamdaddr_value++;
+            oamData[oamAddress] = value;
+            oamAddress++;
         }
 
-        private void writePPUData(byte value)
-        {
-            Memory RAM = Memory.Instance;
-            RAM.PpuWrite(vramAddress, value);
 
-            if (addrIncrement == 0)
-                vramAddress = (ushort)(vramAddress + 1);
+        private void writeScroll(byte value)
+        {
+            if (writeToggle == 0)
+            {
+                tempAddress = (ushort)((tempAddress & 0xFFE0) | value >> 3);
+                xScroll = (byte)(value & 0x07);
+                writeToggle = 1;
+            }
             else
-                vramAddress = (ushort)(vramAddress + 32);
+            {
+                tempAddress = (ushort)((tempAddress & 0x8FFF) | (value & 0x07) << 12);
+                tempAddress = (ushort)((tempAddress & 0xFC1F) | (value & 0xF8) << 2);
+                writeToggle = 0;
+            }
+        }
+
+        private void writeAddress(byte value)
+        {
+            if (writeToggle == 0)
+            {
+                tempAddress = (ushort)((tempAddress & 0x80FF) | (value & 0x3F) << 8);
+                writeToggle = 1;
+            }
+            else
+            {
+                tempAddress = (ushort)((tempAddress & 0xFF00) | value);
+                vramAddress = tempAddress;
+                writeToggle = 0;
+            }
         }
 
         private byte readPPUData()
@@ -241,17 +252,18 @@ namespace NESEmu
             Memory RAM = Memory.Instance;
             byte value = RAM.PpuRead(vramAddress);
 
-            if((vramAddress % 0x4000) < 0x3F00)
+            if ((vramAddress % 0x4000) < 0x3F00)
             {
                 byte buffer = bufferedData;
                 bufferedData = value;
                 value = buffer;
-            } else
+            }
+            else
             {
                 bufferedData = RAM.PpuRead((ushort)(vramAddress - 0x1000));
             }
 
-            if (addrIncrement == 0)
+            if (flagIncrement == 0)
                 vramAddress = (ushort)(vramAddress + 1);
             else
                 vramAddress = (ushort)(vramAddress + 32);
@@ -259,46 +271,29 @@ namespace NESEmu
             return value;
         }
 
-        private void writePPUScroll(byte value)
+        private void writePPUData(byte value)
         {
-            if (writeFlag == 0)
-            {
-                tempAddress = (ushort)((tempAddress & 0xFFE0) | value >> 3);
-                xScroll = (byte)(value & 0x07);
-                writeFlag = 1;
-            }
-            else
-            {
-                tempAddress = (ushort)((tempAddress & 0x8FFF) | (value & 0x07) << 12);
-                tempAddress = (ushort)((tempAddress & 0xFC1F) | (value & 0xF8) << 2);                
-                writeFlag = 0;
-            }
-        }
+            Memory RAM = Memory.Instance;
+            RAM.PpuWrite(vramAddress, value);
 
-        private void writePPUAddr(byte value)
-        {
-            if (writeFlag == 0)
-            {
-                tempAddress = (ushort)((tempAddress & 0x80FF) | (value & 0x3F) << 8);
-                writeFlag = 1;
-            }
+            if (flagIncrement == 0)
+                vramAddress = (ushort)(vramAddress + 1);
             else
-            {
-                tempAddress = (ushort)((tempAddress & 0xFF00) | value);
-                vramAddress = tempAddress;                
-                writeFlag = 0;
-            }
+                vramAddress = (ushort)(vramAddress + 32);
         }
 
         
-        private void writeOAMDma(byte value)
+
+
+        
+        private void writeDMA(byte value)
         {
             CPU6502 cpu = CPU6502.Instance;
             ushort addr = (ushort)(value << 8);
             for(int i = 0; i < 256; i++)
             {
-                OAM[oamdaddr_value] = cpu.RAM.ReadMemory(addr);
-                oamdaddr_value++;
+                oamData[oamAddress] = cpu.RAM.ReadMemory(addr);
+                oamAddress++;
                 addr++;
             }
             cpu.Stall += 513;
@@ -310,8 +305,8 @@ namespace NESEmu
         {
             if ((vramAddress & 0x001F) == 31)
             {
-                vramAddress &= 0xFFE0;
-                vramAddress ^= 0x0400;
+                vramAddress = (ushort)(vramAddress & 0xFFE0);
+                vramAddress = (ushort)(vramAddress ^ 0x0400);
             }
             else
                 vramAddress++;
@@ -324,11 +319,11 @@ namespace NESEmu
             else
             {
                 vramAddress &= 0x8FFF;
-                byte y = (byte)((vramAddress & 0x03E0) >> 5);
+                ushort y = (ushort)((vramAddress & 0x03E0) >> 5);
                 if (y == 29)
                 {
                     y = 0;
-                    vramAddress ^= 0x800;
+                    vramAddress = (ushort)(vramAddress ^ 0x0800);
                 }
                 else if (y == 31)
                     y = 0;
@@ -350,16 +345,17 @@ namespace NESEmu
 
         private void nmiChange()
         {
-            if ((nmiOutput && nmiOccured) && !nmiPrevious)
+            bool nmi = nmiOutput && nmiOccured;
+            if (nmi && !nmiPrevious)
                 nmiDelay = 15;
-            nmiPrevious = (nmiOutput && nmiOccured);
+            nmiPrevious = nmi;
         }
 
         private void setVerticalBlank()
         {
-            Bitmap tmp = new Bitmap(front);
-            front = new Bitmap(back);
-            back = new Bitmap(front);
+            Bitmap tmp = new Bitmap(Front);
+            Front = new Bitmap(back);
+            back = new Bitmap(Front);
             nmiOccured = true;
             nmiChange();
         }
@@ -370,77 +366,77 @@ namespace NESEmu
             nmiChange();
         }
 
-        private void getNameTableValue()
+        private void fetchNameTableByte()
         {
             Memory RAM = Memory.Instance;
             ushort tmp = vramAddress;
             ushort addr = (ushort)(0x2000 | (tmp & 0x0FFF));
-            nameTable = RAM.PpuRead(addr);
+            nameTableByte = RAM.PpuRead(addr);
         }
 
-        private void getAttrTable()
+        private void fetchAttributeTableByte()
         {
             Memory RAM = Memory.Instance;
             ushort tmp = vramAddress;
             ushort addr = (ushort)(0x23C0 | (tmp & 0x0C00)
                 | ((tmp >> 4) & 0x38) | ((tmp >> 2) & 0x07));
             ushort shift = (ushort)(((tmp >> 4) & 4) | (tmp & 2));
-            attrTable = (byte)(((RAM.PpuRead(addr) >> shift) & 3) << 2);
+            attributeTableByte = (byte)(((RAM.PpuRead(addr) >> shift) & 3) << 2);
         }
 
-        private void getTileLowByte()
+        private void fetchLowTileByte()
         {
             Memory RAM = Memory.Instance;
-            byte y = (byte)((vramAddress >> 12) & 7);
-            byte table = backPttrAddr;
-            byte tile = nameTable;
+            ushort y = (ushort)((vramAddress >> 12) & 7);
+            byte table = flagBackgroundTable;
+            byte tile = nameTableByte;
             ushort addr = (ushort)(0x1000 * table + tile * 16 + y);
-            lowTile = RAM.PpuRead(addr);
+            lowTileByte = RAM.PpuRead(addr);
         }
 
-        private void getTileHighByte()
+        private void fetchHighTileByte()
         {
             Memory RAM = Memory.Instance;
-            byte y = (byte)((vramAddress >> 12) & 7);
-            byte table = backPttrAddr;
-            byte tile = nameTable;
+            ushort y = (ushort)((vramAddress >> 12) & 7);
+            byte table = flagBackgroundTable;
+            byte tile = nameTableByte;
             ushort addr = (ushort)(0x1000 * table + tile * 16 + y);
-            lowTile = RAM.PpuRead((ushort)(addr + 8));
+            lowTileByte = RAM.PpuRead((ushort)(addr + 8));
         }
 
-        private void setTile()
+        private void storeTileData()
         {
             uint data = 0;
             for (int i = 0; i < 8; i++)
             {
-                byte attr = attrTable;
-                byte low = (byte)((lowTile & 0x80) >> 7);
-                byte high = (byte)((highTile & 0x80) >> 6);
-                lowTile <<= 1;
-                highTile <<= 1;
+                byte attr = attributeTableByte;
+                byte low = (byte)((lowTileByte & 0x80) >> 7);
+                byte high = (byte)((highTileByte & 0x80) >> 6);
+                lowTileByte = (byte)(lowTileByte << 1);
+                highTileByte <<= (byte)(highTileByte << 1);
                 data <<= 4;
                 data |= (uint)(attr | low | high);
             }
             tileData |= data;
         }
 
-        private uint getTile()
+        private uint fetchTileData()
         {
             return (uint)(tileData >> 32);
         }
 
-        private byte background()
+        private byte backgroundPixel()
         {
-            if (ShowBackground == 0)
+            if (flagShowbackground == 0)
                 return 0;
-            uint data = getTile() >> ((7 - xScroll) * 4);
+            uint data = fetchTileData() >> ((7 - xScroll) * 4);
             return (byte)(data & 0x0F);
 
         }
 
-        private Tuple<byte, byte> sprite()
+        private Tuple<byte, byte> spritePixel()
         {
-            if(ShowSprite == 0)
+            if(flagShowSprite == 0)
                 return Tuple.Create<byte, byte>(0, 0);
             for(int i = 0; i < spriteCount; i++)
             {
@@ -448,7 +444,7 @@ namespace NESEmu
                 if (offset < 0 || offset > 7)
                     continue;                
                 offset = 7 - offset;
-                byte colour = (byte)(spritePatterns[i] >> (byte)(offset * 4) & 0x0F);
+                byte colour = (byte)((spritePatterns[i] >> (byte)(offset * 4)) & 0x0F);
                 if (colour % 4 == 0)
                     continue;
                 return Tuple.Create((byte)i, colour);
@@ -461,60 +457,60 @@ namespace NESEmu
         private void renderPixel()
         {
             int x_coord = Cycle - 1;
-            int y_coord = Scanlines;
-            byte backPixel = background();
-            Tuple<byte, byte> spritePixel = sprite();
-            byte spriteColour = spritePixel.Item2;
-            byte spritePix = spritePixel.Item1;
+            int y_coord = Scanline;
+            byte background = backgroundPixel();
+            Tuple<byte, byte> spritePixel = this.spritePixel();
+            byte i = spritePixel.Item1;
+            byte sprite = spritePixel.Item2;           
 
-            if (x_coord < 8 && showLeftBack == 0)
-                backPixel = 0;
-            if (x_coord < 8 && ShowSprite == 0)
-                spriteColour = 0;
-            bool b = backPixel % 4 != 0;
-            bool s = spriteColour % 4 != 0;
-            ushort colour;
+            if (x_coord < 8 && flagShowLeftBackground == 0)
+                background = 0;
+            if (x_coord < 8 && flagShowLeftSprites == 0)
+                sprite = 0;
+            bool b = background % 4 != 0;
+            bool s = sprite % 4 != 0;
+            byte colour;
             if(!b && !s)
             {
                 colour = 0;
             }
             else if(!b && s)
             {
-                colour = (ushort)(spriteColour | 0x10);
+                colour = (byte)(sprite | 0x10);
             }
             else if(b && !s)
             {
-                colour = backPixel;
+                colour = background;
             }
             else
             {
-                if (spriteIndex[spritePix] == 0 && x_coord < 255)
-                    spriteZero = 1;
-                if (spritePriority[spritePix] == 0)
-                    colour = (ushort)(spriteColour | 0x10);
+                if (spriteIndexes[i] == 0 && x_coord < 255)
+                    flagSpriteZeroHit = 1;
+                if (spritePriorities[i] == 0)
+                    colour = (byte)(sprite | 0x10);
                 else
-                    colour = backPixel;
+                    colour = background;
             }            
             Color col = palette.ColorPalette[readPalette(colour) % 64];           
             back.SetPixel(x_coord, y_coord, col);
         }
 
-        private uint getSpritePattern(int index, int row)
+        private uint fetchSpritePattern(int index, int row)
         {
             Memory RAM = Memory.Instance;
-            byte tile = OAM[index * 4 + 1];
-            byte attr = OAM[index * 4 + 2];
-            ushort addr;
-            if(spriteSize == 0)
+            byte tile = oamData[index * 4 + 1];
+            byte attributes = oamData[index * 4 + 2];
+            ushort address = 0;
+            if(flagSpriteSize == 0)
             {
-                if ((byte)(attr & 0x80) == 0x80)
+                if ((attributes & 0x80) == 0x80)
                     row = 7 - row;
-                byte table = sprTableAddr;
-                addr = (ushort)(0x1000 * table + tile * 16 + row);
+                byte table = flagSpriteTable;
+                address = (ushort)(0x1000 * table + tile * 16 + row);
             }
             else
             {
-                if ((byte)(attr & 0x80) == 0x80)
+                if ((attributes & 0x80) == 0x80)
                     row = 15 - row;
                 byte table = (byte)(tile & 1);
                 tile = (byte)(tile & 0xFE);
@@ -523,16 +519,16 @@ namespace NESEmu
                     tile++;
                     row = row - 8;
                 }
-                addr = (ushort)(0x1000 * table + tile * 16 + row);
+                address = (ushort)(0x1000 * table + tile * 16 + row);
             }
             uint data = 0;
-            int attrShf = (attr & 3) << 2;
-            byte lowTileByte = RAM.PpuRead(addr);
-            byte highTileByte = RAM.PpuRead((ushort)(addr + 8));
+            int a = (attributes & 3) << 2;
+            byte lowTileByte = RAM.PpuRead(address);
+            byte highTileByte = RAM.PpuRead((ushort)(address + 8));
             for (int i = 0; i < 8; i++)
             {
                 byte p1, p2;
-                if ((byte)(attr & 0x40) == 0x40)
+                if ((byte)(attributes & 0x40) == 0x40)
                 {
                     p1 = (byte)((lowTileByte & 1) << 0);
                     p2 = (byte)((highTileByte & 1) << 1);
@@ -547,40 +543,41 @@ namespace NESEmu
                     highTileByte = (byte)(highTileByte << 1);
                 }
                 data = data << 4;
-                data |= (uint)(attrShf | p1 | p2);
+                data |= (uint)(a | p1 | p2);
             }
             return data;
         }
 
-        private void checkSprites()
+        private void evaluateSprites()
         {
             int horizontal = 0;
-            if (spriteSize == 0)
+            if (flagSpriteSize == 0)
                 horizontal = 8;
             else
                 horizontal = 16;
             int sprCount = 0;
             for(int i = 0; i < 64; i++)
             {
-                byte x_coord = OAM[i * 4 + 0];
-                byte y_coord = OAM[i * 4 + 3];
-                byte tile_a_value = OAM[i * 4 + 2];
-                int row = Scanlines - y_coord;
+                byte y_coord = oamData[i * 4 + 0];
+                byte tile_a_value = oamData[i * 4 + 2];
+                byte x_coord = oamData[i * 4 + 3];
+                
+                int row = Scanline - y_coord;
                 if (row < 0 || row >= horizontal)
                     continue;
                 if(sprCount < 8)
                 {
-                    spritePatterns[sprCount] = getSpritePattern(i, row);
+                    spritePatterns[sprCount] = fetchSpritePattern(i, row);
                     spritePositions[sprCount] = x_coord;
-                    spritePriority[sprCount] = (byte)((tile_a_value >> 5) & 1);
-                    spriteIndex[sprCount] = (byte)i;
+                    spritePriorities[sprCount] = (byte)((tile_a_value >> 5) & 1);
+                    spriteIndexes[sprCount] = (byte)i;
                 }
                 sprCount++;
             }
             if(sprCount > 8)
             {
                 sprCount = 8;
-                spriteOverflow = 1;
+                flagSpriteOverflow = 1;
             }
             spriteCount = sprCount;
         }
@@ -596,16 +593,16 @@ namespace NESEmu
                 }
             }
 
-            if(ShowBackground != 0 && ShowSprite != 0)
+            if(flagShowbackground != 0 && flagShowSprite != 0)
             {
-                if(frameToggle == 1 && Scanlines == 261 && Cycle == 339)
+                if(frameFlag == 1 && Scanline == 261 && Cycle == 339)
                 {
-                    front.Save(@"C:\Users\panda\Desktop\test2.png");
+                    Front.Save(@"C:\Users\panda\Desktop\test2.png");
                     back.Save(@"C:\Users\panda\Desktop\test3.png");
                     Cycle = 0;
-                    Scanlines = 0;
+                    Scanline = 0;
                     Frame++;
-                    frameToggle ^= 1;
+                    frameFlag = (ushort)(frameFlag ^ 1);
                     return;
                 }
             }
@@ -613,25 +610,28 @@ namespace NESEmu
             if(Cycle > 340)
             {
                 Cycle = 0;
-                Scanlines++;
-                if(Scanlines > 261)
+                Scanline++;
+                if(Scanline > 261)
                 {
-                    front.Save(@"C:\Users\panda\Desktop\test.png");
+                    Front.Save(@"C:\Users\panda\Desktop\test.png");
                     back.Save(@"C:\Users\panda\Desktop\test1.png");
-                    Scanlines = 0;
+                    Scanline = 0;
                     Frame++;
-                    frameToggle ^= 1;
+                    frameFlag ^= 1;
                 }
             }
         }
 
-        public void run()
+        public void Step()
         {
             tick();
-            bool render = ShowBackground != 0 || ShowSprite != 0;
-            bool preRender = (Scanlines == 261);
-            bool visibleScanLine = Scanlines < 240;
+
+            bool render = flagShowbackground != 0 || flagShowSprite != 0;
+
+            bool preRender = (Scanline == 261);
+            bool visibleScanLine = Scanline < 240;
             bool renderLine = preRender || visibleScanLine;
+
             bool preFetchCycle = Cycle >= 321 && Cycle <= 336;
             bool visibleCycle = Cycle >= 1 && Cycle <= 256;
             bool fetchCycle = preFetchCycle || visibleCycle;
@@ -645,19 +645,27 @@ namespace NESEmu
                 {
                     tileData = tileData << 4;
                     int cycleData = Cycle % 8;
-                    if (cycleData == 1)
-                        getNameTableValue();
-                    else if (cycleData == 3)
-                        getAttrTable();
-                    else if (cycleData == 5)
-                        getTileLowByte();
-                    else if (cycleData == 7)
-                        getTileHighByte();
-                    else if (cycleData == 0)
-                        setTile();
+                    switch (cycleData)
+                    {
+                        case 1:
+                            fetchNameTableByte();
+                            break;
+                        case 3:
+                            fetchAttributeTableByte();
+                            break;
+                        case 5:
+                            fetchLowTileByte();
+                            break;
+                        case 7:
+                            fetchHighTileByte();
+                            break;
+                        case 0:
+                            storeTileData();
+                            break;
+                    }                    
                 }
 
-                if (preRender && Cycle >= 260 && Cycle <= 304)
+                if (preRender && Cycle >= 280 && Cycle <= 304)
                     copyY();
 
                 if (renderLine)
@@ -676,13 +684,13 @@ namespace NESEmu
                 if (Cycle == 257)
                 {
                     if (visibleScanLine)
-                        checkSprites();
+                        evaluateSprites();
                     else
                         spriteCount = 0;
                 }
             }
 
-            if (Scanlines == 241 && Cycle == 1)
+            if (Scanline == 241 && Cycle == 1)
             {                
                 setVerticalBlank();                
             }
@@ -690,8 +698,8 @@ namespace NESEmu
             if(preRender && Cycle == 1)
             {
                 clearVerticalBlank();
-                spriteZero = 0;
-                spriteOverflow = 0;
+                flagSpriteZeroHit = 0;
+                flagSpriteOverflow = 0;
             }                  
         }
     }

@@ -36,9 +36,9 @@ namespace NESCPUTEST
                 try
                 {
                     cpu_.Tick();
-                    ppu_.run();
-                    ppu_.run();
-                    ppu_.run();
+                    ppu_.Step();
+                    ppu_.Step();
+                    ppu_.Step();
                     if (instructionBox.Text != "")
                     {
                         prevInstrBox.Text += instructionBox.Text + " " + addressBox.Text + "\n";
@@ -141,9 +141,9 @@ namespace NESCPUTEST
                 while (running)
                 {
                     cpu_.Tick();
-                    ppu_.run();
-                    ppu_.run();
-                    ppu_.run();
+                    ppu_.Step();
+                    ppu_.Step();
+                    ppu_.Step();
                     instructionBox.Dispatcher.Invoke(
                         new UpdateTextCallback(this.UpdateText),
                         new object[] { cpu_.CurrentInstruction }

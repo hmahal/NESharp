@@ -98,28 +98,19 @@ namespace NESEmu
         private uint _cyclesToWait; //the amount of cycles this operation takes
         private Thread _cpuThread;
         public uint Cycle { get; set; } //Which cycle is the cpu on
-        private byte currentInstruction;
-        private uint currentAddress;
-
+        private byte currentInstruction;        
         public Memory RAM { get; set; }
+
+        public int CurrentAddress { get; set; }
 
         private delegate void OpCodeMethods(MemoryInfo mem);
 
-        private static CPU6502 instance;
-        private StreamWriter sw;
+        private static CPU6502 instance;        
         public string CurrentInstruction
         {
             get
             {
                 return instructions[currentInstruction];
-            }
-        }
-
-        public uint CurrentAddress
-        {
-            get
-            {
-                return currentAddress;
             }
         }
 
@@ -298,7 +289,7 @@ namespace NESEmu
             RAM = mem;
             addInstructionAction();
             Reset();
-            sw = new StreamWriter(@"C:\Users\panda\Desktop\test1.txt", true);
+            //sw = new StreamWriter(@"C:\Users\panda\Desktop\test1.txt", true);
         }
 
         public static CPU6502 Instance
@@ -385,10 +376,10 @@ namespace NESEmu
         private ushort errorRead16(ushort address)
         {
             ushort tmp = address;
-            ushort tmp_2 = (ushort)((tmp & 0xFF00) | ((byte)(tmp))+1);
+            ushort tmp_2 = (ushort)((tmp & 0xFF00) | (ushort)(((byte)(tmp))+1));
             byte lowByte = RAM.ReadMemory(tmp);
             byte highByte = RAM.ReadMemory(tmp_2);
-            ushort result = (ushort)(highByte << 8 | lowByte);
+            ushort result = (ushort)(((ushort)(highByte) << 8) | lowByte);
             return result;
 
         }
@@ -547,8 +538,7 @@ namespace NESEmu
             {
                 Stall--;
                 return 1;
-            }
-
+            }            
             uint cycles = Cycle;
             switch (interrupt)
             {
@@ -639,13 +629,12 @@ namespace NESEmu
                 case ((int)AddressingMode.ZeroPageY):
                     addr = (ushort)(RAM.ReadMemory((ushort)(pc_register + 1)) + reg_y);
                     break;
-            }
-            //sw.WriteLine(instructions[opcode] + " " + pc_register.ToString("X4") + " " + addr.ToString("X4"));
+            }            
             pc_register += instructionSize[opcode];       
             Cycle += instructionCycles[opcode];
             if (pageCrossed)
-                Cycle += pageCrossedCycle[opcode];            
-            //Console.WriteLine(addr);
+                Cycle += pageCrossedCycle[opcode];
+            CurrentAddress = addr;
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
             instructionAction[opcode](mem);
             return Cycle - cycles;
