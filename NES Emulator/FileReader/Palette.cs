@@ -1,16 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace NESEmu
 {
+    /// <summary>
+    /// Palette class contains the values used for generating the colour palette and 
+    /// and array of Color objects which are used by PPU during rendering.
+    /// </summary>
     class Palette
     {
-        public Color[] ColorPalette { get; set; }
         /// <summary>
+        /// Sets and returns the ColorPalette array.
+        /// </summary>
+        public Color[] ColorPalette { get; set; }
+
+        /// <summary>
+        /// Values to emulate the NTSC signal output by the NES. Values courtest of:
         /// http://www.thealmightyguru.com/Games/Hacking/Wiki/index.php/NES_Palette
         /// </summary>
         private int[] colours = {
@@ -24,6 +28,9 @@ namespace NESEmu
             0xE4E594, 0xCFEF96, 0xBDF4AB, 0xB3F3CC, 0xB5EBF2, 0xB8B8B8, 0x000000, 0x000000,
         };
 
+        /// <summary>
+        /// Constructor for the Palette object. Populates the ColorPalette array
+        /// </summary>
         public Palette()
         {
             ColorPalette = new Color[64];
@@ -31,7 +38,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Takes the values from the colours array and converts it into Color object.
+        /// Stores the Color objects in the ColorPalette array.
         /// </summary>
         private void coloursToPalette()
         {

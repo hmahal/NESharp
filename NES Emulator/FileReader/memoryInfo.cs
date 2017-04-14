@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NESEmu
+﻿namespace NESEmu
 {
+    /// <summary>
+    /// struct to contain information passed to the opcode methods.
+    /// Designed in order to create action delegates which take similar parameters
+    /// Provides the address, Program Counter value and the addressing mode to the
+    /// method dealing with the opcode.
+    /// </summary>
     struct MemoryInfo
     {
+
         public ushort Address { get; set; }
         public ushort PC_register { get; set; }
         public int Addr_mode { get; set; }

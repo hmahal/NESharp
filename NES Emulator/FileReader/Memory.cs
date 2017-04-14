@@ -45,7 +45,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Method to get an instance of the memory object. Utilizes the singleton pattern.
         /// </summary>
         public static Memory Instance
         {

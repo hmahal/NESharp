@@ -304,7 +304,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the static CPU instance when requested. Utilizing the Singleton pattern
         /// </summary>
         public static CPU6502 Instance
         {
@@ -730,7 +730,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        ///
+        /// Non Maskable Interrupt. 
+        /// No state inside the CPU can prevent the NMI from being processed as an interrupt.
         /// </summary>
         private void nmi()
         {
@@ -742,7 +743,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        ///
+        /// Method to handle Interrupt Request
+        /// https://wiki.nesdev.com/w/index.php/IRQ
         /// </summary>
         private void irq()
         {
@@ -1429,7 +1431,13 @@ namespace NESEmu
             setSign(accumulator);
         }
 
-        //TODO: Illegal Opcodes below
+        /// <summary>
+        /// Illegal Opcodes below
+        /// These options were not implemented in the NES. However they can be 
+        /// implemented to provide a complete 6502 CPU implementation.
+        /// http://nesdev.com/undocumented_opcodes.txt
+        /// </summary>
+
 
         private void ahx(MemoryInfo mem)
         {

@@ -9,6 +9,10 @@ namespace NESEmu
 {
     class Start
     {
+        /// <summary>
+        /// Entry point for the headless instance. Mainly used for debugging.
+        /// </summary>
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
            

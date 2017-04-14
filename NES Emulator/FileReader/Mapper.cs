@@ -1,12 +1,9 @@
-﻿using NESEmu;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NESEmu
+﻿namespace NESEmu
 {
+    /// <summary>
+    /// Abstract class for implmenting a member. Provides the methods and members all 
+    /// inheriting classes must implement.
+    /// </summary>
     public abstract class Mapper
     {
         public Cartridge cart { get; set; }

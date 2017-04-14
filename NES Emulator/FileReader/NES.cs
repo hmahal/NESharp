@@ -1,14 +1,9 @@
-﻿using NESEmu;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-//TODO: Fix namespaces, they are all over the place right now.
+﻿//TODO: Fix namespaces, they are all over the place right now.
 namespace NESEmu
 {
+    /// <summary>
+    /// NES class written to run quick tests and run without the WPF overhead.
+    /// </summary>
     class NES
     {
         public Cartridge Cart { get; }
@@ -18,7 +13,8 @@ namespace NESEmu
         public Mapper Mapper { get; }
 
         /// <summary>
-        /// 
+        /// Contructor for the NES console object. Uses Dependency Injection to create components.
+        /// Mainly used for testing in this form.
         /// </summary>
         public NES()
         {
@@ -44,10 +40,11 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Test run for the NES console used for debugging.
         /// </summary>
         public void Start()
         {
+            //Runs an arbitrary number of ticks for the CPU
             for (int j = 0; j < 10000000; j++)
             {
                 uint cycles = CPU.Tick();
