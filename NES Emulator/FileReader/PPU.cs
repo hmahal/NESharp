@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 
-//TODO: Comments
 namespace NESEmu
 {
     /// <summary>
@@ -414,6 +413,8 @@ namespace NESEmu
         }
 
 #region NTSCTIMING
+
+        //Methods to help with NTSC timing for the PPU
         private void incrementX()
         {
             if ((vramAddress & 0x001F) == 31)
@@ -462,7 +463,9 @@ namespace NESEmu
         #endregion
 
         /// <summary>
-        /// 
+        /// Sets the nmiDelay value if nmiOutput and nmiOccured evaluate to true
+        /// And nmi has not occured previously. Otherwise, nmiPrevious is set to
+        /// (nmiOutput && nmiOccured)
         /// </summary>
         private void nmiChange()
         {
@@ -473,7 +476,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Switches the buffer bitmap and the rendered bitmap
         /// </summary>
         private void setVerticalBlank()
         {
@@ -485,7 +488,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Sets the nmiOccured to false and calls nmiChange() method
         /// </summary>
         private void clearVerticalBlank()
         {
@@ -494,7 +497,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Get the value for the nameTableByte from the memory
         /// </summary>
         private void fetchNameTableByte()
         {
@@ -505,7 +508,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Gets the value for the attributeTableByte from the Memory
         /// </summary>
         private void fetchAttributeTableByte()
         {
@@ -518,7 +521,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Gets the value for the lowTileByte member from the memory
         /// </summary>
         private void fetchLowTileByte()
         {
@@ -531,7 +534,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Gets the value for the highTile member from the memory
         /// </summary>
         private void fetchHighTileByte()
         {
@@ -544,7 +547,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Constructs the tileData value from the lowTilebyte and highTileByte values
         /// </summary>
         private void storeTileData()
         {
@@ -563,7 +566,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the first 32 bits of the tileData as an unsigned int
         /// </summary>
         /// <returns></returns>
         private uint fetchTileData()
@@ -572,7 +575,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns 0 if background pixel is not going to be displayed.
+        /// Returns a byte representing the colour of the background otherwise.
         /// </summary>
         /// <returns></returns>
         private byte backgroundPixel()
@@ -584,7 +588,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the index of the sprite pixel and the colour of the sprite pixel.
+        /// If no sprite is to be displayed returns a tuple containing 0, 0
         /// </summary>
         /// <returns></returns>
         private Tuple<byte, byte> spritePixel()
@@ -606,7 +611,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Sets the colour value of the bitmap pixel based on the values returned from the
+        /// backgroundPixel() and the spritePixel() methods
         /// </summary>
         private void renderPixel()
         {
@@ -650,11 +656,13 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Get the spritePattern from the memory for the given index and row.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="row"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns spritePattern data to be stored in the spritePatterns table
+        /// </returns>
         private uint fetchSpritePattern(int index, int row)
         {
             Memory RAM = Memory.Instance;
@@ -708,7 +716,10 @@ namespace NESEmu
             return data;
         }
 
-
+        /// <summary>
+        /// Checks the number of sprites contained in the oamData and set the spriteCount value.
+        /// If the number of sprites is less than 8, sprite tables are updated.
+        /// </summary>
         private void evaluateSprites()
         {
             int horizontal = 0;
@@ -744,7 +755,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Updates the Cycle, Scanline and the Frame counters
         /// </summary>
         public void tick()
         {
@@ -762,6 +773,7 @@ namespace NESEmu
             {
                 if(frameFlag == 1 && Scanline == 261 && Cycle == 339)
                 {
+                    //For debugging purposes only
                     //Front.Save(@"C:\Users\panda\Desktop\test2.png");
                     //back.Save(@"C:\Users\panda\Desktop\test3.png");
                     Cycle = 0;
@@ -778,6 +790,7 @@ namespace NESEmu
                 Scanline++;
                 if(Scanline > 261)
                 {
+                    //For debugging purposes only.
                     //Front.Save(@"C:\Users\panda\Desktop\test.png");
                     //back.Save(@"C:\Users\panda\Desktop\test1.png");
                     Scanline = 0;
@@ -788,7 +801,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Executes a single PPU cycle
         /// </summary>
         public void Step()
         {
