@@ -518,9 +518,9 @@ namespace NESEmu
             sign_flag = (byte)((flags >> 7) & 1);
         }
 
-        //TODO: Review this later
+        
         /// <summary>
-        /// 
+        /// Sets the Interrupt mode to NMI.
         /// </summary>
         public void triggerNMI()
         {
@@ -528,7 +528,7 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Sets the Interrupt mode to IRQ.
         /// </summary>
         public void triggerIRQ()
         {

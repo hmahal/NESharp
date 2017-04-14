@@ -1,5 +1,4 @@
-﻿//TODO: Fix namespaces, they are all over the place right now.
-namespace NESEmu
+﻿namespace NESEmu
 {
     /// <summary>
     /// NES class written to run quick tests and run without the WPF overhead.
@@ -19,8 +18,7 @@ namespace NESEmu
         public NES()
         {
             Cart = new Cartridge();
-            const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";
-            //TODO:Fix this
+            const string FileName = @"C:\Users\panda\Downloads\Super Mario Bros. 3 (USA).nes";            
             Input input1 = new Input();
             Input input2 = new Input();
             ppu = PPU.Instance;

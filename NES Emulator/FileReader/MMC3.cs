@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NESEmu;
 
-//TODO: Comments
 namespace NESEmu
 {
+    /// <summary>
+    /// This class emulates the MMC3 memory controller found in various game cartridges.
+    /// https://wiki.nesdev.com/w/index.php/MMC3
+    /// </summary>
     public class MMC3 : Mapper
     {
         private int[] prgOffsets = new int[4];
@@ -22,9 +20,8 @@ namespace NESEmu
         private byte prgMode;
         private byte chrMode;
 
-        //At the beginning, value of registers is unspecified, so we initialize offsets using the values below.
         /// <summary>
-        /// 
+        /// Value of registers is unspecified, so we initialize offsets using the values below.
         /// </summary>
         /// <param name="cart"></param>
         public MMC3(Cartridge cart) : base(cart)
@@ -35,12 +32,9 @@ namespace NESEmu
             prgOffsets[2] = prgBankOffset(-2);
             prgOffsets[3] = prgBankOffset(-1);
         }
-
-
-
-        //TODO: Implement methods for the PPU operations. Scanline counting etc.
+        
         /// <summary>
-        /// 
+        /// Checks the PPU cycle and state and calls the scanLine() method when appropriate.
         /// </summary>
         public override void Tick()
         {
@@ -55,7 +49,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Provides the emulation for the Counter operation of the MMC3 mapper.
+        /// https://wiki.nesdev.com/w/index.php/MMC3#IRQ_Specifics
         /// </summary>
         private void scanLine()
         {
@@ -70,11 +65,12 @@ namespace NESEmu
                 }
             }
         }
-        
-        //CHR banks are located between 0x0000 and 0x1fff inclusive, so we can delineate at 0x2000
-        //PRG banks are located between 0x8000 and 0xFFFF inclusive, so we can start at 0x8000
+
         /// <summary>
-        /// 
+        /// Returns memory stored at the address provided.
+        /// CHR banks are located between 0x0000 and 0x1fff inclusive, so we can delineate at 0x2000.
+        /// PRG banks are located between 0x8000 and 0xFFFF inclusive, so we can start at 0x8000.
+        /// Save RAM is located between 0x6000 and 0x7FFF inclusive.
         /// </summary>
         /// <param name="addr"></param>
         /// <returns></returns>
@@ -104,7 +100,8 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Writes the value passed in as a parameter to the memory location specified by the 
+        /// address passed as the parameter.
         /// </summary>
         /// <param name="addr"></param>
         /// <param name="value"></param>
@@ -131,7 +128,9 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Checks the address passed in as a parameter and writes to the appropriate register.
+        /// The 4 pairs of registers are based on the information provided here:
+        /// https://wiki.nesdev.com/w/index.php/MMC3#Registers
         /// </summary>
         /// <param name="addr"></param>
         /// <param name="value"></param>
@@ -171,7 +170,10 @@ namespace NESEmu
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         private void writeBankSelect(byte value)
         {
             prgMode = (byte)((value >> 6) & 1);
@@ -180,12 +182,21 @@ namespace NESEmu
             updateOffsets();
         }
 
+        /// <summary>
+        /// Writes the value passed by parameter to the location specified by the register member.
+        /// Calls updateOffsets to update the offsets.
+        /// </summary>
+        /// <param name="value"></param>
         private void writeBankData(byte value)
         {
             registers[register] = value;
             updateOffsets();
         }
 
+        /// <summary>
+        /// Sets the cart's mirroring based on the value of the parameter passed to the method.
+        /// </summary>
+        /// <param name="value"></param>
         private void writeMirror(byte value)
         {
             value = (byte)(value & 1);
@@ -200,14 +211,17 @@ namespace NESEmu
             }
         }
 
-        //Since PRG banks start from 0x8000 and are 0x2000 long each
+
         /// <summary>
-        /// 
+        /// Returns the offset calculated based on the index provided.
         /// </summary>
         /// <param name="index"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// The offset required to access the memory bank for PRG ROM calculated based on the index.
+        /// </returns>
         private int prgBankOffset(int index)
         {
+            //Since PRG banks start from 0x8000 and are 0x2000 long each
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
@@ -219,10 +233,12 @@ namespace NESEmu
         }
 
         /// <summary>
-        /// 
+        /// Returns the offset calculated based on the index provided.
         /// </summary>
         /// <param name="index"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// The offset required to access the memory bank for CHR ROM calculated based on the index.
+        /// </returns>
         private int chrBankOffset(int index)
         {
             int offset;
@@ -235,6 +251,9 @@ namespace NESEmu
             return offset;
         }
 
+        /// <summary>
+        /// Calculates the offsets required to reach memory bank for both CHR and PRG roms.
+        /// </summary>
         private void updateOffsets()
         {
             if(prgMode == 0)
