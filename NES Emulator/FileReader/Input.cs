@@ -16,6 +16,7 @@ namespace NESEmu
         {
             buttons = new bool[8];
         }
+
         public byte Read()
         {
             byte value = 0;

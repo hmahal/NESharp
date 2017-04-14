@@ -21,6 +21,14 @@ namespace NESEmu
             this._filePath = FilePath;
         }
 
+        /// <summary>
+        /// Method for reading a Cartridge object.  It will attempt to read in Binary
+        /// and read the first 16 bytes.  It will throw an error if it can't read the file or if
+        /// the first  byte headers are not 'N', 'E', 'S'.  This sepcifies that we are reading an 
+        /// official NES file.  It will then attempt to read the rest of the file in
+        /// binary.  
+        /// </summary>
+        /// <returns></returns>
         public Cartridge readCart()
         {
             cart = new Cartridge();

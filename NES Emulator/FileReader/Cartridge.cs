@@ -17,6 +17,11 @@
         public byte[] Trainer { get; set; }
         public byte[] Title { get; set; }
 
+        /// <summary>
+        /// Method for returning a Cartridge object from a file path.
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
         public Cartridge getCart(string filepath)
         {
             CartridgeReader read = new CartridgeReader(filepath);

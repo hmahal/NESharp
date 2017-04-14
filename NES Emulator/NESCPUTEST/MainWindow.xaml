@@ -5,31 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NESCPUTEST"
         mc:Ignorable="d"
-        Title="MainWindow" Height="514.572" Width="793.572">
+        Title="MainWindow" Height="564.572" Width="1281.572">
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".75*" />
             <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width=".75*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*" />
-            <RowDefinition Height="15*" />            
+            <RowDefinition Height="15*" />
         </Grid.RowDefinitions>
-        <TextBox x:Name="memoryBox" TextWrapping="Wrap" Grid.Column="0" Margin="10,57,0.286,7.286" FontFamily="Courier New" Grid.RowSpan="2" />
-        <Button x:Name="runCPUTick" Content="Run a CPU Cycle" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUTick_Click" Grid.Row="1" Grid.Column="1" />
-        <Button x:Name="runCPU" Content="Start/Pause CPU" HorizontalAlignment="Left" Margin="132,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUButton_Click" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="label" Content="Current Instruction:" HorizontalAlignment="Left" Margin="9.714,6,0,0" VerticalAlignment="Top" Grid.Column="1" />
-        <TextBox x:Name="instructionBox" HorizontalAlignment="Left" Height="23" Margin="121.714,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Grid.Column="1" />
-        <Label x:Name="label1" Content="Memory:" HorizontalAlignment="Left" Margin="162,14,0,0" VerticalAlignment="Top" />
-        <TextBox x:Name="registerBox" Grid.Column="1" Margin="9.714,121.857,0,7.286" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" HorizontalAlignment="Left" Width="244" />
-        <Label x:Name="label2" Content="Registers:" Grid.Column="1" HorizontalAlignment="Left" Margin="44,91,0,0" Grid.Row="1" VerticalAlignment="Top" />
-        <Button x:Name="openNesRom" Content="Open NES Rom" HorizontalAlignment="Left" Margin="5,35,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="1" Click="openNesRom_Click" />
-        <Button x:Name="resetButton" Content="Reset NES" HorizontalAlignment="Left" Margin="132,35,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="1" Click="resetButton_Click" />
-        <Button x:Name="injectButton" Content="Inject Opcode" HorizontalAlignment="Left" Margin="4.571,60.286,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="1" Click="injectButton_Click" />
-        <TextBox x:Name="opCodeInjectBox" HorizontalAlignment="Left" Height="21" Margin="132.571,60.286,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Grid.Column="1" Grid.Row="1" />
-        <TextBox x:Name="prevInstrBox" Grid.Column="1" Margin="263.714,32.857,0,7.286" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" HorizontalAlignment="Left" Width="120"/>
-        <Label x:Name="label3" Content="Previous Instructions:" Grid.Column="1" HorizontalAlignment="Left" Margin="263.714,6.857,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="-0.458,0.429"/>
-        <TextBox x:Name="addressBox" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="263.714,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label x:Name="label4" Content="Address:" Grid.Column="1" HorizontalAlignment="Left" Margin="208.714,6,0,0" VerticalAlignment="Top"/>        
+        <TextBox x:Name="memoryBox" TextWrapping="Wrap" Grid.Column="0" Grid.Row="1" Margin="10,10,10,7" FontFamily="Courier New" />
+        <Button x:Name="runCPUTick" Content="Run a CPU Cycle" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUTick_Click" Grid.Row="1" Grid.Column="2" />
+        <Button x:Name="runCPU" Content="Start/Pause CPU" HorizontalAlignment="Left" Margin="132,10,0,0" VerticalAlignment="Top" Width="122" Click="runCPUButton_Click" Grid.Row="1" Grid.Column="2" />
+        <Label x:Name="label" Content="Current Instruction:" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Grid.Column="2" />
+        <TextBox x:Name="instructionBox" HorizontalAlignment="Left" Height="23" Margin="122,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Grid.Column="2" />
+        <Label x:Name="label1" Content="Memory:" Margin="164,27,161,0" VerticalAlignment="Top" />
+        <TextBox x:Name="registerBox" Grid.Column="2" Margin="10,122,0,7" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" HorizontalAlignment="Left" Width="244" />
+        <Label x:Name="label2" Content="Registers:" Grid.Column="2" HorizontalAlignment="Left" Margin="44,91,0,0" Grid.Row="1" VerticalAlignment="Top" />
+        <Button x:Name="openNesRom" Content="Open NES Rom" HorizontalAlignment="Left" Margin="5,35,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="2" Click="openNesRom_Click" />
+        <Button x:Name="resetButton" Content="Reset NES" HorizontalAlignment="Left" Margin="132,35,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="2" Click="resetButton_Click" />
+        <Button x:Name="injectButton" Content="Inject Opcode" HorizontalAlignment="Left" Margin="5,60,0,0" VerticalAlignment="Top" Width="122" Grid.Row="1" Grid.Column="2" Click="injectButton_Click" />
+        <TextBox x:Name="opCodeInjectBox" HorizontalAlignment="Left" Height="21" Margin="133,60,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Grid.Column="2" Grid.Row="1" />
+        <TextBox x:Name="prevInstrBox" Grid.Column="2" Margin="264,33,0,7" Grid.Row="1" TextWrapping="Wrap" FontFamily="Courier New" HorizontalAlignment="Left" Width="106" />
+        <Label x:Name="label3" Content="Previous Instructions:" Grid.Column="2" HorizontalAlignment="Left" Margin="259,7,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="-0.458,0.429" />
+        <TextBox x:Name="addressBox" Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="237,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="133" />
+        <Label x:Name="label4" Content="Address:" Grid.Column="2" HorizontalAlignment="Left" Margin="177,7,0,0" VerticalAlignment="Top" />
+        <Image x:Name="Display" Grid.Column="1" Margin="10" Grid.Row="1" />
     </Grid>
 </Window>

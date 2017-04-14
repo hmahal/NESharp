@@ -18,6 +18,9 @@ namespace NESEmu
         private Input input1, input2;
         private static Memory instance;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private ushort[][] Mirror = new ushort[5][]
         {
             new ushort[] { 0,0,1,1 },
@@ -41,6 +44,9 @@ namespace NESEmu
             ClearMemory();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static Memory Instance
         {
             get
@@ -53,6 +59,13 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// Creating an instance of memory.  
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="mapper"></param>
+        /// <param name="input1"></param>
+        /// <param name="input2"></param>
         public static void Create(int size, Mapper mapper, Input input1, Input input2)
         {
             if(instance != null)
@@ -155,7 +168,12 @@ namespace NESEmu
             }
         }
 
-
+        /// <summary>
+        /// PPU reading from an address specified.  Method throws an exception
+        /// if address specifies invalid memory access.
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <returns></returns>
         public byte PpuRead(ushort addr)
         {
             addr = (ushort)(addr % 0x4000);
@@ -180,6 +198,12 @@ namespace NESEmu
             }            
         }
 
+        /// <summary>
+        /// PPU writes to an address location.  Method throws exception if
+        /// PPU is given an address which leads to invalid memory access.
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="value"></param>
         public void PpuWrite(ushort addr, byte value)
         {
             addr = (ushort)(addr % 0x4000);
@@ -204,6 +228,12 @@ namespace NESEmu
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
         public ushort MirroredAddress(byte mode, ushort address)
         {
             address = (ushort)((address - 0x2000) % 0x1000);
@@ -231,6 +261,10 @@ namespace NESEmu
                 Console.WriteLine(memory[i].ToString("X"));
         }
 
+        /// <summary>
+        /// Returns everything in memory to string.  
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string rtn = "";

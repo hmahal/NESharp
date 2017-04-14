@@ -17,7 +17,9 @@ namespace NESEmu
         public PPU ppu { get; }
         public Mapper Mapper { get; }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public NES()
         {
             Cart = new Cartridge();
@@ -41,6 +43,9 @@ namespace NESEmu
             CPU.Reset();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Start()
         {
             for (int j = 0; j < 10000000; j++)
