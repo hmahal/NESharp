@@ -98,19 +98,21 @@ namespace NESEmu
         private uint _cyclesToWait; //the amount of cycles this operation takes
         private Thread _cpuThread;
         public uint Cycle { get; set; } //Which cycle is the cpu on
-        private byte currentInstruction;
-        private uint currentAddress;
-
+        private byte currentInstruction;        
         public Memory RAM { get; set; }
+
+        public int CurrentAddress { get; set; }
 
         private delegate void OpCodeMethods(MemoryInfo mem);
 
-        private static CPU6502 instance;
-        private StreamWriter sw;
+
+        private static CPU6502 instance;        
+
 
         /// <summary>
         /// Returns a string value from the array of instructions array. 
         /// </summary>
+
         public string CurrentInstruction
         {
             get
@@ -118,6 +120,7 @@ namespace NESEmu
                 return instructions[currentInstruction];
             }
         }
+
 
         /// <summary>
         /// Returns the uint type of the current address.  
@@ -308,6 +311,7 @@ namespace NESEmu
             RAM = mem;
             addInstructionAction();
             Reset();
+
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test1.txt";
             sw = new StreamWriter(path, true);
         }
@@ -444,7 +448,7 @@ namespace NESEmu
             ushort tmp_2 = (ushort)((tmp & 0xFF00) | ((byte)(tmp)) + 1);
             byte lowByte = RAM.ReadMemory(tmp);
             byte highByte = RAM.ReadMemory(tmp_2);
-            ushort result = (ushort)(highByte << 8 | lowByte);
+            ushort result = (ushort)(((ushort)(highByte) << 8) | lowByte);
             return result;
         }
 
@@ -634,8 +638,7 @@ namespace NESEmu
             {
                 Stall--;
                 return 1;
-            }
-
+            }            
             uint cycles = Cycle;
             switch (interrupt)
             {

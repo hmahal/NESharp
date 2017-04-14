@@ -54,7 +54,7 @@ namespace NESEmu
                 uint ppuCycles = cycles * 3;
                 for (int i = 0; i < ppuCycles; i++)
                 {
-                    ppu.run();
+                    ppu.Step();
                     Mapper.Tick();
                 }                
             }

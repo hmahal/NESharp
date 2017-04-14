@@ -9,17 +9,17 @@ namespace NESEmu
 {
     public class MMC3 : Mapper
     {
-        private int[] prgbank = new int[4];
-        private int[] chrbank = new int[8];
-        public new Cartridge cart { get; set; }       
-        //Registers
-        private byte register;
+        private int[] prgOffsets = new int[4];
+        private int[] chrOffsets = new int[8];
         private byte[] registers = new byte[8];
-        private byte irqReload;
+
+        //Registers
+        private byte register;        
+        private byte reload;
         private bool irqEnable;
-        private int counter;
-        private int prgMode;
-        private int chrMode;
+        private byte counter;
+        private byte prgMode;
+        private byte chrMode;
 
         //At the beginning, value of registers is unspecified, so we initialize offsets using the values below.
         /// <summary>
@@ -29,10 +29,10 @@ namespace NESEmu
         public MMC3(Cartridge cart) : base(cart)
         {
             this.cart = cart;            
-            prgbank[0] = prgBankOffset(0);
-            prgbank[1] = prgBankOffset(1);
-            prgbank[2] = prgBankOffset(-2);
-            prgbank[3] = prgBankOffset(-1);
+            prgOffsets[0] = prgBankOffset(0);
+            prgOffsets[1] = prgBankOffset(1);
+            prgOffsets[2] = prgBankOffset(-2);
+            prgOffsets[3] = prgBankOffset(-1);
         }
 
 
@@ -46,9 +46,9 @@ namespace NESEmu
             PPU ppu = PPU.Instance;
             if (ppu.Cycle != 280)
                 return;
-            if (ppu.Scanlines > 239 && ppu.Scanlines < 261)
+            if (ppu.Scanline > 239 && ppu.Scanline < 261)
                 return;
-            if (ppu.ShowBackground == 0 && ppu.ShowSprite == 0)
+            if (ppu.flagShowbackground == 0 && ppu.flagShowSprite == 0)
                 return;
             scanLine();
         }
@@ -59,7 +59,7 @@ namespace NESEmu
         private void scanLine()
         {
             if (counter == 0)
-                counter = irqReload;
+                counter = reload;
             else
             {
                 counter--;
@@ -81,18 +81,25 @@ namespace NESEmu
         {
             if (addr < 0x2000)
             {
-                int bank = addr / 0x0400;
-                int offset = addr % 0x0400;
-                return cart.Chrrom[chrbank[bank] + offset];
+                ushort bank = (ushort)(addr / 0x0400);
+                ushort offset = (ushort)(addr % 0x0400);
+                return cart.Chrrom[chrOffsets[bank] + offset];
             }
             else if (addr >= 0x8000)
             {
                 addr = (ushort)(addr - 0x8000);
                 int bank = addr / 0x2000;
                 int offset = addr % 0x2000;
-                return cart.Prgrom[prgbank[bank] + offset];
+                return cart.Prgrom[prgOffsets[bank] + offset];
             }
-            return 0;
+            else if (addr >= 0x6000)
+            {
+                return cart.Sram[addr - 0x6000];
+            }
+            else
+            {
+                throw new Exception("Memory out of bounds");
+            }            
         }
 
         /// <summary>
@@ -106,51 +113,19 @@ namespace NESEmu
             {
                 int bank = addr / 0x0400;
                 int offset = addr % 0x0400;
-                cart.Chrrom[chrbank[bank] + offset] = value;
+                cart.Chrrom[chrOffsets[bank] + offset] = value;
             }
             else if (addr >= 0x8000)
             {
                 writeRegister(addr, value);
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        private void writeBankSelect(byte value)
-        {
-            prgMode = (value >> 6) & 1;
-            chrMode = (value >> 7) & 1;
-            register = (byte)(value & 7);
-            resetOffsets();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        private void writeBankData(byte value)
-        {
-            registers[register] = value;
-            resetOffsets();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        private void writeMirror(byte value)
-        {
-            value = (byte)(value & 1);
-            switch (value)
+            else if (addr >= 0x6000)
             {
-                case 0:
-                    cart.Mirroring = 1;
-                    break;
-                case 1:
-                    cart.Mirroring = 0;
-                    break;
+                cart.Sram[addr - 0x6000] = value;
+            }
+            else
+            {
+                throw new Exception("Memory out of bounds");
             }
         }
 
@@ -161,7 +136,7 @@ namespace NESEmu
         /// <param name="value"></param>
         private void writeRegister(ushort addr, byte value)
         {
-            if((addr <= 0x9FFF) && (addr % 2 == 0))
+            if ((addr <= 0x9FFF) && (addr % 2 == 0))
             {
                 writeBankSelect(value);
             }
@@ -177,9 +152,9 @@ namespace NESEmu
             {
                 //SRAM not implemented
             }
-            else if((addr <= 0xDFFF) && (addr % 2 == 0))
+            else if ((addr <= 0xDFFF) && (addr % 2 == 0))
             {
-                irqReload = value;
+                reload = value;
             }
             else if ((addr <= 0xDFFF) && (addr % 2 == 1))
             {
@@ -195,46 +170,32 @@ namespace NESEmu
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private void resetOffsets()
+
+        private void writeBankSelect(byte value)
         {
-            if(prgMode == 0)
+            prgMode = (byte)((value >> 6) & 1);
+            chrMode = (byte)((value >> 7) & 1);
+            register = (byte)(value & 7);
+            updateOffsets();
+        }
+
+        private void writeBankData(byte value)
+        {
+            registers[register] = value;
+            updateOffsets();
+        }
+
+        private void writeMirror(byte value)
+        {
+            value = (byte)(value & 1);
+            switch (value)
             {
-                prgbank[0] = prgBankOffset(registers[6]);
-                prgbank[1] = prgBankOffset(registers[7]);
-                prgbank[2] = prgBankOffset(-2);
-                prgbank[3] = prgBankOffset(-1);
-            }
-            else if(prgMode == 1)
-            {
-                prgbank[0] = prgBankOffset(-2);
-                prgbank[1] = prgBankOffset(registers[7]);
-                prgbank[2] = prgBankOffset(registers[6]);
-                prgbank[3] = prgBankOffset(-1);
-            }
-            if(chrMode == 0)
-            {
-                chrbank[0] = chrBankOffset(registers[0] & 0xFE);
-                chrbank[1] = chrBankOffset(registers[0] | 0x01);
-                chrbank[2] = chrBankOffset(registers[1] & 0xFE);
-                chrbank[3] = chrBankOffset(registers[1] | 0x01);
-                chrbank[4] = chrBankOffset(registers[2]);
-                chrbank[5] = chrBankOffset(registers[3]);
-                chrbank[6] = chrBankOffset(registers[4]);
-                chrbank[7] = chrBankOffset(registers[5]);
-            }
-            else if (chrMode == 1)
-            {                
-                chrbank[0] = chrBankOffset(registers[2]);
-                chrbank[1] = chrBankOffset(registers[3]);
-                chrbank[2] = chrBankOffset(registers[4]);
-                chrbank[3] = chrBankOffset(registers[5]);
-                chrbank[4] = chrBankOffset(registers[0] & 0xFE);
-                chrbank[5] = chrBankOffset(registers[0] | 0x01);
-                chrbank[6] = chrBankOffset(registers[1] & 0xFE);
-                chrbank[7] = chrBankOffset(registers[1] | 0x01);
+                case 0:
+                    cart.Mirroring = 1;
+                    break;
+                case 1:
+                    cart.Mirroring = 0;
+                    break;
             }
         }
 
@@ -249,7 +210,7 @@ namespace NESEmu
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
-            index %= cart.Prgrom.Length / 0x2000;            
+            index %= (cart.Prgrom.Length / 0x2000);
             offset = index * 0x2000;
             if (offset < 0)
                 offset += cart.Prgrom.Length;
@@ -266,13 +227,51 @@ namespace NESEmu
             int offset;
             if (index >= 0x80)
                 index -= 0x100;
-            int temp = cart.Chrrom.Length / 0x0400;
-            if(temp != 0)
-                index %= temp;            
+            index %= (cart.Chrrom.Length / 0x0400);
             offset = index * 0x0400;
             if (offset < 0)
                 offset += cart.Chrrom.Length;
             return offset;
         }
+
+        private void updateOffsets()
+        {
+            if(prgMode == 0)
+            {
+                prgOffsets[0] = prgBankOffset(registers[6]);
+                prgOffsets[1] = prgBankOffset(registers[7]);
+                prgOffsets[2] = prgBankOffset(-2);
+                prgOffsets[3] = prgBankOffset(-1);
+            }
+            else if(prgMode == 1)
+            {
+                prgOffsets[0] = prgBankOffset(-2);
+                prgOffsets[1] = prgBankOffset(registers[7]);
+                prgOffsets[2] = prgBankOffset(registers[6]);
+                prgOffsets[3] = prgBankOffset(-1);
+            }
+            if(chrMode == 0)
+            {
+                chrOffsets[0] = chrBankOffset(registers[0] & 0xFE);
+                chrOffsets[1] = chrBankOffset(registers[0] | 0x01);
+                chrOffsets[2] = chrBankOffset(registers[1] & 0xFE);
+                chrOffsets[3] = chrBankOffset(registers[1] | 0x01);
+                chrOffsets[4] = chrBankOffset(registers[2]);
+                chrOffsets[5] = chrBankOffset(registers[3]);
+                chrOffsets[6] = chrBankOffset(registers[4]);
+                chrOffsets[7] = chrBankOffset(registers[5]);
+            }
+            else if (chrMode == 1)
+            {
+                chrOffsets[0] = chrBankOffset(registers[2]);
+                chrOffsets[1] = chrBankOffset(registers[3]);
+                chrOffsets[2] = chrBankOffset(registers[4]);
+                chrOffsets[3] = chrBankOffset(registers[5]);
+                chrOffsets[4] = chrBankOffset(registers[0] & 0xFE);
+                chrOffsets[5] = chrBankOffset(registers[0] | 0x01);
+                chrOffsets[6] = chrBankOffset(registers[1] & 0xFE);
+                chrOffsets[7] = chrBankOffset(registers[1] | 0x01);
+            }
+        }       
     }
 }

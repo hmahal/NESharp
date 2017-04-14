@@ -102,10 +102,11 @@ namespace NESEmu
                 cart.Trainer = new byte[_trainerConst];
             }
 
-            if (cart.Save_RAM)
-            {
-                cart.Sram = new byte[0x2000];
-            }
+            //if (cart.Save_RAM)
+            //{
+            //    cart.Sram = new byte[0x2000];
+            //}
+            cart.Sram = new byte[0x2000];
                                  
             return cart;
         }
