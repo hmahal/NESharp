@@ -3,6 +3,10 @@ using System.IO;
 
 namespace NESEmu
 {
+    /// <summary>
+    /// Cartridge reader is a helper class used to read from the .nes files and 
+    /// put the data stored in the file in appropriate arrays to be accessed by the console.
+    /// </summary>
     public class CartridgeReader
     {
 
@@ -102,6 +106,8 @@ namespace NESEmu
                 cart.Trainer = new byte[_trainerConst];
             }
 
+            //In order to implement the memory mapper, Save RAM has to be implemented regardless
+            //of what is stated in the header. This should be handled more gracefully.
             //if (cart.Save_RAM)
             //{
             //    cart.Sram = new byte[0x2000];

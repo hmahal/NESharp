@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace NESEmu
 {
-    //TODO: Review this later
+    /// <summary>
+    /// Enum definition for the three interrupt modes for 6502 CPU.
+    /// </summary>
     enum InterruptMode
     {
         NoneInterrupt = 1,

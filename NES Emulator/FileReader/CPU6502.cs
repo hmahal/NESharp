@@ -122,16 +122,6 @@ namespace NESEmu
         }
 
 
-        /// <summary>
-        /// Returns the uint type of the current address.  
-        /// </summary>
-        public uint CurrentAddress
-        {
-            get
-            {
-                return currentAddress;
-            }
-        }
 
         #region ArrayMaps
 
@@ -310,10 +300,7 @@ namespace NESEmu
         {
             RAM = mem;
             addInstructionAction();
-            Reset();
-
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test1.txt";
-            sw = new StreamWriter(path, true);
+            Reset();          
         }
 
         /// <summary>
@@ -737,7 +724,7 @@ namespace NESEmu
                 Cycle += pageCrossedCycle[opcode];
             //Console.WriteLine(addr);
             MemoryInfo mem = new MemoryInfo(addr, pc_register, addrMode);
-            currentAddress = addr;
+            CurrentAddress = addr;
             instructionAction[opcode](mem);
             return Cycle - cycles;
         }

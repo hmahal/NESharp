@@ -97,7 +97,7 @@ namespace NESEmu
 
         public Bitmap getFrame()
         {
-            return front;
+            return Front;
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace NESEmu
         public void reset()
         {
             palette = new Palette();
-            front = new Bitmap(256, 240);
+            Front = new Bitmap(256, 240);
             back = new Bitmap(256, 240);
             Cycle = 340;
             Scanline = 240;

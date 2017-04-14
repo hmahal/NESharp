@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace NESEmu
 {
+    /// <summary>
+    /// Enum values for the 13 different addressing modes for the 6502 CPU.
+    /// More information on the addressing modes can be found here:
+    /// https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
+    /// </summary>
     enum AddressingMode
     {
         Absolute = 1,

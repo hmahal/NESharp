@@ -1,5 +1,9 @@
 ﻿namespace NESEmu
 {
+    /// <summary>
+    /// The cartridge object which is based on the iNES file format. Contains arrays for different
+    /// banks of memory stored in the Cartridge object.
+    /// </summary>
     public class Cartridge
     {       
 
