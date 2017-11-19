@@ -1,2 +1,5 @@
-# Tech Pro NES Emulator
-C# NES Emulator Project
+# NESharp
+
+C# NES Emulator Research Project
+
+Full of bugs and progress on hold
