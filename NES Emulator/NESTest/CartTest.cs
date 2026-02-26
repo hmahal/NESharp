@@ -9,6 +9,9 @@ namespace NESTest
     [TestClass]
     public class CartTest
     {
+        private const int PrgRomSize = 16384;
+        private const int ChrRomSize = 8192;
+
         [TestMethod]
         public void ReadFileThrowFileNotFoundException()
         {
@@ -26,7 +29,7 @@ namespace NESTest
             //Arrange
             string FileName = Path.GetTempFileName();
             File.WriteAllBytes(FileName, new byte[] { (byte)'N', (byte)'E', (byte)'S', 0x1A, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-                .Concat(new byte[16384]).Concat(new byte[8192]).ToArray());
+                .Concat(new byte[PrgRomSize]).Concat(new byte[ChrRomSize]).ToArray());
             try
             {
                 NESEmu.CartridgeReader cartReader = new CartridgeReader(FileName);
